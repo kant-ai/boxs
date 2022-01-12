@@ -1,0 +1,32 @@
+# using image from https://gitlab.com/python-devs/ci-images/-/tree/main
+image: registry.gitlab.com/python-devs/ci-images:active
+
+stages:
+  - build
+  - tests
+  - deploy
+
+build docs:
+  stage: build
+  script:
+    - pip --quiet install tox
+    - tox -e docs
+
+test:
+  stage: tests
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  script:
+    - pip --quiet install tox
+    - tox
+  artifacts:
+    reports:
+     cobertura: 'coverage.xml'
+
+pypi:
+  stage: deploy
+  image: python
+  only:
+    - tags
+  script:
+    - pip --quiet install flit
+    - flit publish

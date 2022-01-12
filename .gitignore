@@ -1,0 +1,8 @@
+.*/
+build/
+cache/
+dist/
+__pycache__/
+.coverage
+coverage.xml
+Pipfile

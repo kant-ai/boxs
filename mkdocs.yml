@@ -1,0 +1,60 @@
+site_name: Datastock documentation
+site_url: https://docs.kant.ai/datastock/
+repo_url: https://gitlab.com/kantai/datastock/
+site_dir: build
+
+nav:
+  - Home: index.md
+  - Getting started: getting_started.md
+  - User guide: user_guide.md
+  - Converter: converter.md
+  - Storages:
+      - File: storages/file.md
+  - FAQ: faq.md
+  - Changelog: changelog.md
+  - API: api.md
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  features:
+    - navigation.tracking
+  icon:
+    repo: fontawesome/brands/gitlab
+  palette:
+    scheme: kantai
+  logo: icon_white.svg
+  favicon: favicon.svg
+
+markdown_extensions:
+  - toc:
+      permalink: 🔗
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - admonition
+
+extra_javascript:
+    -
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  analytics:
+    provider: plausible
+    domain: docs.kant.ai
+  homepage: https://docs.kant.ai
+  social:
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/kantaiML
+      name: kantai on Twitter
+  version:
+    provider: mike
+
+copyright: Copyright &copy; 2022 Kantai GmbH
+
+plugins:
+  - git-revision-date
+  - mkdocstrings
+  - search
