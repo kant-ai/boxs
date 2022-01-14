@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-from datastock.filesystem import FileSystemStorage
+from boxs.filesystem import FileSystemStorage
 
 
 class TestFileSystemStorage(unittest.TestCase):

@@ -10,7 +10,7 @@ from .api import load, store, info
 from .data import DataRef
 from .filesystem import FileSystemStorage
 from .origin import ORIGIN_FROM_FUNCTION_NAME, ORIGIN_FROM_NAME, ORIGIN_FROM_TAGS
-from .stock_registry import get_stock
+from .box_registry import get_box
 from .storage import Storage, Transformer, LoadDataFunction, StoreDataFunction
 from .inputs import from_bytes, from_file, from_stream, from_string, from_value_as_json
 from .outputs import as_bytes, as_file, as_stream, as_string, as_json_value

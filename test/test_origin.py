@@ -1,6 +1,6 @@
 import unittest
 
-from datastock.origin import (
+from boxs.origin import (
     determine_origin,
     origin_from_function_name, origin_from_name, origin_from_tags,
     ORIGIN_FROM_FUNCTION_NAME, ORIGIN_FROM_NAME, ORIGIN_FROM_TAGS,

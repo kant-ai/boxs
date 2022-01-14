@@ -2,11 +2,11 @@ import io
 
 import unittest.mock
 
-from datastock.data import DataRef
-from datastock.errors import DataCollision, DataNotFound, StockAlreadyDefined, StockNotDefined
-from datastock.stock import calculate_data_id, Stock
-from datastock.stock_registry import get_stock, unregister_stock
-from datastock.storage import Writer
+from boxs.data import DataRef
+from boxs.errors import DataCollision, DataNotFound, BoxAlreadyDefined, BoxNotDefined
+from boxs.box import calculate_data_id, Box
+from boxs.box_registry import get_box, unregister_box
+from boxs.storage import Writer
 
 
 class TestCalculateDataId(unittest.TestCase):
@@ -82,26 +82,26 @@ class BytesIOWriter(Writer):
         input(self)
 
 
-class TestStock(unittest.TestCase):
+class TestBox(unittest.TestCase):
 
     def setUp(self):
         self.storage = DummyStorage()
-        self.stock = Stock('stock-id', self.storage)
+        self.box = Box('box-id', self.storage)
 
     def tearDown(self):
-        unregister_stock(self.stock.stock_id)
+        unregister_box(self.box.box_id)
 
-    def test_stock_can_be_retrieved_by_id(self):
-        stock = get_stock('stock-id')
-        self.assertIs(stock, self.stock)
+    def test_box_can_be_retrieved_by_id(self):
+        box = get_box('box-id')
+        self.assertIs(box, self.box)
 
-    def test_unknown_stock_raises_key_error(self):
-        with self.assertRaises(StockNotDefined):
-            get_stock('unknown-stock-id')
+    def test_unknown_box_raises_key_error(self):
+        with self.assertRaises(BoxNotDefined):
+            get_box('unknown-box-id')
 
-    def test_stocks_must_have_unique_ids(self):
-        with self.assertRaisesRegex(StockAlreadyDefined, 'stock-id already defined'):
-            Stock('stock-id', self.storage)
+    def test_boxes_must_have_unique_ids(self):
+        with self.assertRaisesRegex(BoxAlreadyDefined, 'box-id already defined'):
+            Box('box-id', self.storage)
 
     def test_store_writes_content_and_info(self):
 
@@ -109,13 +109,13 @@ class TestStock(unittest.TestCase):
             writer.as_stream().write(b"My content")
             self.assertIsNotNone(writer)
 
-        data = self.stock.store(from_content, run_id='1')
+        data = self.box.store(from_content, run_id='1')
         self.assertEqual('df854a08d6f482a0', data.data_id)
         self.assertEqual(b'My content', self.storage.writer.stream.getvalue())
         self.assertEqual({
             'ref': {
                 'data_id': 'df854a08d6f482a0',
-                'stock_id': 'stock-id',
+                'box_id': 'box-id',
                 'run_id': '1',
             },
             'meta': {},
@@ -131,11 +131,11 @@ class TestStock(unittest.TestCase):
             writer.as_stream().write(b"My content")
             self.assertIsNotNone(writer)
 
-        self.stock.store(from_content, tags={'my': 'tag'}, meta={'my': 'meta'}, run_id='1')
+        self.box.store(from_content, tags={'my': 'tag'}, meta={'my': 'meta'}, run_id='1')
         self.assertEqual({
             'ref': {
                 'data_id': '6b9507ecd44bd3f2',
-                'stock_id': 'stock-id',
+                'box_id': 'box-id',
                 'run_id': '1',
             },
             'meta': {'my': 'meta'},
@@ -149,40 +149,40 @@ class TestStock(unittest.TestCase):
         def from_content(writer):
             pass
         with self.assertRaisesRegex(ValueError, "No origin given"):
-            self.stock.store(from_content, origin=None)
+            self.box.store(from_content, origin=None)
 
     def test_storing_same_data_twice_with_same_revision_fails(self):
         def from_content(writer):
             writer.as_stream().write(b"My content")
             self.assertIsNotNone(writer)
 
-        self.stock.store(from_content, run_id='1')
+        self.box.store(from_content, run_id='1')
         with self.assertRaisesRegex(DataCollision, "Data .* already exists"):
-            self.stock.store(from_content, run_id='1')
+            self.box.store(from_content, run_id='1')
 
     def test_store_applies_transformer(self):
         input = unittest.mock.MagicMock()
         transformer = unittest.mock.MagicMock()
-        stock = Stock('stock-with-transformer', self.storage, transformer)
+        box = Box('box-with-transformer', self.storage, transformer)
 
-        stock.store(input, origin='origin')
+        box.store(input, origin='origin')
 
         transformer.transform_writer.assert_called_with(self.storage.writer)
         transformer.transform_writer.return_value.write_content.assert_called_once_with(input)
-        unregister_stock('stock-with-transformer')
+        unregister_box('box-with-transformer')
 
     def test_store_applies_multiple_transformers(self):
         input = unittest.mock.MagicMock()
         transformer1 = unittest.mock.MagicMock()
         transformer2 = unittest.mock.MagicMock()
-        stock = Stock('stock-with-transformers', self.storage, transformer1, transformer2)
+        box = Box('box-with-transformers', self.storage, transformer1, transformer2)
 
-        stock.store(input, origin='origin')
+        box.store(input, origin='origin')
 
         transformer1.transform_writer.assert_called_with(self.storage.writer)
         transformer2.transform_writer.assert_called_once_with(transformer1.transform_writer.return_value)
         transformer2.transform_writer.return_value.write_content.assert_called_once_with(input)
-        unregister_stock('stock-with-transformers')
+        unregister_box('box-with-transformers')
 
     def test_load_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
@@ -191,73 +191,73 @@ class TestStock(unittest.TestCase):
         def dest(writer):
             result.append(writer.as_stream().read())
 
-        data = DataRef('data-id', self.stock.stock_id, 'rev-id')
+        data = DataRef('data-id', self.box.box_id, 'rev-id')
 
-        self.stock.load(dest, data)
+        self.box.load(dest, data)
         self.assertEqual(b'My content', result[0])
 
-    def test_load_raises_if_wrong_storage_id(self):
-        data = DataRef('data-id', 'wrong-stock-id', 'rev-id')
+    def test_load_raises_if_wrong_box_id(self):
+        data = DataRef('data-id', 'wrong-box-id', 'rev-id')
 
-        with self.assertRaisesRegex(ValueError, "different stock id"):
-            self.stock.load(None, data)
+        with self.assertRaisesRegex(ValueError, "different box id"):
+            self.box.load(None, data)
 
     def test_load_raises_if_not_exists(self):
-        data = DataRef('data-id', 'stock-id', 'rev-id')
+        data = DataRef('data-id', 'box-id', 'rev-id')
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
-            self.stock.load(None, data)
+            self.box.load(None, data)
 
     def test_load_applies_transformer(self):
         dest = unittest.mock.MagicMock()
         transformer = unittest.mock.MagicMock()
-        stock = Stock('stock-with-transformer', self.storage, transformer)
+        box = Box('box-with-transformer', self.storage, transformer)
 
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
-        data = DataRef('data-id', stock.stock_id, 'rev-id')
+        data = DataRef('data-id', box.box_id, 'rev-id')
 
-        stock.load(dest, data)
+        box.load(dest, data)
 
         transformer.transform_reader.assert_called_with(self.storage.reader)
         transformer.transform_reader.return_value.read_content.assert_called_once_with(dest)
-        unregister_stock('stock-with-transformer')
+        unregister_box('box-with-transformer')
 
     def test_load_applies_multiple_transformers_in_reverse(self):
         dest = unittest.mock.MagicMock()
         transformer1 = unittest.mock.MagicMock()
         transformer2 = unittest.mock.MagicMock()
-        stock = Stock('stock-with-transformers', self.storage, transformer1, transformer2)
+        box = Box('box-with-transformers', self.storage, transformer1, transformer2)
 
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
-        data = DataRef('data-id', stock.stock_id, 'rev-id')
+        data = DataRef('data-id', box.box_id, 'rev-id')
 
-        stock.load(dest, data)
+        box.load(dest, data)
 
         transformer2.transform_reader.assert_called_with(self.storage.reader)
         transformer1.transform_reader.assert_called_once_with(transformer2.transform_reader.return_value)
         transformer1.transform_reader.return_value.read_content.assert_called_once_with(dest)
-        unregister_stock('stock-with-transformers')
+        unregister_box('box-with-transformers')
 
     def test_info_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
         self.storage.reader.info['my'] = 'info'
 
-        data = DataRef('data-id', self.stock.stock_id, 'rev-id')
+        data = DataRef('data-id', self.box.box_id, 'rev-id')
 
-        result = self.stock.info(data)
+        result = self.box.info(data)
         self.assertEqual({'my': 'info'}, result)
 
-    def test_info_raises_if_wrong_storage_id(self):
-        data = DataRef('data-id', 'wrong-stock-id', 'rev-id')
+    def test_info_raises_if_wrong_box_id(self):
+        data = DataRef('data-id', 'wrong-box-id', 'rev-id')
 
-        with self.assertRaisesRegex(ValueError, "different stock id"):
-            self.stock.info(data)
+        with self.assertRaisesRegex(ValueError, "different box id"):
+            self.box.info(data)
 
     def test_info_raises_if_not_exists(self):
-        data = DataRef('data-id', 'stock-id', 'rev-id')
+        data = DataRef('data-id', 'box-id', 'rev-id')
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
-            self.stock.info(data)
+            self.box.info(data)
 
 
 if __name__ == '__main__':

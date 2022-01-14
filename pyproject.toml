@@ -3,7 +3,7 @@ requires = ["flit_core >=2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "datastock"
+name = "boxs"
 authors = [
     {name = "Christoph Emonds", email = "chris+git@kant.ai"},
 ]
@@ -47,8 +47,8 @@ dependencies = [
 [project.scripts]
 
 [project.urls]
-Documentation = "https://docs.kant.ai/datastock/latest/"
-Source = "https://gitlab.com/kantai/datastock/"
+Documentation = "https://docs.kant.ai/boxs/latest/"
+Source = "https://gitlab.com/kantai/boxs/"
 
 [project.optional-dependencies]
 test = [

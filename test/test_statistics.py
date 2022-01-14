@@ -3,7 +3,7 @@ import io
 import sys
 import unittest.mock
 
-from datastock.statistics import StatisticsTransformer
+from boxs.statistics import StatisticsTransformer
 
 
 class TestStatisticsTransformer(unittest.TestCase):

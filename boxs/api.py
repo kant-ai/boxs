@@ -1,6 +1,6 @@
 """API to be used by users"""
 from .origin import determine_origin, ORIGIN_FROM_FUNCTION_NAME
-from .stock_registry import get_stock
+from .box_registry import get_box
 
 
 def store(
@@ -11,15 +11,15 @@ def store(
     tags=None,
     run_id=None,
     meta=None,
-    stock=None
+    box=None
 ):
     """
-    Store new data in this stock.
+    Store new data in this box.
 
     Args:
-        data_input (Callable[datastock.storage.Writer]): A callable that takes a
+        data_input (Callable[boxs.storage.Writer]): A callable that takes a
             single `Writer` argument.
-        *parents (datastock.data.DataInfo): Parent data instances, that this data
+        *parents (boxs.data.DataInfo): Parent data instances, that this data
             depends on.
         origin (Union[str,Callable]): A string or callable returning a string,
             that is used as an origin for deriving the data's id. Defaults to a
@@ -34,25 +34,24 @@ def store(
             about type or format of the data, timestamps, user info etc.
         run_id (str): The id of the run when the data was stored. Defaults to the
             current global run_id (see `get_run_id()`).
-        stock (Union[str,datastock.stock.Stock]): The stock in which the data should
-            be stored. The stock can be either given as Stock instance, or by its
-            `stock_id`.
+        box (Union[str,boxs.box.Box]): The box in which the data should be stored.
+            The box can be either given as Box instance, or by its `box_id`.
 
     Returns:
-        datastock.data.DataInfo: Data instance that contains information about the
+        boxs.data.DataInfo: Data instance that contains information about the
             data and allows referring to it.
 
     Raises:
-        ValueError: If no stock or no origin was provided.
-        datastock.errors.StockNotDefined: If no stock with the given stock id is
+        ValueError: If no box or no origin was provided.
+        boxs.errors.BoxNotDefined: If no box with the given box id is
             defined.
     """
-    if stock is None:
-        raise ValueError("'stock' must be set.")
-    if isinstance(stock, str):
-        stock = get_stock(stock)
+    if box is None:
+        raise ValueError("'box' must be set.")
+    if isinstance(box, str):
+        box = get_box(box)
     origin = determine_origin(origin)
-    return stock.store(
+    return box.store(
         data_input,
         *parents,
         name=name,
@@ -68,22 +67,22 @@ def load(data_output, data):
     Load the content of the data item.
 
     Args:
-        data_output (Callable[datastock.storage.Reader]): A callable that takes a
+        data_output (Callable[boxs.storage.Reader]): A callable that takes a
             single `Reader` argument, reads the data and returns it.
-        data (Union[datastock.data.DataRef,datastock.data.DataItem]): DataItem or
+        data (Union[boxs.data.DataRef,boxs.data.DataInfo]): DataInfo or
             DataRef that points to the data that should be loaded.
 
     Returns:
         Any: The loaded data.
 
     Raises:
-        datastock.errors.StockNotDefined: If the data is stored in an unknown stock.
-        datastock.errors.DataNotFound: If no data with the specific ids are stored
-            in the referenced stock.
+        boxs.errors.BoxNotDefined: If the data is stored in an unknown box.
+        boxs.errors.DataNotFound: If no data with the specific ids are stored in the
+            referenced box.
     """
-    stock_id = data.stock_id
-    stock = get_stock(stock_id)
-    return stock.load(data_output, data)
+    box_id = data.box_id
+    box = get_box(box_id)
+    return box.load(data_output, data)
 
 
 def info(data_ref):
@@ -91,17 +90,17 @@ def info(data_ref):
     Load info from a reference to an item.
 
     Args:
-        data_ref (datastock.data.DataRef): Data reference that points to the data
+        data_ref (boxs.data.DataRef): Data reference that points to the data
             whose info is requested.
 
     Returns:
-        datatstock.data.DataInfo: The info about the data.
+        boxs.data.DataInfo: The info about the data.
 
     Raises:
-        datastock.errors.StockNotDefined: If the data is stored in an unknown stock.
-        datastock.errors.DataNotFound: If no data with the specific ids are stored
-            in this stock.
+        boxs.errors.BoxNotDefined: If the data is stored in an unknown box.
+        boxs.errors.DataNotFound: If no data with the specific ids are stored in this
+            box.
     """
-    stock_id = data_ref.stock_id
-    stock = get_stock(stock_id)
-    return stock.info(data_ref)
+    box_id = data_ref.box_id
+    box = get_box(box_id)
+    return box.info(data_ref)

@@ -12,13 +12,13 @@ class DataRef:
     __slots__ = [
         'data_id',
         'run_id',
-        'stock_id',
+        'box_id',
         '_info',
     ]
 
-    def __init__(self, data_id, stock_id, run_id):
+    def __init__(self, data_id, box_id, run_id):
         self.data_id = data_id
-        self.stock_id = stock_id
+        self.box_id = box_id
         self.run_id = run_id
         self._info = None
 
@@ -32,7 +32,7 @@ class DataRef:
         value_info = {
             'data_id': self.data_id,
             'run_id': self.run_id,
-            'stock_id': self.stock_id,
+            'box_id': self.box_id,
         }
         return value_info
 
@@ -45,21 +45,21 @@ class DataRef:
             value_info (Dict[str,str]): A dictionary containing the ids.
 
         Returns:
-            datatstock.data.DataRef: The DataRef referencing the data.
+            boxs.data.DataRef: The DataRef referencing the data.
 
         Raises:
             KeyError: If necessary attributes are missing from the `value_info`.
         """
         data_id = value_info['data_id']
         run_id = value_info['run_id']
-        storage_id = value_info['stock_id']
-        data = DataRef(data_id, storage_id, run_id)
+        box_id = value_info['box_id']
+        data = DataRef(data_id, box_id, run_id)
         return data
 
     @property
     def uri(self):
         """Return the URI of the data item referenced."""
-        return f'stock://{self.stock_id}/{self.data_id}/{self.run_id}'
+        return f'box://{self.box_id}/{self.data_id}/{self.run_id}'
 
     @classmethod
     def from_uri(cls, uri):
@@ -67,7 +67,7 @@ class DataRef:
         Recreate a DataRef from a URI.
 
         Args:
-            uri (str): URI in the format 'stock://<stock-id>/<data-id>/<run-id>'.
+            uri (str): URI in the format 'box://<box-id>/<data-id>/<run-id>'.
 
         Returns:
             DataRef: The DataRef referencing the data.
@@ -76,11 +76,11 @@ class DataRef:
             ValueError: If the URI doesn't follow the expected format.
         """
         url_parts = urllib.parse.urlparse(uri)
-        if url_parts.scheme != 'stock':
+        if url_parts.scheme != 'box':
             raise ValueError("Invalid scheme")
         data_id, run_id = url_parts.path[1:].split('/', 1)
-        storage_id = url_parts.hostname
-        data = DataRef(data_id, storage_id, run_id)
+        box_id = url_parts.hostname
+        data = DataRef(data_id, box_id, run_id)
         return data
 
     @property
@@ -89,7 +89,7 @@ class DataRef:
         Returns the info object describing the referenced data item.
 
         Returns:
-             datatstock.data.DataInfo: The info about the data item referenced.
+             boxs.data.DataInfo: The info about the data item referenced.
         """
         if self._info is None:
             self._info = info(self)
@@ -99,13 +99,13 @@ class DataRef:
         if not isinstance(other, type(self)):
             return False
         return (
-            self.stock_id == other.stock_id
+            self.box_id == other.box_id
             and self.data_id == other.data_id
             and self.run_id == other.run_id
         )
 
     def __hash__(self):
-        return hash((self.stock_id, self.data_id, self.run_id))
+        return hash((self.box_id, self.data_id, self.run_id))
 
 
 class DataInfo:
@@ -113,9 +113,9 @@ class DataInfo:
     Class representing a stored data item.
 
     Attributes:
-        ref (datastock.data.DataRef): Reference to this item.
+        ref (boxs.data.DataRef): Reference to this item.
         origin (str): The origin of the data.
-        parents (Tuple[datastock.data.DataItem]): A tuple containing other data items
+        parents (Tuple[boxs.data.DataItem]): A tuple containing other data items
             from which this item was derived.
         name (Optional[str]): A string that can be used to refer to this item by an
             user. Defaults to `None`.
@@ -158,9 +158,9 @@ class DataInfo:
         return self.ref.data_id
 
     @property
-    def stock_id(self):
-        """Returns the stock_id."""
-        return self.ref.stock_id
+    def box_id(self):
+        """Returns the box_id."""
+        return self.ref.box_id
 
     @property
     def run_id(self):
@@ -172,16 +172,16 @@ class DataInfo:
         Load the content of the data item.
 
         Args:
-            data_output (Callable[datastock.storage.Reader]): A callable that takes a
+            data_output (Callable[boxs.storage.Reader]): A callable that takes a
                 single `Reader` argument, reads the data and returns it.
 
         Returns:
             Any: The loaded data.
 
         Raises:
-            datastock.errors.StockNotDefined: If the data is stored in an unknown stock.
-            datastock.errors.DataNotFound: If no data with the specific ids are stored
-                in the referenced stock.
+            boxs.errors.BoxNotDefined: If the data is stored in an unknown box.
+            boxs.errors.DataNotFound: If no data with the specific ids are stored
+                in the referenced box.
         """
         return load(data_output, self)
 
@@ -211,7 +211,7 @@ class DataInfo:
             value_info (Dict[str,str]): A dictionary containing the info.
 
         Returns:
-            aatatstock.data.DataInfo: The information about the data item.
+            boxs.data.DataInfo: The information about the data item.
 
         Raises:
             KeyError: If necessary attributes are missing from the `value_info`.

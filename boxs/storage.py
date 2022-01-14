@@ -5,10 +5,10 @@ import typing
 
 class Storage(abc.ABC):
     """
-    Backend that allows a stock to store and load data in arbitrary storage locations.
+    Backend that allows a box to store and load data in arbitrary storage locations.
 
-    This abstract base class defines the interface, that is used by `Stock` to store
-    and load data. The data items between `Stock` and `Storage` are always identified
+    This abstract base class defines the interface, that is used by `Box` to store
+    and load data. The data items between `Box` and `Storage` are always identified
     by their `data_id` and `run_id`. The functionality to store data is provided by
     the `Writer` object, that is created by the `create_writer()` method. Similarly,
     loading data is implemented in a separate `Reader` object that is created by
@@ -38,7 +38,7 @@ class Storage(abc.ABC):
             run_id (str): The `run_id` of the data that should be loaded.
 
         Returns:
-            datastock.storage.Reader: The reader that will load the data from the
+            boxs.storage.Reader: The reader that will load the data from the
                 storage.
         """
 
@@ -52,7 +52,7 @@ class Storage(abc.ABC):
             run_id (str): The `run_id` of the new data.
 
         Returns:
-            datastock.storage.Writer: The writer that will write the data into the
+            boxs.storage.Writer: The writer that will write the data into the
                 storage.
         """
 
@@ -126,7 +126,7 @@ class DelegatingReader(Reader):
         Create a new DelegatingReader.
 
         Args:
-            delegate (datastock.storage.Reader): The reader to which all calls are
+            delegate (boxs.storage.Reader): The reader to which all calls are
                 delegated.
         """
         super().__init__(delegate.data_id, delegate.run_id)
@@ -274,11 +274,11 @@ class Transformer:
         Transform a given writer.
 
         Args:
-            writer (datastock.storage.Writer): Writer object that is used for writing
+            writer (boxs.storage.Writer): Writer object that is used for writing
                 new data content and meta-data.
 
         Returns:
-            datastock.storage.Writer: A modified writer that will be used instead.
+            boxs.storage.Writer: A modified writer that will be used instead.
         """
         return writer
 
@@ -287,10 +287,10 @@ class Transformer:
         Transform a given reader.
 
         Args:
-            reader (datastock.storage.Reader): Reader object that is used for reading
+            reader (boxs.storage.Reader): Reader object that is used for reading
                 data content and meta-data.
 
         Returns:
-            datastock.storage.Reader: A modified reader that will be used instead.
+            boxs.storage.Reader: A modified reader that will be used instead.
         """
         return reader

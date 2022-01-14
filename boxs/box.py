@@ -1,11 +1,11 @@
-"""Functionality for stocks"""
+"""Boxes to store items in"""
 import hashlib
 
 from .data import DataInfo, DataRef
 from .errors import DataCollision, DataNotFound
 from .origin import ORIGIN_FROM_FUNCTION_NAME, determine_origin
 from .run import get_run_id
-from .stock_registry import register_stock
+from .box_registry import register_box
 
 
 def calculate_data_id(origin, parent_ids=tuple()):
@@ -29,22 +29,22 @@ def calculate_data_id(origin, parent_ids=tuple()):
     return hashlib.blake2b(id_origin_data.encode('utf-8'), digest_size=8).hexdigest()
 
 
-class Stock:
-    """Stocks that allows to store and load data.
+class Box:
+    """Box that allows to store and load data.
 
     Attributes:
-        stock_id (str): The id that uniquely identifies this stock.
-        storage (datastock.storage.Storage): The storage that actually writes and
+        box_id (str): The id that uniquely identifies this Box.
+        storage (boxs.storage.Storage): The storage that actually writes and
             reads the data.
-        transformers (datastock.storage.Transformer): A tuple with transformers, that
+        transformers (boxs.storage.Transformer): A tuple with transformers, that
             add additional meta-data and transform the data stored and loaded.
     """
 
-    def __init__(self, stock_id, storage, *transformers):
-        self.stock_id = stock_id
+    def __init__(self, box_id, storage, *transformers):
+        self.box_id = box_id
         self.storage = storage
         self.transformers = transformers
-        register_stock(self)
+        register_box(self)
 
     def store(
         self,
@@ -57,12 +57,12 @@ class Stock:
         run_id=None,
     ):
         """
-        Store new data in this stock.
+        Store new data in this box.
 
         Args:
-            data_input (Callable[datastock.storage.Writer]): A callable that takes a
+            data_input (Callable[boxs.storage.Writer]): A callable that takes a
                 single `Writer` argument.
-            *parents (datastock.data.DataInfo): Parent data instances, that this data
+            *parents (boxs.data.DataInfo): Parent data instances, that this data
                 depends on.
             origin (Union[str,Callable]): A string or callable returning a string,
                 that is used as an origin for deriving the data's id. Defaults to a
@@ -78,7 +78,7 @@ class Stock:
             run_id (str): The id of the run when the data was stored.
 
         Returns:
-            datastock.data.DataInfo: Data instance that contains information about the
+            boxs.data.DataInfo: Data instance that contains information about the
                 data and allows referring to it.
         """
         if tags is None:
@@ -94,9 +94,9 @@ class Stock:
             run_id = get_run_id()
 
         if self.storage.exists(data_id, run_id):
-            raise DataCollision(self.stock_id, data_id, run_id)
+            raise DataCollision(self.box_id, data_id, run_id)
 
-        ref = DataRef(data_id, self.stock_id, run_id)
+        ref = DataRef(data_id, self.box_id, run_id)
 
         writer = self.storage.create_writer(data_id, run_id)
         for transformer in self.transformers:
@@ -117,26 +117,26 @@ class Stock:
 
     def load(self, data_output, data_ref):
         """
-        Load data from the stock.
+        Load data from the box.
 
         Args:
-            data_output (Callable[datastock.storage.Reader]): A callable that takes a
+            data_output (Callable[boxs.storage.Reader]): A callable that takes a
                 single `Reader` argument, reads the data and returns it.
-            data_ref (datastock.data.DataRef): Data reference that points to the data
+            data_ref (boxs.data.DataRef): Data reference that points to the data
                 to be loaded.
 
         Returns:
             Any: The loaded data.
 
         Raises:
-            datastock.errors.DataNotFound: If no data with the specific ids are stored
-                in this stock.
-            ValueError: If the data refers to a different stock by its stock_id.
+            boxs.errors.DataNotFound: If no data with the specific ids are stored
+                in this box.
+            ValueError: If the data refers to a different box by its box_id.
         """
-        if data_ref.stock_id != self.stock_id:
-            raise ValueError("Data references different stock id")
+        if data_ref.box_id != self.box_id:
+            raise ValueError("Data references different box id")
         if not self.storage.exists(data_ref.data_id, data_ref.run_id):
-            raise DataNotFound(self.stock_id, data_ref.data_id, data_ref.run_id)
+            raise DataNotFound(self.box_id, data_ref.data_id, data_ref.run_id)
 
         reader = self.storage.create_reader(data_ref.data_id, data_ref.run_id)
         for transformer in reversed(self.transformers):
@@ -146,24 +146,24 @@ class Stock:
 
     def info(self, data_ref):
         """
-        Load info from the stock.
+        Load info from the box.
 
         Args:
-            data_ref (datastock.data.DataRef): Data reference that points to the data
+            data_ref (boxs.data.DataRef): Data reference that points to the data
                 whose info is requested.
 
         Returns:
-            datatstock.data.DataInfo: The info about the data.
+            boxs.data.DataInfo: The info about the data.
 
         Raises:
-            datastock.errors.DataNotFound: If no data with the specific ids are stored
-                in this stock.
-            ValueError: If the data refers to a different stock by its stock_id.
+            boxs.errors.DataNotFound: If no data with the specific ids are stored
+                in this box.
+            ValueError: If the data refers to a different box by its box_id.
         """
-        if data_ref.stock_id != self.stock_id:
-            raise ValueError("Data references different stock id")
+        if data_ref.box_id != self.box_id:
+            raise ValueError("Data references different box id")
         if not self.storage.exists(data_ref.data_id, data_ref.run_id):
-            raise DataNotFound(self.stock_id, data_ref.data_id, data_ref.run_id)
+            raise DataNotFound(self.box_id, data_ref.data_id, data_ref.run_id)
 
         reader = self.storage.create_reader(data_ref.data_id, data_ref.run_id)
         return reader.info

@@ -3,7 +3,7 @@ import pathlib
 import tempfile
 import unittest
 
-from datastock.inputs import from_bytes, from_file, from_stream, from_string, from_value_as_json
+from boxs.inputs import from_bytes, from_file, from_stream, from_string, from_value_as_json
 
 
 class DummyWriter:

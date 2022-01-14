@@ -1,6 +1,6 @@
 import unittest.mock
 
-from datastock.storage import DelegatingReader, DelegatingWriter, Transformer
+from boxs.storage import DelegatingReader, DelegatingWriter, Transformer
 
 
 class TestDelegatingReader(unittest.TestCase):

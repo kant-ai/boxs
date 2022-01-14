@@ -11,7 +11,7 @@ def as_bytes():
     Returns a function to load data as bytes.
 
     Returns:
-        datastock.storage.LoadDataFunction: A function which loads data and returns
+        boxs.storage.LoadDataFunction: A function which loads data and returns
             it as `bytes`.
     """
 
@@ -33,7 +33,7 @@ def as_file(file_path=None):
             caller is responsible for deleting the file after it is no longer used.
 
     Returns:
-        datastock.storage.LoadDataFunction: A function which loads data, stores it
+        boxs.storage.LoadDataFunction: A function which loads data, stores it
             into a file and returns its file path.
     """
     if file_path is None:
@@ -55,7 +55,7 @@ def as_stream():
     Returns a function to load data as a stream.
 
     Returns:
-        datastock.storage.LoadDataFunction: A function which loads data and returns
+        boxs.storage.LoadDataFunction: A function which loads data and returns
             a stream from which it can be read.
     """
 
@@ -74,7 +74,7 @@ def as_string(default_encoding='utf-8'):
             string. Defaults to `utf-8`.
 
     Returns:
-        datastock.storage.LoadDataFunction: A function which loads data and returns
+        boxs.storage.LoadDataFunction: A function which loads data and returns
             it as a string.
     """
 
@@ -93,7 +93,7 @@ def as_json_value():
     Returns a function to load data as a JSON value.
 
     Returns:
-        datastock.storage.LoadDataFunction: A function which loads data, parses it as
+        boxs.storage.LoadDataFunction: A function which loads data, parses it as
             JSON and returns the contained value.
     """
 

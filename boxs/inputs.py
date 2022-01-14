@@ -6,7 +6,7 @@ import shutil
 
 def from_bytes(byte_buffer):
     """
-    Input for writing `bytes` to a `datastock.Writer`.
+    Input for writing `bytes` to a `boxs.Writer`.
 
     Args:
         byte_buffer (bytes): The bytes which should be used as input data.
@@ -26,7 +26,7 @@ def from_bytes(byte_buffer):
 
 def from_file(file_path):
     """
-    Input for writing the content of a file to a `datastock.Writer`.
+    Input for writing the content of a file to a `boxs.Writer`.
 
     Args:
         file_path (pathlib.Path): The path of a file whose content should be written.
@@ -48,7 +48,7 @@ def from_file(file_path):
 
 def from_stream(input_stream):
     """
-    Input for writing the content of a stream to a `datastock.Writer`.
+    Input for writing the content of a stream to a `boxs.Writer`.
 
     Args:
         input_stream (io.RawIOBase): The stream whose content should be written.
@@ -67,7 +67,7 @@ def from_stream(input_stream):
 
 def from_string(string, encoding='utf-8'):
     """
-    Input for writing a string to a `datastock.Writer`.
+    Input for writing a string to a `boxs.Writer`.
 
     Args:
         string (str): The string which should be written.
@@ -90,7 +90,7 @@ def from_string(string, encoding='utf-8'):
 
 def from_value_as_json(value):
     """
-    Input for writing a value in JSON format to a `datastock.Writer`.
+    Input for writing a value in JSON format to a `boxs.Writer`.
 
     Additionally, it sets the `media_type' meta-data value to `application/json'.
 

@@ -1,7 +1,7 @@
 import json
 import unittest.mock
 
-from datastock.data import DataInfo, DataRef
+from boxs.data import DataInfo, DataRef
 
 
 class TestDataRef(unittest.TestCase):
@@ -9,12 +9,12 @@ class TestDataRef(unittest.TestCase):
     def test_uri_contains_run_id_if_set(self):
         data_ref = DataRef('data-id', 'my-storage', 'my-revision')
         uri = data_ref.uri
-        self.assertEqual('stock://my-storage/data-id/my-revision', uri)
+        self.assertEqual('box://my-storage/data-id/my-revision', uri)
 
     def test_from_uri_sets_ids(self):
-        uri = 'stock://my-storage/data-id/run-id'
+        uri = 'box://my-storage/data-id/run-id'
         data_ref = DataRef.from_uri(uri)
-        self.assertEqual('my-storage', data_ref.stock_id)
+        self.assertEqual('my-storage', data_ref.box_id)
         self.assertEqual('data-id', data_ref.data_id)
         self.assertEqual('run-id', data_ref.run_id)
 
@@ -22,10 +22,10 @@ class TestDataRef(unittest.TestCase):
         value_info = {
             'data_id': 'data-id',
             'run_id': 'run-id',
-            'stock_id': 'my-stock',
+            'box_id': 'my-box',
         }
         data_ref = DataRef.from_value_info(value_info)
-        self.assertEqual('my-stock', data_ref.stock_id)
+        self.assertEqual('my-box', data_ref.box_id)
         self.assertEqual('data-id', data_ref.data_id)
         self.assertEqual('run-id', data_ref.run_id)
 
@@ -34,9 +34,9 @@ class TestDataRef(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Invalid scheme"):
             DataRef.from_uri(uri)
 
-    @unittest.mock.patch('datastock.data.info')
+    @unittest.mock.patch('boxs.data.info')
     def test_info_is_loaded_at_first_access_and_cached(self, info_mock):
-        data_ref = DataRef('data-id', 'my-stock', 'my-revision')
+        data_ref = DataRef('data-id', 'my-box', 'my-revision')
 
         self.assertIsNone(data_ref._info)
 
@@ -52,18 +52,18 @@ class TestDataRef(unittest.TestCase):
         self.assertIs(info1, info2)
 
     def test_data_refs_are_equal_if_ids_match(self):
-        data_ref1 = DataRef('data-id', 'my-stock', 'my-revision')
-        data_ref2 = DataRef('data-id', 'my-stock', 'my-revision')
+        data_ref1 = DataRef('data-id', 'my-box', 'my-revision')
+        data_ref2 = DataRef('data-id', 'my-box', 'my-revision')
         self.assertEqual(data_ref1, data_ref2)
 
     def test_data_is_different_to_other_types(self):
-        data_ref = DataRef('data-id', 'my-stock', 'my-revision')
-        other = ('data-id', 'my-stock', 'my-revision')
+        data_ref = DataRef('data-id', 'my-box', 'my-revision')
+        other = ('data-id', 'my-box', 'my-revision')
         self.assertNotEqual(data_ref, other)
 
     def test_data_ref_hashs_are_equal_if_refs_are_equal(self):
-        data_ref1 = DataRef('data-id', 'my-stock', 'my-revision')
-        data_ref2 = DataRef('data-id', 'my-stock', 'my-revision')
+        data_ref1 = DataRef('data-id', 'my-box', 'my-revision')
+        data_ref2 = DataRef('data-id', 'my-box', 'my-revision')
         self.assertEqual(hash(data_ref1), hash(data_ref2))
 
 
@@ -73,17 +73,17 @@ class TestDataInfo(unittest.TestCase):
         data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin')
         self.assertEqual('data-id', data.data_id)
 
-    def test_stock_id_is_taken_from_ref(self):
+    def test_box_id_is_taken_from_ref(self):
         data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin')
-        self.assertEqual('my-storage', data.stock_id)
+        self.assertEqual('my-storage', data.box_id)
 
     def test_run_id_is_taken_from_ref(self):
         data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin')
         self.assertEqual('revision-id', data.run_id)
 
-    @unittest.mock.patch('datastock.data.load')
+    @unittest.mock.patch('boxs.data.load')
     def test_load_calls_api_with_itself(self, load_mock):
-        data_ref = DataInfo(DataRef('data-id', 'my-stock', 'my-revision'), 'origin')
+        data_ref = DataInfo(DataRef('data-id', 'my-box', 'my-revision'), 'origin')
 
         load_mock.return_value = 'result'
 
@@ -101,10 +101,10 @@ class TestDataInfo(unittest.TestCase):
         info = data.value_info()
         self.assertEqual('revision-id', info['ref']['run_id'])
 
-    def test_value_info_contains_stock_id(self):
+    def test_value_info_contains_box_id(self):
         data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin')
         info = data.value_info()
-        self.assertEqual('my-storage', info['ref']['stock_id'])
+        self.assertEqual('my-storage', info['ref']['box_id'])
 
     def test_value_info_contains_name(self):
         data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin', name='my-name')
@@ -138,7 +138,7 @@ class TestDataInfo(unittest.TestCase):
                     DataInfo(
                         DataRef(
                             f'{level}-{index}',
-                            'stock-id',
+                            'box-id',
                             'revision-id',
                         ),
                         'origin',
@@ -146,10 +146,10 @@ class TestDataInfo(unittest.TestCase):
                     )
                 )
             return parents
-        data = DataInfo(DataRef('data-id', 'stock-id', 'revision-id'), 'origin', parents=create_parents(10, 2))
+        data = DataInfo(DataRef('data-id', 'box-id', 'revision-id'), 'origin', parents=create_parents(10, 2))
         info = data.value_info()
         json_info = json.dumps(info)
-        self.assertEqual(307055, len(json_info))
+        self.assertEqual(298867, len(json_info))
 
     def test_from_value_info_recreates_same_info(self):
         parent = DataInfo(DataRef('parent-id', 'my-storage', 'revision-id'), 'origin')

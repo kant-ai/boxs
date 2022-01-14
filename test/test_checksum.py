@@ -1,9 +1,9 @@
 import io
 import unittest.mock
 
-from datastock.checksum import ChecksumTransformer, DataChecksumMismatch
-from datastock.inputs import from_bytes
-from datastock.outputs import as_bytes
+from boxs.checksum import ChecksumTransformer, DataChecksumMismatch
+from boxs.inputs import from_bytes
+from boxs.outputs import as_bytes
 
 
 class TestChecksumTransformer(unittest.TestCase):
@@ -18,12 +18,12 @@ class TestChecksumTransformer(unittest.TestCase):
             'checksum_digest_size': 32,
         }
         reader.as_stream.return_value = io.BytesIO(b'My content')
-        with self.assertLogs('datastock.checksum', level='WARNING') as cm:
+        with self.assertLogs('boxs.checksum', level='WARNING') as cm:
             transformed_reader = self.transformer.transform_reader(reader)
 
             result = transformed_reader.read_content(as_bytes())
             self.assertEqual(cm.output, [
-                "WARNING:datastock.checksum:No checksum algorithm given,"
+                "WARNING:boxs.checksum:No checksum algorithm given,"
                 " disabling checksum verification"
             ])
 
@@ -40,12 +40,12 @@ class TestChecksumTransformer(unittest.TestCase):
             'checksum_digest_size': 32,
         }
         reader.as_stream.return_value = io.BytesIO(b'My content')
-        with self.assertLogs('datastock.checksum', level='WARNING') as cm:
+        with self.assertLogs('boxs.checksum', level='WARNING') as cm:
             transformed_reader = self.transformer.transform_reader(reader)
 
             result = transformed_reader.read_content(as_bytes())
             self.assertEqual(cm.output, [
-                "WARNING:datastock.checksum:Unknown checksum algorithm 'unknown',"
+                "WARNING:boxs.checksum:Unknown checksum algorithm 'unknown',"
                 " disabling checksum verification"
             ])
 
@@ -63,12 +63,12 @@ class TestChecksumTransformer(unittest.TestCase):
         }
         reader.data_id = 'my-data-id'
         reader.as_stream.return_value = io.BytesIO(b'My content')
-        with self.assertLogs('datastock.checksum', level='INFO') as cm:
+        with self.assertLogs('boxs.checksum', level='INFO') as cm:
             transformed_reader = self.transformer.transform_reader(reader)
 
             result = transformed_reader.read_content(as_bytes())
             self.assertEqual(cm.output, [
-                'INFO:datastock.checksum:Checksum when reading data my-data-id: '
+                'INFO:boxs.checksum:Checksum when reading data my-data-id: '
                 'ce858b5195f68056187c143dc2023caaabb07a8c1eacf482ee222bfc481ffa0a'
             ])
 
@@ -86,12 +86,12 @@ class TestChecksumTransformer(unittest.TestCase):
         }
         reader.data_id = 'my-data-id'
         reader.as_stream.return_value = io.BytesIO(b'My content')
-        with self.assertLogs('datastock.checksum', level='INFO') as cm:
+        with self.assertLogs('boxs.checksum', level='INFO') as cm:
             transformed_reader = self.transformer.transform_reader(reader)
 
             result = transformed_reader.read_content(as_bytes())
             self.assertEqual(cm.output, [
-                'INFO:datastock.checksum:Checksum when reading data my-data-id: '
+                'INFO:boxs.checksum:Checksum when reading data my-data-id: '
                 'a7b9bb7a4fb93658f8c4d4d68dfd3ef3'
             ])
 
@@ -136,10 +136,10 @@ class TestChecksumTransformer(unittest.TestCase):
         writer.data_id = 'my-data-id'
         transformed_writer = self.transformer.transform_writer(writer)
 
-        with self.assertLogs('datastock.checksum', level='INFO') as cm:
+        with self.assertLogs('boxs.checksum', level='INFO') as cm:
             transformed_writer.write_content(from_bytes(b'My content'))
             self.assertEqual(cm.output, [
-                'INFO:datastock.checksum:Checksum when writing data my-data-id: '
+                'INFO:boxs.checksum:Checksum when writing data my-data-id: '
                 'ce858b5195f68056187c143dc2023caaabb07a8c1eacf482ee222bfc481ffa0a'
             ])
 
@@ -201,12 +201,12 @@ class TestChecksumTransformer(unittest.TestCase):
 
         reader.meta = writer.meta
 
-        with self.assertLogs('datastock.checksum', level='INFO') as cm:
+        with self.assertLogs('boxs.checksum', level='INFO') as cm:
             transformed_reader = self.transformer.transform_reader(reader)
 
             result = transformed_reader.read_content(as_bytes())
             self.assertEqual(cm.output, [
-                'INFO:datastock.checksum:Checksum when reading data my-data-id: '
+                'INFO:boxs.checksum:Checksum when reading data my-data-id: '
                 '336e597e7437529d340c'
             ])
 

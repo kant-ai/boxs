@@ -1,7 +1,7 @@
 import io
 import unittest.mock
 
-from datastock.io import DelegatingStream
+from boxs.io import DelegatingStream
 
 
 class TestDelegatingStream(unittest.TestCase):

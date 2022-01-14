@@ -4,7 +4,7 @@ import pathlib
 import tempfile
 import unittest
 
-from datastock.outputs import as_bytes, as_file, as_json_value, as_stream, as_string
+from boxs.outputs import as_bytes, as_file, as_json_value, as_stream, as_string
 
 
 class DummyReader:
