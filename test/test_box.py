@@ -3,9 +3,8 @@ import io
 import unittest.mock
 
 from boxs.data import DataRef
-from boxs.errors import DataCollision, DataNotFound, BoxAlreadyDefined, BoxNotDefined
+from boxs.errors import DataCollision, DataNotFound
 from boxs.box import calculate_data_id, Box
-from boxs.box_registry import get_box, unregister_box
 from boxs.storage import Writer
 
 
@@ -85,23 +84,16 @@ class BytesIOWriter(Writer):
 class TestBox(unittest.TestCase):
 
     def setUp(self):
+        self.register_patcher = unittest.mock.patch('boxs.box.register_box')
+        self.register_mock = self.register_patcher.start()
         self.storage = DummyStorage()
         self.box = Box('box-id', self.storage)
 
     def tearDown(self):
-        unregister_box(self.box.box_id)
+        self.register_patcher.stop()
 
-    def test_box_can_be_retrieved_by_id(self):
-        box = get_box('box-id')
-        self.assertIs(box, self.box)
-
-    def test_unknown_box_raises_key_error(self):
-        with self.assertRaises(BoxNotDefined):
-            get_box('unknown-box-id')
-
-    def test_boxes_must_have_unique_ids(self):
-        with self.assertRaisesRegex(BoxAlreadyDefined, 'box-id already defined'):
-            Box('box-id', self.storage)
+    def test_box_registers_itself_automatically(self):
+        self.register_mock.assert_called_with(self.box)
 
     def test_store_writes_content_and_info(self):
 
@@ -169,7 +161,6 @@ class TestBox(unittest.TestCase):
 
         transformer.transform_writer.assert_called_with(self.storage.writer)
         transformer.transform_writer.return_value.write_content.assert_called_once_with(input)
-        unregister_box('box-with-transformer')
 
     def test_store_applies_multiple_transformers(self):
         input = unittest.mock.MagicMock()
@@ -182,7 +173,6 @@ class TestBox(unittest.TestCase):
         transformer1.transform_writer.assert_called_with(self.storage.writer)
         transformer2.transform_writer.assert_called_once_with(transformer1.transform_writer.return_value)
         transformer2.transform_writer.return_value.write_content.assert_called_once_with(input)
-        unregister_box('box-with-transformers')
 
     def test_load_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
@@ -220,7 +210,6 @@ class TestBox(unittest.TestCase):
 
         transformer.transform_reader.assert_called_with(self.storage.reader)
         transformer.transform_reader.return_value.read_content.assert_called_once_with(dest)
-        unregister_box('box-with-transformer')
 
     def test_load_applies_multiple_transformers_in_reverse(self):
         dest = unittest.mock.MagicMock()
@@ -236,7 +225,6 @@ class TestBox(unittest.TestCase):
         transformer2.transform_reader.assert_called_with(self.storage.reader)
         transformer1.transform_reader.assert_called_once_with(transformer2.transform_reader.return_value)
         transformer1.transform_reader.return_value.read_content.assert_called_once_with(dest)
-        unregister_box('box-with-transformers')
 
     def test_info_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
