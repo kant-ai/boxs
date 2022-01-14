@@ -4,7 +4,8 @@ import unittest.mock
 
 from datastock.data import DataRef
 from datastock.errors import DataCollision, DataNotFound, StockAlreadyDefined, StockNotDefined
-from datastock.stock import calculate_data_id, Stock, get_stock, _unregister_stock
+from datastock.stock import calculate_data_id, Stock
+from datastock.stock_registry import get_stock, unregister_stock
 from datastock.storage import Writer
 
 
@@ -88,7 +89,7 @@ class TestStock(unittest.TestCase):
         self.stock = Stock('stock-id', self.storage)
 
     def tearDown(self):
-        _unregister_stock(self.stock.stock_id)
+        unregister_stock(self.stock.stock_id)
 
     def test_stock_can_be_retrieved_by_id(self):
         stock = get_stock('stock-id')
@@ -168,7 +169,7 @@ class TestStock(unittest.TestCase):
 
         transformer.transform_writer.assert_called_with(self.storage.writer)
         transformer.transform_writer.return_value.write_content.assert_called_once_with(input)
-        _unregister_stock('stock-with-transformer')
+        unregister_stock('stock-with-transformer')
 
     def test_store_applies_multiple_transformers(self):
         input = unittest.mock.MagicMock()
@@ -181,7 +182,7 @@ class TestStock(unittest.TestCase):
         transformer1.transform_writer.assert_called_with(self.storage.writer)
         transformer2.transform_writer.assert_called_once_with(transformer1.transform_writer.return_value)
         transformer2.transform_writer.return_value.write_content.assert_called_once_with(input)
-        _unregister_stock('stock-with-transformers')
+        unregister_stock('stock-with-transformers')
 
     def test_load_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
@@ -219,7 +220,7 @@ class TestStock(unittest.TestCase):
 
         transformer.transform_reader.assert_called_with(self.storage.reader)
         transformer.transform_reader.return_value.read_content.assert_called_once_with(dest)
-        _unregister_stock('stock-with-transformer')
+        unregister_stock('stock-with-transformer')
 
     def test_load_applies_multiple_transformers_in_reverse(self):
         dest = unittest.mock.MagicMock()
@@ -235,7 +236,28 @@ class TestStock(unittest.TestCase):
         transformer2.transform_reader.assert_called_with(self.storage.reader)
         transformer1.transform_reader.assert_called_once_with(transformer2.transform_reader.return_value)
         transformer1.transform_reader.return_value.read_content.assert_called_once_with(dest)
-        _unregister_stock('stock-with-transformers')
+        unregister_stock('stock-with-transformers')
+
+    def test_info_reads_content(self):
+        self.storage.exists = unittest.mock.MagicMock(return_value=True)
+        self.storage.reader.info['my'] = 'info'
+
+        data = DataRef('data-id', self.stock.stock_id, 'rev-id')
+
+        result = self.stock.info(data)
+        self.assertEqual({'my': 'info'}, result)
+
+    def test_info_raises_if_wrong_storage_id(self):
+        data = DataRef('data-id', 'wrong-stock-id', 'rev-id')
+
+        with self.assertRaisesRegex(ValueError, "different stock id"):
+            self.stock.info(data)
+
+    def test_info_raises_if_not_exists(self):
+        data = DataRef('data-id', 'stock-id', 'rev-id')
+        self.storage.exists = unittest.mock.MagicMock(return_value=False)
+        with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
+            self.stock.info(data)
 
 
 if __name__ == '__main__':

@@ -1,10 +1,11 @@
 """Functionality for stocks"""
 import hashlib
 
-from .data import DataItem, DataRef
-from .errors import DataCollision, DataNotFound, StockAlreadyDefined, StockNotDefined
+from .data import DataInfo, DataRef
+from .errors import DataCollision, DataNotFound
 from .origin import ORIGIN_FROM_FUNCTION_NAME, determine_origin
 from .run import get_run_id
+from .stock_registry import register_stock
 
 
 def calculate_data_id(origin, parent_ids=tuple()):
@@ -28,38 +29,6 @@ def calculate_data_id(origin, parent_ids=tuple()):
     return hashlib.blake2b(id_origin_data.encode('utf-8'), digest_size=8).hexdigest()
 
 
-_STOCK_REGISTRY = {}
-
-
-def _register_stock(stock):
-    stock_id = stock.stock_id
-    if stock_id in _STOCK_REGISTRY:
-        raise StockAlreadyDefined(stock_id)
-    _STOCK_REGISTRY[stock.stock_id] = stock
-
-
-def _unregister_stock(stock_id):
-    del _STOCK_REGISTRY[stock_id]
-
-
-def get_stock(stock_id):
-    """
-    Return the stock with the given stock_id.
-
-    Args:
-        stock_id (str): The id of the stock that should be returned.
-
-    Returns:
-        datastock.stock.Stock: The stock with the given `sotck_id`.
-
-    Raises:
-        datastock.errors.StockNotDefined: If no stock with the given id is defined.
-    """
-    if stock_id not in _STOCK_REGISTRY:
-        raise StockNotDefined(stock_id)
-    return _STOCK_REGISTRY[stock_id]
-
-
 class Stock:
     """Stocks that allows to store and load data.
 
@@ -75,7 +44,7 @@ class Stock:
         self.stock_id = stock_id
         self.storage = storage
         self.transformers = transformers
-        _register_stock(self)
+        register_stock(self)
 
     def store(
         self,
@@ -93,7 +62,7 @@ class Stock:
         Args:
             data_input (Callable[datastock.storage.Writer]): A callable that takes a
                 single `Writer` argument.
-            *parents (datastock.data.DataItem): Parent data instances, that this data
+            *parents (datastock.data.DataInfo): Parent data instances, that this data
                 depends on.
             origin (Union[str,Callable]): A string or callable returning a string,
                 that is used as an origin for deriving the data's id. Defaults to a
@@ -109,7 +78,7 @@ class Stock:
             run_id (str): The id of the run when the data was stored.
 
         Returns:
-            datastock.data.DataItem: Data instance that contains information about the
+            datastock.data.DataInfo: Data instance that contains information about the
                 data and allows referring to it.
         """
         if tags is None:
@@ -135,7 +104,7 @@ class Stock:
 
         writer.write_content(data_input)
 
-        data = DataItem(
+        data = DataInfo(
             ref,
             origin=origin,
             parents=parents,
@@ -143,7 +112,7 @@ class Stock:
             tags=tags,
             meta=meta,
         )
-        writer.write_info(data.info())
+        writer.write_info(data.value_info())
         return data
 
     def load(self, data_output, data_ref):
@@ -174,3 +143,27 @@ class Stock:
             reader = transformer.transform_reader(reader)
 
         return reader.read_content(data_output)
+
+    def info(self, data_ref):
+        """
+        Load info from the stock.
+
+        Args:
+            data_ref (datastock.data.DataRef): Data reference that points to the data
+                whose info is requested.
+
+        Returns:
+            datatstock.data.DataInfo: The info about the data.
+
+        Raises:
+            datastock.errors.DataNotFound: If no data with the specific ids are stored
+                in this stock.
+            ValueError: If the data refers to a different stock by its stock_id.
+        """
+        if data_ref.stock_id != self.stock_id:
+            raise ValueError("Data references different stock id")
+        if not self.storage.exists(data_ref.data_id, data_ref.run_id):
+            raise DataNotFound(self.stock_id, data_ref.data_id, data_ref.run_id)
+
+        reader = self.storage.create_reader(data_ref.data_id, data_ref.run_id)
+        return reader.info

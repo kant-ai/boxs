@@ -1,9 +1,10 @@
 import unittest.mock
 
-from datastock.api import load, store
+from datastock.api import info, load, store
 from datastock.data import DataRef
 from datastock.errors import DataNotFound, StockNotDefined
-from datastock.stock import Stock, _unregister_stock
+from datastock.stock import Stock
+from datastock.stock_registry import unregister_stock
 
 
 class TestStore(unittest.TestCase):
@@ -12,7 +13,7 @@ class TestStore(unittest.TestCase):
         self.stock = Stock('stock-id', None)
 
     def tearDown(self):
-        _unregister_stock(self.stock.stock_id)
+        unregister_stock(self.stock.stock_id)
 
     def test_store_resolves_origin_from_where_it_is_called(self):
         self.stock.store = unittest.mock.MagicMock()
@@ -64,7 +65,7 @@ class TestLoad(unittest.TestCase):
         self.data_ref = DataRef('data-id', 'stock-id', 'run-id')
 
     def tearDown(self):
-        _unregister_stock(self.stock.stock_id)
+        unregister_stock(self.stock.stock_id)
 
     def test_stock_is_resolved_from_data(self):
         self.stock.load = unittest.mock.MagicMock()
@@ -89,6 +90,42 @@ class TestLoad(unittest.TestCase):
     def test_stock_load_return_value_is_returned(self):
         self.stock.load = unittest.mock.MagicMock(return_value='My value')
         result = load(None, self.data_ref)
+        self.assertEqual('My value', result)
+
+
+class TestInfo(unittest.TestCase):
+
+    def setUp(self):
+        self.storage = unittest.mock.MagicMock()
+        self.stock = Stock('stock-id', self.storage)
+        self.data_ref = DataRef('data-id', 'stock-id', 'run-id')
+
+    def tearDown(self):
+        unregister_stock(self.stock.stock_id)
+
+    def test_stock_is_resolved_from_data(self):
+        self.stock.info = unittest.mock.MagicMock()
+        info(self.data_ref)
+        self.stock.info.assert_called()
+
+    def test_info_raises_if_stock_does_not_exist(self):
+        self.storage.exists = unittest.mock.MagicMock(return_value=False)
+        with self.assertRaisesRegex(StockNotDefined, "Stock .* not defined"):
+            info(DataRef('data-id', 'unknown-stock-id', 'run-id'))
+
+    def test_info_raises_if_data_does_not_exist(self):
+        self.storage.exists = unittest.mock.MagicMock(return_value=False)
+        with self.assertRaisesRegex(DataNotFound, "Data .* does not exist"):
+            info(self.data_ref)
+
+    def test_stock_info_gets_reference(self):
+        self.stock.info = unittest.mock.MagicMock()
+        info(self.data_ref)
+        self.stock.info.assert_called_with(self.data_ref)
+
+    def test_stock_info_return_value_is_returned(self):
+        self.stock.info = unittest.mock.MagicMock(return_value='My value')
+        result = info(self.data_ref)
         self.assertEqual('My value', result)
 
 

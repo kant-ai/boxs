@@ -1,6 +1,6 @@
 """API to be used by users"""
 from .origin import determine_origin, ORIGIN_FROM_FUNCTION_NAME
-from .stock import get_stock
+from .stock_registry import get_stock
 
 
 def store(
@@ -19,7 +19,7 @@ def store(
     Args:
         data_input (Callable[datastock.storage.Writer]): A callable that takes a
             single `Writer` argument.
-        *parents (datastock.data.DataItem): Parent data instances, that this data
+        *parents (datastock.data.DataInfo): Parent data instances, that this data
             depends on.
         origin (Union[str,Callable]): A string or callable returning a string,
             that is used as an origin for deriving the data's id. Defaults to a
@@ -39,7 +39,7 @@ def store(
             `stock_id`.
 
     Returns:
-        datastock.data.DataItem: Data instance that contains information about the
+        datastock.data.DataInfo: Data instance that contains information about the
             data and allows referring to it.
 
     Raises:
@@ -65,7 +65,7 @@ def store(
 
 def load(data_output, data):
     """
-    Load data..
+    Load the content of the data item.
 
     Args:
         data_output (Callable[datastock.storage.Reader]): A callable that takes a
@@ -79,9 +79,29 @@ def load(data_output, data):
     Raises:
         datastock.errors.StockNotDefined: If the data is stored in an unknown stock.
         datastock.errors.DataNotFound: If no data with the specific ids are stored
-            in this stock.
-        ValueError: If the data refers to a different stock by its stock_id.
+            in the referenced stock.
     """
     stock_id = data.stock_id
     stock = get_stock(stock_id)
     return stock.load(data_output, data)
+
+
+def info(data_ref):
+    """
+    Load info from a reference to an item.
+
+    Args:
+        data_ref (datastock.data.DataRef): Data reference that points to the data
+            whose info is requested.
+
+    Returns:
+        datatstock.data.DataInfo: The info about the data.
+
+    Raises:
+        datastock.errors.StockNotDefined: If the data is stored in an unknown stock.
+        datastock.errors.DataNotFound: If no data with the specific ids are stored
+            in this stock.
+    """
+    stock_id = data_ref.stock_id
+    stock = get_stock(stock_id)
+    return stock.info(data_ref)
