@@ -81,6 +81,11 @@ class TestDataInfo(unittest.TestCase):
         data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin')
         self.assertEqual('revision-id', data.run_id)
 
+    def test_info_returns_self(self):
+        data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin')
+        info = data.info
+        self.assertIs(info, data)
+
     @unittest.mock.patch('boxs.data.load')
     def test_load_calls_api_with_itself(self, load_mock):
         data_ref = DataInfo(DataRef('data-id', 'my-box', 'my-revision'), 'origin')

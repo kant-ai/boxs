@@ -2,10 +2,12 @@ import io
 
 import unittest.mock
 
-from boxs.data import DataRef
-from boxs.errors import DataCollision, DataNotFound
 from boxs.box import calculate_data_id, Box
+from boxs.box_registry import get_box, unregister_box
+from boxs.data import DataInfo, DataRef
+from boxs.errors import DataCollision, DataNotFound, MissingValueType
 from boxs.storage import Writer
+from boxs.value_types import StringValueType
 
 
 class TestCalculateDataId(unittest.TestCase):
@@ -56,8 +58,8 @@ class BytesIOReader:
     def as_stream(self):
         return self.stream
 
-    def read_content(self, output):
-        return output(self)
+    def read_value(self, value_type):
+        return value_type.read_value_from_reader(self)
 
 
 class BytesIOWriter(Writer):
@@ -65,6 +67,10 @@ class BytesIOWriter(Writer):
     def __init__(self):
         self.info = {}
         self.stream = io.BytesIO()
+        def stream_close():
+            self.stream_closed = True
+        self.stream.close = stream_close
+        self.stream_closed = False
         self._meta = {}
 
     @property
@@ -77,31 +83,39 @@ class BytesIOWriter(Writer):
     def write_info(self, info):
         self.info = info
 
-    def write_content(self, input):
-        input(self)
+    def write_value(self, value, value_type):
+        value_type.write_value_to_writer(value, self)
 
 
 class TestBox(unittest.TestCase):
 
     def setUp(self):
-        self.register_patcher = unittest.mock.patch('boxs.box.register_box')
-        self.register_mock = self.register_patcher.start()
         self.storage = DummyStorage()
         self.box = Box('box-id', self.storage)
+        self.data = DataInfo(
+            DataRef('data-id', self.box.box_id, 'rev-id'),
+            'origin',
+            meta={'value_type': 'boxs.value_types:BytesValueType:'},
+        )
 
     def tearDown(self):
-        self.register_patcher.stop()
+        unregister_box(self.box.box_id)
 
     def test_box_registers_itself_automatically(self):
-        self.register_mock.assert_called_with(self.box)
+        box = get_box('box-id')
+        self.assertIs(self.box, box)
+
+    def test_store_raises_if_no_supported_value_type(self):
+        with self.assertRaisesRegex(MissingValueType, "No value type found for '{'a': '1'}"):
+            self.box.store({'a': '1'}, run_id='1')
+
+    def test_store_uses_specified_value_type_if_given(self):
+        value_type = unittest.mock.MagicMock()
+        self.box.store('My value', origin='origin', value_type=value_type)
+        value_type.write_value_to_writer.assert_called_once_with('My value', self.storage.writer)
 
     def test_store_writes_content_and_info(self):
-
-        def from_content(writer):
-            writer.as_stream().write(b"My content")
-            self.assertIsNotNone(writer)
-
-        data = self.box.store(from_content, run_id='1')
+        data = self.box.store(b'My content', run_id='1')
         self.assertEqual('df854a08d6f482a0', data.data_id)
         self.assertEqual(b'My content', self.storage.writer.stream.getvalue())
         self.assertEqual({
@@ -118,12 +132,7 @@ class TestBox(unittest.TestCase):
         }, self.storage.writer.info)
 
     def test_store_uses_tags_and_meta(self):
-
-        def from_content(writer):
-            writer.as_stream().write(b"My content")
-            self.assertIsNotNone(writer)
-
-        self.box.store(from_content, tags={'my': 'tag'}, meta={'my': 'meta'}, run_id='1')
+        self.box.store('My content', tags={'my': 'tag'}, meta={'my': 'meta'}, run_id='1')
         self.assertEqual({
             'ref': {
                 'data_id': '6b9507ecd44bd3f2',
@@ -138,93 +147,81 @@ class TestBox(unittest.TestCase):
         }, self.storage.writer.info)
 
     def test_store_without_origin_raises(self):
-        def from_content(writer):
-            pass
         with self.assertRaisesRegex(ValueError, "No origin given"):
-            self.box.store(from_content, origin=None)
+            self.box.store('My content', origin=None)
 
-    def test_storing_same_data_twice_with_same_revision_fails(self):
-        def from_content(writer):
-            writer.as_stream().write(b"My content")
-            self.assertIsNotNone(writer)
-
-        self.box.store(from_content, run_id='1')
+    def test_storing_data_twice_with_same_origin_and_revision_fails(self):
+        self.box.store('My content', run_id='1')
         with self.assertRaisesRegex(DataCollision, "Data .* already exists"):
-            self.box.store(from_content, run_id='1')
+            self.box.store('My new content', run_id='1')
 
     def test_store_applies_transformer(self):
-        input = unittest.mock.MagicMock()
         transformer = unittest.mock.MagicMock()
+        value_type = unittest.mock.MagicMock()
         box = Box('box-with-transformer', self.storage, transformer)
 
-        box.store(input, origin='origin')
+        box.store('My value', origin='origin', value_type=value_type)
 
         transformer.transform_writer.assert_called_with(self.storage.writer)
-        transformer.transform_writer.return_value.write_content.assert_called_once_with(input)
+        value_type.write_value_to_writer.assert_called_once_with('My value', transformer.transform_writer.return_value)
 
     def test_store_applies_multiple_transformers(self):
-        input = unittest.mock.MagicMock()
         transformer1 = unittest.mock.MagicMock()
         transformer2 = unittest.mock.MagicMock()
+        value_type = unittest.mock.MagicMock()
         box = Box('box-with-transformers', self.storage, transformer1, transformer2)
 
-        box.store(input, origin='origin')
+        box.store('My value', origin='origin', value_type=value_type)
 
         transformer1.transform_writer.assert_called_with(self.storage.writer)
         transformer2.transform_writer.assert_called_once_with(transformer1.transform_writer.return_value)
-        transformer2.transform_writer.return_value.write_content.assert_called_once_with(input)
+        value_type.write_value_to_writer.assert_called_once_with('My value', transformer2.transform_writer.return_value)
 
     def test_load_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
-        result = []
+        result = self.box.load(self.data)
+        self.assertEqual(b'My content', result)
 
-        def dest(writer):
-            result.append(writer.as_stream().read())
-
-        data = DataRef('data-id', self.box.box_id, 'rev-id')
-
-        self.box.load(dest, data)
-        self.assertEqual(b'My content', result[0])
+    def test_load_can_override_value_type(self):
+        self.storage.exists = unittest.mock.MagicMock(return_value=True)
+        result = self.box.load(self.data, value_type=StringValueType())
+        self.assertEqual('My content', result)
 
     def test_load_raises_if_wrong_box_id(self):
         data = DataRef('data-id', 'wrong-box-id', 'rev-id')
 
         with self.assertRaisesRegex(ValueError, "different box id"):
-            self.box.load(None, data)
+            self.box.load(data)
 
     def test_load_raises_if_not_exists(self):
         data = DataRef('data-id', 'box-id', 'rev-id')
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
-            self.box.load(None, data)
+            self.box.load(data)
 
     def test_load_applies_transformer(self):
-        dest = unittest.mock.MagicMock()
         transformer = unittest.mock.MagicMock()
-        box = Box('box-with-transformer', self.storage, transformer)
-
+        value_type = unittest.mock.MagicMock()
+        self.box.transformers = [transformer]
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
-        data = DataRef('data-id', box.box_id, 'rev-id')
 
-        box.load(dest, data)
+        self.box.load(self.data, value_type=value_type)
 
         transformer.transform_reader.assert_called_with(self.storage.reader)
-        transformer.transform_reader.return_value.read_content.assert_called_once_with(dest)
+        transformer.transform_reader.return_value.read_value.assert_called_once_with(value_type)
 
     def test_load_applies_multiple_transformers_in_reverse(self):
-        dest = unittest.mock.MagicMock()
         transformer1 = unittest.mock.MagicMock()
         transformer2 = unittest.mock.MagicMock()
-        box = Box('box-with-transformers', self.storage, transformer1, transformer2)
-
+        value_type = unittest.mock.MagicMock()
+        self.box.transformers = [transformer1, transformer2]
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
-        data = DataRef('data-id', box.box_id, 'rev-id')
 
-        box.load(dest, data)
+        self.box.load(self.data, value_type=value_type)
 
         transformer2.transform_reader.assert_called_with(self.storage.reader)
         transformer1.transform_reader.assert_called_once_with(transformer2.transform_reader.return_value)
-        transformer1.transform_reader.return_value.read_content.assert_called_once_with(dest)
+        transformer1.transform_reader.return_value.read_value.assert_called_once_with(value_type)
 
     def test_info_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)

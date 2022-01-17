@@ -167,6 +167,11 @@ class DataInfo:
         """Returns the run_id."""
         return self.ref.run_id
 
+    @property
+    def info(self):
+        """Returns the info. This is to be compatible with DataRef"""
+        return self
+
     def load(self, data_output):
         """
         Load the content of the data item.

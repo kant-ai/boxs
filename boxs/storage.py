@@ -1,6 +1,5 @@
 """Interface to backend storage"""
 import abc
-import typing
 
 
 class Storage(abc.ABC):
@@ -83,18 +82,18 @@ class Reader(abc.ABC):
         """The run_id of the data that this reader can read."""
         return self._run_id
 
-    def read_content(self, data_output):
+    def read_value(self, value_type):
         """
-        Read the content and return it.
+        Read the value and return it.
 
         Args:
-            data_output (LoadDataFunction): The function that allows to load data from
-                a reader.
+            value_type (boxs.value_types.ValueType): The value type that reads the
+                value from the reader and converts it to the correct type.
 
         Returns:
-            Any: The returned value from the `data_output`.
+            Any: The returned value from the `value_type`.
         """
-        return data_output(self)
+        return value_type.read_value_from_reader(self)
 
     @property
     @abc.abstractmethod
@@ -148,8 +147,8 @@ class DelegatingReader(Reader):
     def meta(self):
         return self.delegate.meta
 
-    def read_content(self, data_output):
-        return self.delegate.read_content(data_output)
+    def read_value(self, value_type):
+        return self.delegate.read_value(value_type)
 
     def as_stream(self):
         return self.delegate.as_stream()
@@ -191,15 +190,16 @@ class Writer(abc.ABC):
         meta-data for the data item.
         """
 
-    def write_content(self, data_input):
+    def write_value(self, value, value_type):
         """
         Write the data content to the storage.
 
         Args:
-            data_input (StoreDataFunction): Function that writes the data to this
-                writer.
+            value (Any): The value that should be written to the writer.
+            value_type (boxs.value_types.ValueType): The value type that takes care
+                of actually writing the value and converting it to the correct type.
         """
-        data_input(self)
+        value_type.write_value_to_writer(value, self)
 
     @abc.abstractmethod
     def write_info(self, info):
@@ -244,18 +244,14 @@ class DelegatingWriter(Writer):
     def meta(self):
         return self.delegate.meta
 
-    def write_content(self, data_input):
-        self.delegate.write_content(data_input)
+    def write_value(self, value, value_type):
+        self.delegate.write_value(value, value_type)
 
     def write_info(self, info):
         self.delegate.write_info(info)
 
     def as_stream(self):
         return self.delegate.as_stream()
-
-
-LoadDataFunction = typing.Callable[[Reader], typing.Any]
-StoreDataFunction = typing.Callable[[Writer], None]
 
 
 class Transformer:

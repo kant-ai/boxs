@@ -77,3 +77,20 @@ class BoxNotDefined(BoxError):
     def __init__(self, box_id):
         self.box_id = box_id
         super().__init__(f"Box with box id {self.box_id} not defined")
+
+
+class ValueTypeError(BoxsError):
+    """Base class for all boxs specific errors related to value types"""
+
+
+class MissingValueType(ValueTypeError):
+    """
+    Error that is raised if no ValueType can be found that supports the value.
+
+    Attributes:
+        box_id (str): The id of the box.
+    """
+
+    def __init__(self, value):
+        self.value = value
+        super().__init__(f"No value type found for '{self.value}'.")

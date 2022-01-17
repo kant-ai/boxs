@@ -81,8 +81,8 @@ class _ChecksumReader(DelegatingReader):
         )
         self._stream = None
 
-    def read_content(self, data_output):
-        result = data_output(self)
+    def read_value(self, value_type):
+        result = value_type.read_value_from_reader(self)
         found_checksum = self._stream.checksum
         if self._verify:
             expected_checksum = self.delegate.meta['checksum_digest']
@@ -104,8 +104,8 @@ class _ChecksumWriter(DelegatingWriter):
         self._digest_size = digest_size
         self._stream = None
 
-    def write_content(self, data_input):
-        data_input(self)
+    def write_value(self, value, value_type):
+        value_type.write_value_to_writer(value, self)
         checksum = self._stream.checksum
         self.meta['checksum_digest'] = checksum
         self.meta['checksum_digest_size'] = self._digest_size

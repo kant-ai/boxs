@@ -1,6 +1,75 @@
 import unittest.mock
 
-from boxs.storage import DelegatingReader, DelegatingWriter, Transformer
+from boxs.storage import DelegatingReader, DelegatingWriter, Reader, Transformer, Writer
+
+
+class ReaderImplementation(Reader):
+
+    @property
+    def info(self):
+        pass
+
+    @property
+    def meta(self):
+        pass
+
+    def as_stream(self):
+        pass
+
+
+class WriterImplementation(Writer):
+
+    def write_info(self, info):
+        pass
+
+    @property
+    def info(self):
+        pass
+
+    @property
+    def meta(self):
+        pass
+
+    def as_stream(self):
+        pass
+
+
+class TestReader(unittest.TestCase):
+
+    def setUp(self):
+        self.reader = ReaderImplementation('data-id', 'run-id')
+
+    def test_data_id_is_taken_from_constructor(self):
+        result = self.reader.data_id
+        self.assertEqual('data-id', result)
+
+    def test_run_id_is_taken_from_constructor(self):
+        result = self.reader.run_id
+        self.assertEqual('run-id', result)
+
+    def test_read_value_calls_method_on_value_type(self):
+        value_type = unittest.mock.MagicMock()
+        self.reader.read_value(value_type)
+        value_type.read_value_from_reader.assert_called_once_with(self.reader)
+
+
+class TestWriter(unittest.TestCase):
+
+    def setUp(self):
+        self.writer = WriterImplementation('data-id', 'run-id')
+
+    def test_data_id_is_taken_from_constructor(self):
+        result = self.writer.data_id
+        self.assertEqual('data-id', result)
+
+    def test_run_id_is_taken_from_constructor(self):
+        result = self.writer.run_id
+        self.assertEqual('run-id', result)
+
+    def test_read_value_calls_method_on_value_type(self):
+        value_type = unittest.mock.MagicMock()
+        self.writer.write_value('my value', value_type)
+        value_type.write_value_to_writer.assert_called_once_with('my value', self.writer)
 
 
 class TestDelegatingReader(unittest.TestCase):
@@ -29,17 +98,15 @@ class TestDelegatingReader(unittest.TestCase):
         result = self.reader.meta
         self.assertEqual({'my': 'meta'}, result)
 
-    def test_read_content_is_delegated(self):
-        self.delegate.read_content.return_value = 'content'
-        result = self.reader.read_content('output')
-        self.assertEqual('content', result)
-        self.delegate.read_content.assert_called_with('output')
-
     def test_as_stream_is_delegated(self):
         self.delegate.as_stream.return_value = 'stream'
         result = self.reader.as_stream()
         self.assertEqual('stream', result)
         self.delegate.as_stream.assert_called_once()
+
+    def test_read_value_is_delegated(self):
+        self.reader.read_value('value-type')
+        self.delegate.read_value.assert_called_once_with('value-type')
 
 
 class TestDelegatingWriter(unittest.TestCase):
@@ -63,14 +130,6 @@ class TestDelegatingWriter(unittest.TestCase):
         result = self.writer.meta
         self.assertEqual({'my': 'meta'}, result)
 
-    def test_write_content_is_delegated(self):
-        self.writer.write_content('output')
-        self.delegate.write_content.assert_called_with('output')
-
-    def test_write_content_is_delegated(self):
-        self.writer.write_content('output')
-        self.delegate.write_content.assert_called_with('output')
-
     def test_write_info_is_delegated(self):
         self.writer.write_info({'my': 'info'})
         self.delegate.write_info.assert_called_with({'my': 'info'})
@@ -80,6 +139,10 @@ class TestDelegatingWriter(unittest.TestCase):
         result = self.writer.as_stream()
         self.assertEqual('stream', result)
         self.delegate.as_stream.assert_called_once()
+
+    def test_write_value_is_delegated(self):
+        self.writer.write_value('my value', 'value-type')
+        self.delegate.write_value.assert_called_with('my value', 'value-type')
 
 
 class TestTransformer(unittest.TestCase):

@@ -1,11 +1,18 @@
 """Boxes to store items in"""
 import hashlib
 
+from .box_registry import register_box
 from .data import DataInfo, DataRef
-from .errors import DataCollision, DataNotFound
+from .errors import DataCollision, DataNotFound, MissingValueType
 from .origin import ORIGIN_FROM_FUNCTION_NAME, determine_origin
 from .run import get_run_id
-from .box_registry import register_box
+from .value_types import (
+    BytesValueType,
+    FileValueType,
+    StreamValueType,
+    StringValueType,
+    ValueType,
+)
 
 
 def calculate_data_id(origin, parent_ids=tuple()):
@@ -44,24 +51,30 @@ class Box:
         self.box_id = box_id
         self.storage = storage
         self.transformers = transformers
+        self.value_types = [
+            BytesValueType(),
+            StreamValueType(),
+            StringValueType(),
+            FileValueType(),
+        ]
         register_box(self)
 
     def store(
         self,
-        data_input,
+        value,
         *parents,
         origin=ORIGIN_FROM_FUNCTION_NAME,
         name=None,
         tags=None,
         meta=None,
+        value_type=None,
         run_id=None,
     ):
         """
         Store new data in this box.
 
         Args:
-            data_input (Callable[boxs.storage.Writer]): A callable that takes a
-                single `Writer` argument.
+            value (Any): A value that should be stored.
             *parents (boxs.data.DataInfo): Parent data instances, that this data
                 depends on.
             origin (Union[str,Callable]): A string or callable returning a string,
@@ -75,6 +88,9 @@ class Box:
             meta (Dict[str, Any]): Additional meta-data about this data. This can be
                 used for arbitrary information that might be useful, e.g. information
                 about type or format of the data, timestamps, user info etc.
+            value_type (boxs.value_types.ValueType): The value_type to use for writing
+                this value to the storage. Defaults to `None` in which case a suitable
+                value type is taken from the list of predefined values types.
             run_id (str): The id of the run when the data was stored.
 
         Returns:
@@ -102,7 +118,15 @@ class Box:
         for transformer in self.transformers:
             writer = transformer.transform_writer(writer)
 
-        writer.write_content(data_input)
+        if value_type is None:
+            for configured_value_type in self.value_types:
+                if configured_value_type.supports(value):
+                    value_type = configured_value_type
+
+        if value_type is None:
+            raise MissingValueType(value)
+
+        value_type.write_value_to_writer(value, writer)
 
         data = DataInfo(
             ref,
@@ -115,15 +139,16 @@ class Box:
         writer.write_info(data.value_info())
         return data
 
-    def load(self, data_output, data_ref):
+    def load(self, data_ref, value_type=None):
         """
         Load data from the box.
 
         Args:
-            data_output (Callable[boxs.storage.Reader]): A callable that takes a
-                single `Reader` argument, reads the data and returns it.
-            data_ref (boxs.data.DataRef): Data reference that points to the data
-                to be loaded.
+            data_ref (Union[boxs.data.DataRef,boxs.data.DataInfo]): Data reference
+                that points to the data content to be loaded.
+            value_type (boxs.value_types.ValueType): The value type to use when
+                loading the data. Defaults to `None`, in which case the same value
+                type will be used that was used when the data was initially stored.
 
         Returns:
             Any: The loaded data.
@@ -135,14 +160,19 @@ class Box:
         """
         if data_ref.box_id != self.box_id:
             raise ValueError("Data references different box id")
-        if not self.storage.exists(data_ref.data_id, data_ref.run_id):
-            raise DataNotFound(self.box_id, data_ref.data_id, data_ref.run_id)
+
+        info = data_ref.info
+
+        if value_type is None:
+            value_type_specification = info.meta['value_type']
+            value_type = ValueType.from_specification(value_type_specification)
 
         reader = self.storage.create_reader(data_ref.data_id, data_ref.run_id)
+
         for transformer in reversed(self.transformers):
             reader = transformer.transform_reader(reader)
 
-        return reader.read_content(data_output)
+        return reader.read_value(value_type)
 
     def info(self, data_ref):
         """

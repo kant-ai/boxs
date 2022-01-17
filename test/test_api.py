@@ -17,7 +17,7 @@ class TestStore(unittest.TestCase):
 
     def test_store_resolves_origin_from_where_it_is_called(self):
         self.box.store = unittest.mock.MagicMock()
-        store('my-input', box=self.box)
+        store('my value', box=self.box)
         self.assertEqual(
             self.box.store.call_args[1]['origin'],
             'test_store_resolves_origin_from_where_it_is_called',
@@ -25,16 +25,16 @@ class TestStore(unittest.TestCase):
 
     def test_box_is_required(self):
         with self.assertRaisesRegex(ValueError, "'box' must be set."):
-            store(None, box=None)
+            store('my value', box=None)
 
     def test_box_is_resolved_from_id(self):
         self.box.store = unittest.mock.MagicMock()
-        store(None, box='box-id')
+        store('my value', box='box-id')
         self.box.store.assert_called()
 
     def test_box_can_be_given_as_object(self):
         self.box.store = unittest.mock.MagicMock()
-        store(None, box=self.box)
+        store('my value', box=self.box)
         self.box.store.assert_called()
 
     def test_box_store_gets_all_arguments(self):
@@ -42,19 +42,21 @@ class TestStore(unittest.TestCase):
         store(
             'my-input', 'parent1', 'parent2',
             box=self.box,
-            name='my-name', origin='my-origin', tags={'my': 'tag'},
-            run_id='run-id', meta={'my': 'meta'},
+            name='my-name', origin='my-origin',
+            tags={'my': 'tag'}, meta={'my': 'meta'},
+            value_type='my-value=type', run_id='run-id',
         )
         self.box.store.assert_called_with(
             'my-input', 'parent1', 'parent2',
-            name='my-name', origin='my-origin', tags={'my': 'tag'},
-            run_id='run-id', meta={'my': 'meta'},
+            name='my-name', origin='my-origin',
+            tags={'my': 'tag'}, meta={'my': 'meta'},
+            value_type='my-value=type', run_id='run-id',
         )
 
     def test_box_store_return_value_is_returned(self):
-        self.box.store = unittest.mock.MagicMock(return_value='My value')
-        result = store(None, box=self.box)
-        self.assertEqual('My value', result)
+        self.box.store = unittest.mock.MagicMock(return_value='My data')
+        result = store('my value', box=self.box)
+        self.assertEqual('My data', result)
 
 
 class TestLoad(unittest.TestCase):
@@ -69,27 +71,27 @@ class TestLoad(unittest.TestCase):
 
     def test_box_is_resolved_from_data(self):
         self.box.load = unittest.mock.MagicMock()
-        load(None, self.data_ref)
+        load(self.data_ref)
         self.box.load.assert_called()
 
     def test_load_raises_if_box_does_not_exist(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(BoxNotDefined, "box .* not defined"):
-            load(None, DataRef('data-id', 'unknown-box-id', 'run-id'))
+            load(DataRef('data-id', 'unknown-box-id', 'run-id'))
 
     def test_load_raises_if_data_does_not_exist(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(DataNotFound, "Data .* does not exist"):
-            load(None, self.data_ref)
+            load(self.data_ref)
 
     def test_box_load_gets_all_arguments(self):
         self.box.load = unittest.mock.MagicMock()
-        load('my-output', self.data_ref)
-        self.box.load.assert_called_with('my-output', self.data_ref)
+        load(self.data_ref, value_type='value-type')
+        self.box.load.assert_called_with(self.data_ref, value_type='value-type')
 
     def test_box_load_return_value_is_returned(self):
         self.box.load = unittest.mock.MagicMock(return_value='My value')
-        result = load(None, self.data_ref)
+        result = load(self.data_ref)
         self.assertEqual('My value', result)
 
 

@@ -1,24 +1,24 @@
 """API to be used by users"""
-from .origin import determine_origin, ORIGIN_FROM_FUNCTION_NAME
 from .box_registry import get_box
+from .origin import determine_origin, ORIGIN_FROM_FUNCTION_NAME
 
 
 def store(
-    data_input,
+    value,
     *parents,
     name=None,
     origin=ORIGIN_FROM_FUNCTION_NAME,
     tags=None,
-    run_id=None,
     meta=None,
+    value_type=None,
+    run_id=None,
     box=None
 ):
     """
     Store new data in this box.
 
     Args:
-        data_input (Callable[boxs.storage.Writer]): A callable that takes a
-            single `Writer` argument.
+        value (Any): A value that should be stored.
         *parents (boxs.data.DataInfo): Parent data instances, that this data
             depends on.
         origin (Union[str,Callable]): A string or callable returning a string,
@@ -32,6 +32,9 @@ def store(
         meta (Dict[str, Any]): Additional meta-data about this data. This can be
             used for arbitrary information that might be useful, e.g. information
             about type or format of the data, timestamps, user info etc.
+        value_type (boxs.value_types.ValueType): The value_type to use for writing
+            this value to the storage. Defaults to `None` in which case a suitable
+            value type is taken from the list of predefined values types.
         run_id (str): The id of the run when the data was stored. Defaults to the
             current global run_id (see `get_run_id()`).
         box (Union[str,boxs.box.Box]): The box in which the data should be stored.
@@ -52,26 +55,27 @@ def store(
         box = get_box(box)
     origin = determine_origin(origin)
     return box.store(
-        data_input,
+        value,
         *parents,
         name=name,
         origin=origin,
         tags=tags,
         meta=meta,
+        value_type=value_type,
         run_id=run_id
     )
 
 
-def load(data_output, data):
+def load(data, value_type=None):
     """
     Load the content of the data item.
 
     Args:
-        data_output (Callable[boxs.storage.Reader]): A callable that takes a
-            single `Reader` argument, reads the data and returns it.
         data (Union[boxs.data.DataRef,boxs.data.DataInfo]): DataInfo or
             DataRef that points to the data that should be loaded.
-
+        value_type (boxs.value_types.ValueType): The value type to use when
+            loading the data. Defaults to `None`, in which case the same value
+            type will be used that was used when the data was initially stored.
     Returns:
         Any: The loaded data.
 
@@ -82,7 +86,7 @@ def load(data_output, data):
     """
     box_id = data.box_id
     box = get_box(box_id)
-    return box.load(data_output, data)
+    return box.load(data, value_type=value_type)
 
 
 def info(data_ref):
