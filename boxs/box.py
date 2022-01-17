@@ -101,6 +101,8 @@ class Box:
             tags = {}
         if meta is None:
             meta = {}
+        else:
+            meta = dict(meta)
         origin = determine_origin(origin)
         data_id = calculate_data_id(
             origin, parent_ids=tuple(p.data_id for p in parents)
@@ -127,6 +129,9 @@ class Box:
             raise MissingValueType(value)
 
         value_type.write_value_to_writer(value, writer)
+
+        meta.update(writer.meta)
+        meta['value_type'] = value_type.get_specification()
 
         data = DataInfo(
             ref,

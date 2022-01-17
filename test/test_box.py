@@ -124,7 +124,9 @@ class TestBox(unittest.TestCase):
                 'box_id': 'box-id',
                 'run_id': '1',
             },
-            'meta': {},
+            'meta': {
+                'value_type': 'boxs.value_types:BytesValueType:',
+            },
             'name': None,
             'parents': [],
             'origin': 'test_store_writes_content_and_info',
@@ -139,7 +141,11 @@ class TestBox(unittest.TestCase):
                 'box_id': 'box-id',
                 'run_id': '1',
             },
-            'meta': {'my': 'meta'},
+            'meta': {
+                'encoding': 'utf-8',
+                'my': 'meta',
+                'value_type': 'boxs.value_types:StringValueType:utf-8',
+            },
             'name': None,
             'parents': [],
             'origin': 'test_store_uses_tags_and_meta',
