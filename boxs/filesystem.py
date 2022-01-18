@@ -21,12 +21,12 @@ class FileSystemStorage(Storage):
         self.root_directory = pathlib.Path(directory)
         self._runs_directory_path().mkdir(parents=True, exist_ok=True)
 
-    def _data_file_paths(self, data_id, run_id):
-        base_path = self.root_directory / 'data' / data_id / run_id
+    def _data_file_paths(self, data_ref):
+        base_path = self.root_directory / 'data' / data_ref.data_id / data_ref.run_id
         return base_path.with_suffix('.data'), base_path.with_suffix('.info')
 
-    def _run_file_path(self, data_id, run_id):
-        return self._runs_directory_path() / run_id / data_id
+    def _run_file_path(self, data_ref):
+        return self._runs_directory_path() / data_ref.run_id / data_ref.data_id
 
     def _runs_directory_path(self):
         return self.root_directory / 'runs'
@@ -82,23 +82,23 @@ class FileSystemStorage(Storage):
         items = sorted(items, key=lambda x: x.time)
         return items
 
-    def exists(self, data_id, run_id):
-        _, info_file = self._data_file_paths(data_id, run_id)
+    def exists(self, data_ref):
+        _, info_file = self._data_file_paths(data_ref)
         return info_file.exists()
 
-    def create_writer(self, data_id, run_id):
-        data_file, info_file = self._data_file_paths(data_id, run_id)
-        run_file = self._run_file_path(data_id, run_id)
-        return _FileSystemWriter(data_id, run_id, data_file, info_file, run_file)
+    def create_writer(self, data_ref):
+        data_file, info_file = self._data_file_paths(data_ref)
+        run_file = self._run_file_path(data_ref)
+        return _FileSystemWriter(data_ref, data_file, info_file, run_file)
 
-    def create_reader(self, data_id, run_id):
-        data_file, info_file = self._data_file_paths(data_id, run_id)
-        return _FileSystemReader(data_id, run_id, data_file, info_file)
+    def create_reader(self, data_ref):
+        data_file, info_file = self._data_file_paths(data_ref)
+        return _FileSystemReader(data_ref, data_file, info_file)
 
 
 class _FileSystemReader(Reader):
-    def __init__(self, data_id, run_id, data_file, info_file):
-        super().__init__(data_id, run_id)
+    def __init__(self, data_ref, data_file, info_file):
+        super().__init__(data_ref)
         self.data_file = data_file
         self.info_file = info_file
         self._info = None
@@ -119,9 +119,9 @@ class _FileSystemReader(Reader):
 
 class _FileSystemWriter(Writer):
     def __init__(  # pylint: disable=too-many-arguments
-        self, data_id, run_id, data_file, info_file, run_file
+        self, data_ref, data_file, info_file, run_file
     ):
-        super().__init__(data_id, run_id)
+        super().__init__(data_ref)
         self.data_file = data_file
         self.info_file = info_file
         self.run_file = run_file

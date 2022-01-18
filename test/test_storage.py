@@ -1,5 +1,6 @@
 import unittest.mock
 
+from boxs.data import DataRef
 from boxs.storage import DelegatingReader, DelegatingWriter, Reader, Transformer, Writer
 
 
@@ -37,7 +38,7 @@ class WriterImplementation(Writer):
 class TestReader(unittest.TestCase):
 
     def setUp(self):
-        self.reader = ReaderImplementation('data-id', 'run-id')
+        self.reader = ReaderImplementation(DataRef('data-id', 'box_id', 'run-id'))
 
     def test_data_id_is_taken_from_constructor(self):
         result = self.reader.data_id
@@ -56,7 +57,7 @@ class TestReader(unittest.TestCase):
 class TestWriter(unittest.TestCase):
 
     def setUp(self):
-        self.writer = WriterImplementation('data-id', 'run-id')
+        self.writer = WriterImplementation(DataRef('data-id', 'box_id', 'run-id'))
 
     def test_data_id_is_taken_from_constructor(self):
         result = self.writer.data_id

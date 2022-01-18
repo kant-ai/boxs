@@ -48,26 +48,26 @@ class Storage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def exists(self, data_id, run_id):
+    def exists(self, data_ref):
         """
         Checks is a specific data already exists.
 
         Args:
-            data_id (str): The `data_id` of the data to check for.
-            run_id (str): The `run_id` of the data to check for.
+            data_ref (boxs.data.DataRef): The reference to the data that should be
+                checked if it exists.
 
         Returns:
             bool: `True` if the referenced data already exists, otherwise `False`.
         """
 
     @abc.abstractmethod
-    def create_reader(self, data_id, run_id):
+    def create_reader(self, data_ref):
         """
         Creates a `Reader` instance, that allows to load existing data.
 
         Args:
-            data_id (str): The `data_id` of the data that should be loaded.
-            run_id (str): The `run_id` of the data that should be loaded.
+            data_ref (boxs.data.DataRef): The reference to the data that should be
+                read.
 
         Returns:
             boxs.storage.Reader: The reader that will load the data from the
@@ -75,13 +75,12 @@ class Storage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def create_writer(self, data_id, run_id):
+    def create_writer(self, data_ref):
         """
         Creates a `Writer` instance, that allows to store new data.
 
         Args:
-            data_id (str): The `data_id` of the new data.
-            run_id (str): The `run_id` of the new data.
+            data_ref (boxs.data.DataRef): The reference to the new data item.
 
         Returns:
             boxs.storage.Writer: The writer that will write the data into the
@@ -94,26 +93,30 @@ class Reader(abc.ABC):
     Base class for the storage specific reader implementations.
     """
 
-    def __init__(self, data_id, run_id):
+    def __init__(self, data_ref):
         """
         Creates a `Reader` instance, that allows to load existing data.
 
         Args:
-            data_id (str): The `data_id` of the data that should be loaded.
-            run_id (str): The `run_id` of the data that should be loaded.
+            data_ref (boxs.data.DataRef): The `data_ref` of the data that should be
+                loaded.
         """
-        self._data_id = data_id
-        self._run_id = run_id
+        self._data_ref = data_ref
+
+    @property
+    def data_ref(self):
+        """The data_ref of the data that this reader can read."""
+        return self._data_ref
 
     @property
     def data_id(self):
         """The data_id of the data that this reader can read."""
-        return self._data_id
+        return self._data_ref.data_id
 
     @property
     def run_id(self):
         """The run_id of the data that this reader can read."""
-        return self._run_id
+        return self._data_ref.run_id
 
     def read_value(self, value_type):
         """
@@ -161,7 +164,7 @@ class DelegatingReader(Reader):
             delegate (boxs.storage.Reader): The reader to which all calls are
                 delegated.
         """
-        super().__init__(delegate.data_id, delegate.run_id)
+        super().__init__(delegate.data_ref)
         self.delegate = delegate
 
     @property
@@ -192,26 +195,29 @@ class Writer(abc.ABC):
     Base class for the storage specific writer implementations.
     """
 
-    def __init__(self, data_id, run_id):
+    def __init__(self, data_ref):
         """
         Creates a `Writer` instance, that allows to store new data.
 
         Args:
-            data_id (str): The `data_id` of the new data.
-            run_id (str): The `run_id` of the new data.
+            data_ref (boxs.data.DataRef): The `data_ref` of the new data.
         """
-        self._data_id = data_id
-        self._run_id = run_id
+        self._data_ref = data_ref
+
+    @property
+    def data_ref(self):
+        """Returns the data_ref of the DataItem which this writer writes to."""
+        return self._data_ref
 
     @property
     def data_id(self):
         """Returns the data_id of the DataItem which this writer writes to."""
-        return self._data_id
+        return self._data_ref.data_id
 
     @property
     def run_id(self):
         """Returns the run_id of the DataItem which this writer writes to."""
-        return self._run_id
+        return self._data_ref.run_id
 
     @property
     @abc.abstractmethod
@@ -263,7 +269,7 @@ class DelegatingWriter(Writer):
 
     def __init__(self, delegate):
         self.delegate = delegate
-        super().__init__(delegate.data_id, delegate.run_id)
+        super().__init__(delegate.data_ref)
 
     @property
     def data_id(self):

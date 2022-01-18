@@ -2,13 +2,15 @@ import io
 import unittest.mock
 
 from boxs.checksum import ChecksumTransformer, DataChecksumMismatch
+from boxs.data import DataRef
 from boxs.value_types import BytesValueType
 from boxs.storage import Reader
+
 
 class ReaderImpl(Reader):
 
     def __init__(self):
-        super().__init__('my-data-id', '1')
+        super().__init__(DataRef('my-data-id', 'box_id', '1'))
         self._meta = {}
 
     @property
