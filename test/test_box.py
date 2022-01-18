@@ -169,7 +169,7 @@ class TestBox(unittest.TestCase):
         box.store('My value', origin='origin', value_type=value_type)
 
         transformer.transform_writer.assert_called_with(self.storage.writer)
-        value_type.write_value_to_writer.assert_called_once_with('My value', transformer.transform_writer.return_value)
+        transformer.transform_writer.return_value.write_value.assert_called_once_with('My value', value_type)
 
     def test_store_applies_multiple_transformers(self):
         transformer1 = unittest.mock.MagicMock()
@@ -181,7 +181,7 @@ class TestBox(unittest.TestCase):
 
         transformer1.transform_writer.assert_called_with(self.storage.writer)
         transformer2.transform_writer.assert_called_once_with(transformer1.transform_writer.return_value)
-        value_type.write_value_to_writer.assert_called_once_with('My value', transformer2.transform_writer.return_value)
+        transformer2.transform_writer.return_value.write_value('My value', value_type)
 
     def test_load_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)

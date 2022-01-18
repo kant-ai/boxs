@@ -128,7 +128,7 @@ class Box:
         if value_type is None:
             raise MissingValueType(value)
 
-        value_type.write_value_to_writer(value, writer)
+        writer.write_value(value, value_type)
 
         meta.update(writer.meta)
         meta['value_type'] = value_type.get_specification()
