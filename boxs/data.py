@@ -10,15 +10,15 @@ class DataRef:
     """
 
     __slots__ = [
+        'box_id',
         'data_id',
         'run_id',
-        'box_id',
         '_info',
     ]
 
-    def __init__(self, data_id, box_id, run_id):
-        self.data_id = data_id
+    def __init__(self, box_id, data_id, run_id):
         self.box_id = box_id
+        self.data_id = data_id
         self.run_id = run_id
         self._info = None
 
@@ -30,9 +30,9 @@ class DataRef:
             Dict[str,str]: A dict containing information about this reference.
         """
         value_info = {
+            'box_id': self.box_id,
             'data_id': self.data_id,
             'run_id': self.run_id,
-            'box_id': self.box_id,
         }
         return value_info
 
@@ -50,10 +50,10 @@ class DataRef:
         Raises:
             KeyError: If necessary attributes are missing from the `value_info`.
         """
+        box_id = value_info['box_id']
         data_id = value_info['data_id']
         run_id = value_info['run_id']
-        box_id = value_info['box_id']
-        data = DataRef(data_id, box_id, run_id)
+        data = DataRef(box_id, data_id, run_id)
         return data
 
     @property
@@ -78,9 +78,9 @@ class DataRef:
         url_parts = urllib.parse.urlparse(uri)
         if url_parts.scheme != 'box':
             raise ValueError("Invalid scheme")
-        data_id, run_id = url_parts.path[1:].split('/', 1)
         box_id = url_parts.hostname
-        data = DataRef(data_id, box_id, run_id)
+        data_id, run_id = url_parts.path[1:].split('/', 1)
+        data = DataRef(box_id, data_id, run_id)
         return data
 
     @property

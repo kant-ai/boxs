@@ -38,7 +38,7 @@ class WriterImplementation(Writer):
 class TestReader(unittest.TestCase):
 
     def setUp(self):
-        self.reader = ReaderImplementation(DataRef('data-id', 'box_id', 'run-id'))
+        self.reader = ReaderImplementation(DataRef('box_id', 'data-id', 'run-id'))
 
     def test_data_id_is_taken_from_constructor(self):
         result = self.reader.data_id
@@ -57,7 +57,7 @@ class TestReader(unittest.TestCase):
 class TestWriter(unittest.TestCase):
 
     def setUp(self):
-        self.writer = WriterImplementation(DataRef('data-id', 'box_id', 'run-id'))
+        self.writer = WriterImplementation(DataRef('box_id', 'data-id', 'run-id'))
 
     def test_data_id_is_taken_from_constructor(self):
         result = self.writer.data_id

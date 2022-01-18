@@ -64,7 +64,7 @@ class TestLoad(unittest.TestCase):
     def setUp(self):
         self.storage = unittest.mock.MagicMock()
         self.box = Box('box-id', self.storage)
-        self.data_ref = DataRef('data-id', 'box-id', 'run-id')
+        self.data_ref = DataRef('box-id', 'data-id', 'run-id')
 
     def tearDown(self):
         unregister_box(self.box.box_id)
@@ -77,7 +77,7 @@ class TestLoad(unittest.TestCase):
     def test_load_raises_if_box_does_not_exist(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(BoxNotDefined, "box .* not defined"):
-            load(DataRef('data-id', 'unknown-box-id', 'run-id'))
+            load(DataRef('unknown-box-id', 'data-id', 'run-id'))
 
     def test_load_raises_if_data_does_not_exist(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
@@ -100,7 +100,7 @@ class TestInfo(unittest.TestCase):
     def setUp(self):
         self.storage = unittest.mock.MagicMock()
         self.box = Box('box-id', self.storage)
-        self.data_ref = DataRef('data-id', 'box-id', 'run-id')
+        self.data_ref = DataRef('box-id', 'data-id', 'run-id')
 
     def tearDown(self):
         unregister_box(self.box.box_id)
@@ -113,7 +113,7 @@ class TestInfo(unittest.TestCase):
     def test_info_raises_if_box_does_not_exist(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(BoxNotDefined, "box .* not defined"):
-            info(DataRef('data-id', 'unknown-box-id', 'run-id'))
+            info(DataRef('unknown-box-id', 'data-id', 'run-id'))
 
     def test_info_raises_if_data_does_not_exist(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=False)

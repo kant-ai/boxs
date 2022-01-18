@@ -10,7 +10,7 @@ from boxs.storage import Reader
 class ReaderImpl(Reader):
 
     def __init__(self):
-        super().__init__(DataRef('my-data-id', 'box_id', '1'))
+        super().__init__(DataRef('box_id', 'my-data-id', '1'))
         self._meta = {}
 
     @property

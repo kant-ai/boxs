@@ -93,7 +93,7 @@ class TestBox(unittest.TestCase):
         self.storage = DummyStorage()
         self.box = Box('box-id', self.storage)
         self.data = DataInfo(
-            DataRef('data-id', self.box.box_id, 'rev-id'),
+            DataRef(self.box.box_id, 'data-id', 'rev-id'),
             'origin',
             meta={'value_type': 'boxs.value_types:BytesValueType:'},
         )
@@ -194,13 +194,13 @@ class TestBox(unittest.TestCase):
         self.assertEqual('My content', result)
 
     def test_load_raises_if_wrong_box_id(self):
-        data = DataRef('data-id', 'wrong-box-id', 'rev-id')
+        data = DataRef('wrong-box-id', 'data-id', 'rev-id')
 
         with self.assertRaisesRegex(ValueError, "different box id"):
             self.box.load(data)
 
     def test_load_raises_if_not_exists(self):
-        data = DataRef('data-id', 'box-id', 'rev-id')
+        data = DataRef('box-id', 'data-id', 'rev-id')
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
             self.box.load(data)
@@ -233,19 +233,19 @@ class TestBox(unittest.TestCase):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
         self.storage.reader.info['my'] = 'info'
 
-        data = DataRef('data-id', self.box.box_id, 'rev-id')
+        data = DataRef(self.box.box_id, 'data-id', 'rev-id')
 
         result = self.box.info(data)
         self.assertEqual({'my': 'info'}, result)
 
     def test_info_raises_if_wrong_box_id(self):
-        data = DataRef('data-id', 'wrong-box-id', 'rev-id')
+        data = DataRef('wrong-box-id', 'data-id', 'rev-id')
 
         with self.assertRaisesRegex(ValueError, "different box id"):
             self.box.info(data)
 
     def test_info_raises_if_not_exists(self):
-        data = DataRef('data-id', 'box-id', 'rev-id')
+        data = DataRef('box-id', 'data-id', 'rev-id')
         self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
             self.box.info(data)

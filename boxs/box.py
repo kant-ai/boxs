@@ -114,7 +114,7 @@ class Box:
         if self.storage.exists(data_id, run_id):
             raise DataCollision(self.box_id, data_id, run_id)
 
-        ref = DataRef(data_id, self.box_id, run_id)
+        ref = DataRef(self.box_id, data_id, run_id)
 
         writer = self.storage.create_writer(data_id, run_id)
         for transformer in self.transformers:
