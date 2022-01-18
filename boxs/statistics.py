@@ -34,6 +34,7 @@ class _CountingStreamWrapper(DelegatingStream):
         self._meta = meta
 
     def close(self):
+        super().close()
         self._end = datetime.datetime.now(datetime.timezone.utc)
         self._meta['size_in_bytes'] = self._bytes_written
         self._meta['number_of_lines'] = self._linebreaks
@@ -41,7 +42,6 @@ class _CountingStreamWrapper(DelegatingStream):
             timespec='milliseconds',
         )
         self._meta['store_end'] = self._start.isoformat(timespec='milliseconds')
-        super().close()
 
     def write(self, byte_buffer):
         written = super().write(byte_buffer)

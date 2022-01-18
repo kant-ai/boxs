@@ -1,5 +1,9 @@
 """Interface to backend storage"""
 import abc
+import collections
+
+Run = collections.namedtuple('Run', 'run_id time')
+Item = collections.namedtuple('Item', 'data_id run_id name time')
 
 
 class Storage(abc.ABC):
@@ -13,6 +17,35 @@ class Storage(abc.ABC):
     loading data is implemented in a separate `Reader` object that is created by
     `create_reader()`.
     """
+
+    @abc.abstractmethod
+    def list_runs(self, limit=None):
+        """
+        List the runs that stored data in this storage.
+
+        The runs should be returned in descending order of their start time.
+
+        Args;
+            limit (Optional[int]): Limits the returned runs to maximum `limit` number.
+                Defaults to `None` in which case all runs are returned.
+
+        Returns:
+            List[box.storage.Run]: The runs.
+        """
+
+    @abc.abstractmethod
+    def list_items_in_run(self, run_id):
+        """
+        List all items that were created in a run.
+
+        The runs should be returned in descending order of their start time.
+
+        Args;
+            run_id (str): Run id of the run for which all items should be returned.
+
+        Returns:
+            List[box.storage.Item]: The runs.
+        """
 
     @abc.abstractmethod
     def exists(self, data_id, run_id):

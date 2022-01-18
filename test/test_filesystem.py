@@ -1,6 +1,8 @@
+import datetime
 import pathlib
 import shutil
 import tempfile
+import time
 import unittest
 
 from boxs.filesystem import FileSystemStorage
@@ -15,12 +17,73 @@ class TestFileSystemStorage(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.dir)
 
+    def test_runs_can_be_listed(self):
+        writer = self.storage.create_writer('data-id', 'run1')
+        writer.write_info({})
+        time.sleep(0.1)
+        writer = self.storage.create_writer('data-id', 'run2')
+        writer.write_info({})
+        time.sleep(0.1)
+        writer = self.storage.create_writer('data-id', 'run3')
+        writer.write_info({})
+
+        runs = self.storage.list_runs()
+        self.assertEqual('run3', runs[0].run_id)
+        self.assertEqual('run2', runs[1].run_id)
+        self.assertEqual('run1', runs[2].run_id)
+        self.assertIsInstance(runs[0].time, datetime.datetime)
+        self.assertGreater(runs[0].time, runs[1].time)
+        self.assertGreater(runs[1].time, runs[2].time)
+
+    def test_list_runs_can_be_limited(self):
+        writer = self.storage.create_writer('data-id', 'run1')
+        writer.write_info({})
+        time.sleep(0.01)
+        writer = self.storage.create_writer('data-id', 'run2')
+        writer.write_info({})
+        time.sleep(0.01)
+        writer = self.storage.create_writer('data-id', 'run3')
+        writer.write_info({})
+
+        runs = self.storage.list_runs(limit=2)
+        self.assertEqual(2, len(runs))
+        self.assertEqual('run3', runs[0].run_id)
+        self.assertEqual('run2', runs[1].run_id)
+
+    def test_items_in_run_can_be_listed(self):
+        writer = self.storage.create_writer('data1', 'run')
+        writer.write_info({})
+        time.sleep(0.01)
+        writer = self.storage.create_writer('data2', 'run')
+        writer.write_info({})
+        time.sleep(0.01)
+        writer = self.storage.create_writer('data3', 'run')
+        writer.write_info({})
+
+        items = self.storage.list_items_in_run('run')
+        self.assertEqual('run', items[0].run_id)
+        self.assertEqual('run', items[1].run_id)
+        self.assertEqual('run', items[2].run_id)
+        self.assertEqual('data1', items[0].data_id)
+        self.assertEqual('data2', items[1].data_id)
+        self.assertEqual('data3', items[2].data_id)
+        self.assertIsInstance(items[0].time, datetime.datetime)
+        self.assertLess(items[0].time, items[1].time)
+        self.assertLess(items[1].time, items[2].time)
+
+    def test_items_in_run_can_be_listed_with_their_name(self):
+        writer = self.storage.create_writer('data1', 'run')
+        writer.write_info({'name': 'item-name'})
+
+        items = self.storage.list_items_in_run('run')
+        self.assertEqual('item-name', items[0].name)
+
     def test_writer_writes_data_to_file(self):
         writer = self.storage.create_writer('data-id', 'rev-id')
         with writer.as_stream() as stream:
             stream.write(b'My data')
 
-        data_file = self.dir / 'data-id' / 'rev-id.data'
+        data_file = self.dir / 'data' / 'data-id' / 'rev-id.data'
         self.assertEqual(b'My data', data_file.read_bytes())
 
     def test_writer_raises_collision_if_same_ids_twice(self):
@@ -31,7 +94,7 @@ class TestFileSystemStorage(unittest.TestCase):
         with writer.as_stream() as stream:
             stream.write(b'My data')
 
-        data_file = self.dir / 'data-id' / 'rev-id.data'
+        data_file = self.dir / 'data' / 'data-id' / 'rev-id.data'
         self.assertEqual(b'My data', data_file.read_bytes())
 
     def test_writer_meta_can_be_set(self):
