@@ -51,6 +51,19 @@ class TestDataRef(unittest.TestCase):
         info_mock.assert_called_once_with(data_ref)
         self.assertIs(info1, info2)
 
+    @unittest.mock.patch('boxs.data.load')
+    @unittest.mock.patch('boxs.data.info')
+    def test_load_calls_api_with_itself(self, info_mock, load_mock):
+        data_ref = DataRef('data-id', 'my-box', 'my-revision')
+
+        data_info = DataInfo(data_ref, 'origin')
+        info_mock.return_value = data_info
+        load_mock.return_value = 'result'
+
+        result = data_ref.load()
+        self.assertEqual('result', result)
+        load_mock.assert_called_once_with(data_info, value_type=None)
+
     def test_data_refs_are_equal_if_ids_match(self):
         data_ref1 = DataRef('data-id', 'my-box', 'my-revision')
         data_ref2 = DataRef('data-id', 'my-box', 'my-revision')
@@ -92,9 +105,9 @@ class TestDataInfo(unittest.TestCase):
 
         load_mock.return_value = 'result'
 
-        result = data_ref.load('output')
+        result = data_ref.load()
         self.assertIs('result', result)
-        load_mock.assert_called_once_with('output', data_ref)
+        load_mock.assert_called_once_with(data_ref, value_type=None)
 
     def test_value_info_contains_data_id(self):
         data = DataInfo(DataRef('data-id', 'my-storage', 'revision-id'), 'origin')

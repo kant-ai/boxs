@@ -95,6 +95,25 @@ class DataRef:
             self._info = info(self)
         return self._info
 
+    def load(self, value_type=None):
+        """
+        Load the content of the data item.
+
+        Args:
+            value_type (boxs.value_types.ValueType): The value type to use when
+                loading the data. Defaults to `None`, in which case the same value
+                type will be used that was used when the data was initially stored.
+
+        Returns:
+            Any: The loaded data.
+
+        Raises:
+            boxs.errors.BoxNotDefined: If the data is stored in an unknown box.
+            boxs.errors.DataNotFound: If no data with the specific ids are stored
+                in the referenced box.
+        """
+        return self.info.load(value_type=value_type)
+
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return False
@@ -172,13 +191,14 @@ class DataInfo:
         """Returns the info. This is to be compatible with DataRef"""
         return self
 
-    def load(self, data_output):
+    def load(self, value_type=None):
         """
         Load the content of the data item.
 
         Args:
-            data_output (Callable[boxs.storage.Reader]): A callable that takes a
-                single `Reader` argument, reads the data and returns it.
+            value_type (boxs.value_types.ValueType): The value type to use when
+                loading the data. Defaults to `None`, in which case the same value
+                type will be used that was used when the data was initially stored.
 
         Returns:
             Any: The loaded data.
@@ -188,7 +208,7 @@ class DataInfo:
             boxs.errors.DataNotFound: If no data with the specific ids are stored
                 in the referenced box.
         """
-        return load(data_output, self)
+        return load(self, value_type=value_type)
 
     def value_info(self):
         """
