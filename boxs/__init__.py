@@ -9,9 +9,11 @@ execution which allows to compare the data between different runs.
 from .api import load, store, info
 from .box import Box
 from .box_registry import get_box
+from .checksum import ChecksumTransformer
 from .data import DataRef
 from .filesystem import FileSystemStorage
 from .origin import ORIGIN_FROM_FUNCTION_NAME, ORIGIN_FROM_NAME, ORIGIN_FROM_TAGS
+from .statistics import StatisticsTransformer
 from .storage import Storage, Transformer
 from .value_types import (
     ValueType,
