@@ -28,7 +28,7 @@ class TestFileSystemStorage(unittest.TestCase):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run3'))
         writer.write_info('origin', [], {})
 
-        runs = self.storage.list_runs()
+        runs = self.storage.list_runs('box-id')
         self.assertEqual('run3', runs[0].run_id)
         self.assertEqual('run2', runs[1].run_id)
         self.assertEqual('run1', runs[2].run_id)
@@ -46,7 +46,7 @@ class TestFileSystemStorage(unittest.TestCase):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run3'))
         writer.write_info('origin', [], {})
 
-        runs = self.storage.list_runs(limit=2)
+        runs = self.storage.list_runs('box-id', limit=2)
         self.assertEqual(2, len(runs))
         self.assertEqual('run3', runs[0].run_id)
         self.assertEqual('run2', runs[1].run_id)
@@ -61,7 +61,7 @@ class TestFileSystemStorage(unittest.TestCase):
         writer = self.storage.create_writer(DataRef('box-id', 'data3', 'run'))
         writer.write_info('origin', [], {})
 
-        items = self.storage.list_items_in_run('run')
+        items = self.storage.list_items_in_run('box-id', 'run')
         self.assertEqual('run', items[0].run_id)
         self.assertEqual('run', items[1].run_id)
         self.assertEqual('run', items[2].run_id)
@@ -76,22 +76,22 @@ class TestFileSystemStorage(unittest.TestCase):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
         writer.write_info('origin', [], {})
 
-        items = self.storage.list_items_in_run('run')
+        items = self.storage.list_items_in_run('box-id', 'run')
         self.assertEqual('item-name', items[0].name)
 
     def test_a_run_can_be_named(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
         writer.write_info('origin', [], {})
 
-        run = self.storage.set_run_name('run', 'My run name')
+        run = self.storage.set_run_name('box-id', 'run', 'My run name')
         self.assertEqual('My run name', run.name)
 
     def test_a_run_can_be_renamed(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
         writer.write_info('origin', [], {})
 
-        run = self.storage.set_run_name('run', 'My first name')
-        run = self.storage.set_run_name('run', 'My second name')
+        run = self.storage.set_run_name('box-id', 'run', 'My first name')
+        run = self.storage.set_run_name('box-id', 'run', 'My second name')
 
         self.assertEqual('My second name', run.name)
 
@@ -99,8 +99,8 @@ class TestFileSystemStorage(unittest.TestCase):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
         writer.write_info('origin', [], {})
 
-        run = self.storage.set_run_name('run', 'My first name')
-        run = self.storage.set_run_name('run', None)
+        run = self.storage.set_run_name('box-id', 'run', 'My first name')
+        run = self.storage.set_run_name('box-id', 'run', None)
 
         self.assertIsNone(run.name)
 

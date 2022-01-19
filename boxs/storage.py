@@ -19,13 +19,14 @@ class Storage(abc.ABC):
     """
 
     @abc.abstractmethod
-    def list_runs(self, limit=None):
+    def list_runs(self, box_id, limit=None):
         """
-        List the runs that stored data in this storage.
+        List the runs within a box stored in this storage.
 
         The runs should be returned in descending order of their start time.
 
-        Args;
+        Args:
+            box_id (str): `box_id` of the box in which to look for runs.
             limit (Optional[int]): Limits the returned runs to maximum `limit` number.
                 Defaults to `None` in which case all runs are returned.
 
@@ -34,13 +35,14 @@ class Storage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def list_items_in_run(self, run_id):
+    def list_items_in_run(self, box_id, run_id):
         """
         List all items that were created in a run.
 
         The runs should be returned in descending order of their start time.
 
-        Args;
+        Args:
+            box_id (str): `box_id` of the box in which to look for.
             run_id (str): Run id of the run for which all items should be returned.
 
         Returns:
@@ -48,13 +50,14 @@ class Storage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_run_name(self, run_id, name):
+    def set_run_name(self, box_id, run_id, name):
         """
         Set the name of a run.
 
         The name can be updated and removed by providing `None`.
 
         Args;
+            box_id (str): `box_id` of the box in which the run is stored.
             run_id (str): Run id of the run which should be named.
             name (Optional[str]): New name of the run. If `None`, an existing name
                 will be removed.

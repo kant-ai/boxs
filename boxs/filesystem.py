@@ -39,7 +39,7 @@ class FileSystemStorage(Storage):
     def _run_directory_path(self, run_id):
         return self._runs_directory_path() / run_id
 
-    def list_runs(self, limit=None):
+    def list_runs(self, box_id, limit=None):
         runs_directory = self._runs_directory_path()
         runs = [
             self._create_run_from_run_path(path)
@@ -51,7 +51,7 @@ class FileSystemStorage(Storage):
             runs = runs[:limit]
         return runs
 
-    def list_items_in_run(self, run_id):
+    def list_items_in_run(self, box_id, run_id):
         run_directory = self._run_directory_path(run_id)
         if not run_directory.exists():
             raise ValueError("Unknown run " + run_id)
@@ -81,7 +81,7 @@ class FileSystemStorage(Storage):
         items = sorted(items, key=lambda x: x.time)
         return items
 
-    def set_run_name(self, run_id, name):
+    def set_run_name(self, box_id, run_id, name):
         """
         Set the name of a run.
 
