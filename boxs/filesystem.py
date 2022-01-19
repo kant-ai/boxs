@@ -5,6 +5,7 @@ import json
 import pathlib
 
 from .data import DataInfo
+from .errors import BoxNotFound, RunNotFound
 from .storage import Storage, Reader, Writer, Run, Item
 
 
@@ -20,31 +21,50 @@ class FileSystemStorage(Storage):
                 data will be stored.
         """
         self.root_directory = pathlib.Path(directory)
-        self._runs_directory_path().mkdir(parents=True, exist_ok=True)
-        self._runs_names_directory_path().mkdir(parents=True, exist_ok=True)
 
     def _data_file_paths(self, data_ref):
-        base_path = self.root_directory / 'data' / data_ref.data_id / data_ref.run_id
+        base_path = (
+            self.root_directory
+            / data_ref.box_id
+            / 'data'
+            / data_ref.data_id
+            / data_ref.run_id
+        )
         return base_path.with_suffix('.data'), base_path.with_suffix('.info')
 
     def _run_file_path(self, data_ref):
-        return self._runs_directory_path() / data_ref.run_id / data_ref.data_id
+        return (
+            self._runs_directory_path(data_ref.box_id)
+            / data_ref.run_id
+            / data_ref.data_id
+        )
 
-    def _runs_directory_path(self):
-        return self.root_directory / 'runs'
+    def _runs_directory_path(self, box_id):
+        path = self.root_directory / box_id / 'runs'
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
-    def _runs_names_directory_path(self):
-        return self._runs_directory_path() / '_named'
+    def _runs_names_directory_path(self, box_id):
+        path = self._runs_directory_path(box_id) / '_named'
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
-    def _run_directory_path(self, run_id):
-        return self._runs_directory_path() / run_id
+    def _run_directory_path(self, box_id, run_id):
+        return self._runs_directory_path(box_id) / run_id
+
+    def _box_directory_path(self, box_id):
+        return self.root_directory / box_id
 
     def list_runs(self, box_id, limit=None):
-        runs_directory = self._runs_directory_path()
+        box_directory = self._box_directory_path(box_id)
+        if not box_directory.exists():
+            raise BoxNotFound(box_id)
+
+        runs_directory = self._runs_directory_path(box_id)
         runs = [
-            self._create_run_from_run_path(path)
+            self._create_run_from_run_path(box_id, path)
             for path in runs_directory.iterdir()
-            if path.is_dir() and path != self._runs_names_directory_path()
+            if path.is_dir() and path != self._runs_names_directory_path(box_id)
         ]
         runs = sorted(runs, key=lambda x: x.time, reverse=True)
         if limit is not None:
@@ -52,9 +72,13 @@ class FileSystemStorage(Storage):
         return runs
 
     def list_items_in_run(self, box_id, run_id):
-        run_directory = self._run_directory_path(run_id)
+        box_directory = self._box_directory_path(box_id)
+        if not box_directory.exists():
+            raise BoxNotFound(box_id)
+
+        run_directory = self._run_directory_path(box_id, run_id)
         if not run_directory.exists():
-            raise ValueError("Unknown run " + run_id)
+            raise RunNotFound(box_id, run_id)
 
         name_directory = run_directory / '_named'
         named_items = {}
@@ -82,27 +106,22 @@ class FileSystemStorage(Storage):
         return items
 
     def set_run_name(self, box_id, run_id, name):
-        """
-        Set the name of a run.
+        box_directory = self._box_directory_path(box_id)
+        if not box_directory.exists():
+            raise BoxNotFound(box_id)
 
-        The name can be updated and removed by providing `None`.
+        run_directory = self._run_directory_path(box_id, run_id)
+        if not run_directory.exists():
+            raise RunNotFound(box_id, run_id)
 
-        Args;
-            run_id (str): Run id of the run which should be named.
-            name (Optional[str]): New name of the run. If `None`, an existing name
-                will be removed.
+        run_path = self._run_directory_path(box_id, run_id)
 
-        Returns:
-            box.storage.Run: The run with its new name.
-        """
-        run_path = self._run_directory_path(run_id)
-
-        self._remove_name_for_run(run_id)
+        self._remove_name_for_run(box_id, run_id)
 
         if name is not None:
-            self._set_name_for_run_path(name, run_path)
+            self._set_name_for_run_path(box_id, name, run_path)
 
-        run = self._create_run_from_run_path(run_path)
+        run = self._create_run_from_run_path(box_id, run_path)
         return run
 
     def exists(self, data_ref):
@@ -119,33 +138,31 @@ class FileSystemStorage(Storage):
         data_file, info_file = self._data_file_paths(data_ref)
         return _FileSystemReader(data_ref, data_file, info_file)
 
-    def _get_run_names(self):
-        name_directory = self._runs_names_directory_path()
+    def _get_run_names(self, box_id):
+        name_directory = self._runs_names_directory_path(box_id)
         run_names = {}
         for named_link_file in name_directory.iterdir():
             name = named_link_file.name
             resolved_run_dir = named_link_file.resolve()
             run_id = resolved_run_dir.name
-            if run_id in run_names:
-                raise KeyError("Multiple names for single run")
             run_names[run_id] = name
         return run_names
 
-    def _set_name_for_run_path(self, name, run_path):
-        name_dir = self._runs_names_directory_path()
+    def _set_name_for_run_path(self, box_id, name, run_path):
+        name_dir = self._runs_names_directory_path(box_id)
         name_dir.mkdir(exist_ok=True)
         name_symlink_file = name_dir / name
         name_symlink_file.symlink_to(run_path)
 
-    def _remove_name_for_run(self, run_id):
-        run_names = self._get_run_names()
+    def _remove_name_for_run(self, box_id, run_id):
+        run_names = self._get_run_names(box_id)
         if run_id in run_names:
-            name_dir = self._runs_names_directory_path()
+            name_dir = self._runs_names_directory_path(box_id)
             name_symlink_file = name_dir / run_names[run_id]
             name_symlink_file.unlink()
 
-    def _create_run_from_run_path(self, run_path):
-        run_names = self._get_run_names()
+    def _create_run_from_run_path(self, box_id, run_path):
+        run_names = self._get_run_names(box_id)
         run_id = run_path.name
         return Run(
             run_id,

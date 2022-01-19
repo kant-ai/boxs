@@ -79,6 +79,38 @@ class BoxNotDefined(BoxError):
         super().__init__(f"Box with box id {self.box_id} not defined")
 
 
+class BoxNotFound(BoxError):
+    """
+    Error that is raised if a box can't be found.
+
+    Attributes:
+        box_id (str): The id of the box which should contain the data item.
+    """
+
+    def __init__(self, box_id):
+        self.box_id = box_id
+        super().__init__(f"Box {self.box_id} does not exist in storage.")
+
+
+class RunError(BoxsError):
+    """Base class for all run specific errors"""
+
+
+class RunNotFound(RunError):
+    """
+    Error that is raised if a run can't be found.
+
+    Attributes:
+        box_id (str): The id of the box which should contain the run.
+        run_id (str): The id of the run.
+    """
+
+    def __init__(self, box_id, run_id):
+        self.box_id = box_id
+        self.run_id = run_id
+        super().__init__(f"Run {self.run_id} does not exist in box {self.box_id}")
+
+
 class ValueTypeError(BoxsError):
     """Base class for all boxs specific errors related to value types"""
 

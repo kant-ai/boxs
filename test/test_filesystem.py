@@ -6,6 +6,7 @@ import time
 import unittest
 
 from boxs.data import DataRef
+from boxs.errors import BoxNotFound, RunNotFound
 from boxs.filesystem import FileSystemStorage
 
 
@@ -35,6 +36,13 @@ class TestFileSystemStorage(unittest.TestCase):
         self.assertIsInstance(runs[0].time, datetime.datetime)
         self.assertGreater(runs[0].time, runs[1].time)
         self.assertGreater(runs[1].time, runs[2].time)
+
+    def test_listing_runs_for_invalid_box_id_raises(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
+        writer.write_info('origin', [], {})
+
+        with self.assertRaisesRegex(BoxNotFound, "Box unknown-box-id does not exist"):
+            self.storage.list_runs('unknown-box-id')
 
     def test_list_runs_can_be_limited(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
@@ -79,6 +87,20 @@ class TestFileSystemStorage(unittest.TestCase):
         items = self.storage.list_items_in_run('box-id', 'run')
         self.assertEqual('item-name', items[0].name)
 
+    def test_listing_items_in_invalid_box_id_raises(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
+        writer.write_info('origin', [], {})
+
+        with self.assertRaisesRegex(BoxNotFound, "Box unknown-box-id does not exist"):
+            self.storage.list_items_in_run('unknown-box-id', 'run')
+
+    def test_listing_items_for_invalid_run_id_raises(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
+        writer.write_info('origin', [], {})
+
+        with self.assertRaisesRegex(RunNotFound, "Run unknown-run does not exist"):
+            self.storage.list_items_in_run('box-id', 'unknown-run')
+
     def test_a_run_can_be_named(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
         writer.write_info('origin', [], {})
@@ -104,12 +126,26 @@ class TestFileSystemStorage(unittest.TestCase):
 
         self.assertIsNone(run.name)
 
+    def test_renaming_a_run_in_invalid_box_id_raises(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
+        writer.write_info('origin', [], {})
+
+        with self.assertRaisesRegex(BoxNotFound, "Box unknown-box-id does not exist"):
+            self.storage.set_run_name('unknown-box-id', 'run', 'My first name')
+
+    def test_renaming_a_run_with_invalid_run_id_raises(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
+        writer.write_info('origin', [], {})
+
+        with self.assertRaisesRegex(RunNotFound, "Run unknown-run does not exist"):
+            self.storage.set_run_name('box-id', 'unknown-run', 'My first name')
+
     def test_writer_writes_data_to_file(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
         with writer.as_stream() as stream:
             stream.write(b'My data')
 
-        data_file = self.dir / 'data' / 'data-id' / 'rev-id.data'
+        data_file = self.dir / 'box-id' / 'data' / 'data-id' / 'rev-id.data'
         self.assertEqual(b'My data', data_file.read_bytes())
 
     def test_writer_raises_collision_if_same_ids_twice(self):
@@ -120,7 +156,7 @@ class TestFileSystemStorage(unittest.TestCase):
         with writer.as_stream() as stream:
             stream.write(b'My data')
 
-        data_file = self.dir / 'data' / 'data-id' / 'rev-id.data'
+        data_file = self.dir / 'box-id' / 'data' / 'data-id' / 'rev-id.data'
         self.assertEqual(b'My data', data_file.read_bytes())
 
     def test_writer_meta_can_be_set(self):
