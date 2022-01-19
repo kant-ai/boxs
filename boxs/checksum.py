@@ -15,17 +15,18 @@ class DataChecksumMismatch(DataError):
     Exception that is raised if a checksum doesn't match.
 
     Attributes:
-        data_id (str): The id of the data where the mismatch occurred.
+        data_ref (boxs.data.DataRef): The reference to the data where the mismatch
+            occurred.
         expected (str): Checksum that was expected.
         calculated (str): Checksum that was actually calculated.
     """
 
-    def __init__(self, data_id, expected, calculated):
-        self.data_id = data_id
+    def __init__(self, data_ref, expected, calculated):
+        self.data_ref = data_ref
         self.expected = expected
         self.calculated = calculated
         super().__init__(
-            f"Data '{self.data_id}' has wrong checksum '{self.calculated}'"
+            f"Data '{self.data_ref}' has wrong checksum '{self.calculated}'"
             f", expected '{self.expected}'"
         )
 
@@ -88,9 +89,9 @@ class _ChecksumReader(DelegatingReader):
             expected_checksum = self.delegate.meta['checksum_digest']
             if expected_checksum != found_checksum:
                 raise DataChecksumMismatch(
-                    self.data_id, expected_checksum, found_checksum
+                    self.data_ref, expected_checksum, found_checksum
                 )
-        logger.info("Checksum when reading data %s: %s", self.data_id, found_checksum)
+        logger.info("Checksum when reading data %s: %s", self.data_ref, found_checksum)
         return result
 
     def as_stream(self):
@@ -110,7 +111,7 @@ class _ChecksumWriter(DelegatingWriter):
         self.meta['checksum_digest'] = checksum
         self.meta['checksum_digest_size'] = self._digest_size
         self.meta['checksum_algorithm'] = 'blake2b'
-        logger.info("Checksum when writing data %s: %s", self.data_id, checksum)
+        logger.info("Checksum when writing data %s: %s", self.data_ref, checksum)
 
     def as_stream(self):
         self._stream = _ChecksumStream(self.delegate.as_stream(), self._digest_size)

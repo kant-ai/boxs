@@ -38,15 +38,12 @@ class WriterImplementation(Writer):
 class TestReader(unittest.TestCase):
 
     def setUp(self):
-        self.reader = ReaderImplementation(DataRef('box_id', 'data-id', 'run-id'))
+        self.data_ref = DataRef('box_id', 'data-id', 'run-id')
+        self.reader = ReaderImplementation(self.data_ref)
 
-    def test_data_id_is_taken_from_constructor(self):
-        result = self.reader.data_id
-        self.assertEqual('data-id', result)
-
-    def test_run_id_is_taken_from_constructor(self):
-        result = self.reader.run_id
-        self.assertEqual('run-id', result)
+    def test_data_ref_is_taken_from_constructor(self):
+        result = self.reader.data_ref
+        self.assertEqual(self.data_ref, result)
 
     def test_read_value_calls_method_on_value_type(self):
         value_type = unittest.mock.MagicMock()
@@ -57,15 +54,12 @@ class TestReader(unittest.TestCase):
 class TestWriter(unittest.TestCase):
 
     def setUp(self):
-        self.writer = WriterImplementation(DataRef('box_id', 'data-id', 'run-id'))
+        self.data_ref = DataRef('box_id', 'data-id', 'run-id')
+        self.writer = WriterImplementation(self.data_ref)
 
-    def test_data_id_is_taken_from_constructor(self):
-        result = self.writer.data_id
-        self.assertEqual('data-id', result)
-
-    def test_run_id_is_taken_from_constructor(self):
-        result = self.writer.run_id
-        self.assertEqual('run-id', result)
+    def test_data_ref_is_taken_from_constructor(self):
+        result = self.writer.data_ref
+        self.assertEqual(self.data_ref, result)
 
     def test_read_value_calls_method_on_value_type(self):
         value_type = unittest.mock.MagicMock()
@@ -77,17 +71,12 @@ class TestDelegatingReader(unittest.TestCase):
 
     def setUp(self):
         self.delegate = unittest.mock.MagicMock()
+        self.delegate.data_ref = 'data-id'
         self.reader = DelegatingReader(self.delegate)
 
-    def test_data_id_is_delegated(self):
-        self.delegate.data_id = 'data-id'
-        result = self.reader.data_id
+    def test_data_ref_is_same_as_delegated(self):
+        result = self.reader.data_ref
         self.assertEqual('data-id', result)
-
-    def test_run_id_is_delegated(self):
-        self.delegate.run_id = 'run-id'
-        result = self.reader.run_id
-        self.assertEqual('run-id', result)
 
     def test_info_is_delegated(self):
         self.delegate.info = {'my': 'info'}
@@ -114,17 +103,12 @@ class TestDelegatingWriter(unittest.TestCase):
 
     def setUp(self):
         self.delegate = unittest.mock.MagicMock()
+        self.delegate.data_ref = 'data-id'
         self.writer = DelegatingWriter(self.delegate)
 
-    def test_data_id_is_delegated(self):
-        self.delegate.data_id = 'data-id'
-        result = self.writer.data_id
+    def test_data_ref_is_delegated(self):
+        result = self.writer.data_ref
         self.assertEqual('data-id', result)
-
-    def test_run_id_is_delegated(self):
-        self.delegate.run_id = 'run-id'
-        result = self.writer.run_id
-        self.assertEqual('run-id', result)
 
     def test_meta_is_delegated(self):
         self.delegate.meta = {'my': 'meta'}

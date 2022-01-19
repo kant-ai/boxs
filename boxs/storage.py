@@ -108,16 +108,6 @@ class Reader(abc.ABC):
         """The data_ref of the data that this reader can read."""
         return self._data_ref
 
-    @property
-    def data_id(self):
-        """The data_id of the data that this reader can read."""
-        return self._data_ref.data_id
-
-    @property
-    def run_id(self):
-        """The run_id of the data that this reader can read."""
-        return self._data_ref.run_id
-
     def read_value(self, value_type):
         """
         Read the value and return it.
@@ -168,14 +158,6 @@ class DelegatingReader(Reader):
         self.delegate = delegate
 
     @property
-    def data_id(self):
-        return self.delegate.data_id
-
-    @property
-    def run_id(self):
-        return self.delegate.run_id
-
-    @property
     def info(self):
         return self.delegate.info
 
@@ -208,16 +190,6 @@ class Writer(abc.ABC):
     def data_ref(self):
         """Returns the data_ref of the DataItem which this writer writes to."""
         return self._data_ref
-
-    @property
-    def data_id(self):
-        """Returns the data_id of the DataItem which this writer writes to."""
-        return self._data_ref.data_id
-
-    @property
-    def run_id(self):
-        """Returns the run_id of the DataItem which this writer writes to."""
-        return self._data_ref.run_id
 
     @property
     @abc.abstractmethod
@@ -270,14 +242,6 @@ class DelegatingWriter(Writer):
     def __init__(self, delegate):
         self.delegate = delegate
         super().__init__(delegate.data_ref)
-
-    @property
-    def data_id(self):
-        return self.delegate.data_id
-
-    @property
-    def run_id(self):
-        return self.delegate.run_id
 
     @property
     def meta(self):
