@@ -2,7 +2,7 @@
 import hashlib
 
 from .box_registry import register_box
-from .data import DataInfo, DataRef
+from .data import DataRef
 from .errors import DataCollision, DataNotFound, MissingValueType
 from .origin import ORIGIN_FROM_FUNCTION_NAME, determine_origin
 from .run import get_run_id
@@ -111,12 +111,12 @@ class Box:
         if run_id is None:
             run_id = get_run_id()
 
-        if self.storage.exists(data_id, run_id):
-            raise DataCollision(self.box_id, data_id, run_id)
-
         ref = DataRef(self.box_id, data_id, run_id)
 
-        writer = self.storage.create_writer(data_id, run_id)
+        if self.storage.exists(ref):
+            raise DataCollision(self.box_id, data_id, run_id)
+
+        writer = self.storage.create_writer(ref, name, tags)
         for transformer in self.transformers:
             writer = transformer.transform_writer(writer)
 
@@ -130,18 +130,9 @@ class Box:
 
         writer.write_value(value, value_type)
 
-        meta.update(writer.meta)
         meta['value_type'] = value_type.get_specification()
 
-        data = DataInfo(
-            ref,
-            origin=origin,
-            parents=parents,
-            name=name,
-            tags=tags,
-            meta=meta,
-        )
-        writer.write_info(data.value_info())
+        data = writer.write_info(origin, parents, meta)
         return data
 
     def load(self, data_ref, value_type=None):
@@ -172,7 +163,7 @@ class Box:
             value_type_specification = info.meta['value_type']
             value_type = ValueType.from_specification(value_type_specification)
 
-        reader = self.storage.create_reader(data_ref.data_id, data_ref.run_id)
+        reader = self.storage.create_reader(data_ref)
 
         for transformer in reversed(self.transformers):
             reader = transformer.transform_reader(reader)
@@ -197,8 +188,8 @@ class Box:
         """
         if data_ref.box_id != self.box_id:
             raise ValueError("Data references different box id")
-        if not self.storage.exists(data_ref.data_id, data_ref.run_id):
+        if not self.storage.exists(data_ref):
             raise DataNotFound(self.box_id, data_ref.data_id, data_ref.run_id)
 
-        reader = self.storage.create_reader(data_ref.data_id, data_ref.run_id)
+        reader = self.storage.create_reader(data_ref)
         return reader.info

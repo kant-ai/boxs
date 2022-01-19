@@ -55,7 +55,7 @@ class TestWriter(unittest.TestCase):
 
     def setUp(self):
         self.data_ref = DataRef('box_id', 'data-id', 'run-id')
-        self.writer = WriterImplementation(self.data_ref)
+        self.writer = WriterImplementation(self.data_ref, None, {})
 
     def test_data_ref_is_taken_from_constructor(self):
         result = self.writer.data_ref
@@ -116,8 +116,10 @@ class TestDelegatingWriter(unittest.TestCase):
         self.assertEqual({'my': 'meta'}, result)
 
     def test_write_info_is_delegated(self):
-        self.writer.write_info({'my': 'info'})
-        self.delegate.write_info.assert_called_with({'my': 'info'})
+        self.delegate.write_info.return_value = 'DataInfo'
+        result = self.writer.write_info('origin', [], {'my': 'info'})
+        self.delegate.write_info.assert_called_with('origin', [], {'my': 'info'})
+        self.assertEqual('DataInfo', result)
 
     def test_as_stream_is_delegated(self):
         self.delegate.as_stream.return_value = 'stream'

@@ -6,7 +6,7 @@ from boxs.box import calculate_data_id, Box
 from boxs.box_registry import get_box, unregister_box
 from boxs.data import DataInfo, DataRef
 from boxs.errors import DataCollision, DataNotFound, MissingValueType
-from boxs.storage import Writer
+from boxs.storage import Storage, Writer
 from boxs.value_types import StringValueType
 
 
@@ -28,20 +28,28 @@ class TestCalculateDataId(unittest.TestCase):
         self.assertEqual(data_id1, data_id2)
 
 
-class DummyStorage:
+class DummyStorage(Storage):
+
+    def list_runs(self, limit=None):
+        pass
+
+    def list_items_in_run(self, run_id):
+        pass
+
     def __init__(self):
         self.created = set()
         self.writer = BytesIOWriter()
         self.reader = BytesIOReader(b'My content')
 
-    def exists(self, data_id, run_id):
-        return (data_id, run_id) in self.created
+    def exists(self, data_ref):
+        return data_ref in self.created
 
-    def create_reader(self, data_id, run_id):
+    def create_reader(self, data_ref):
         return self.reader
 
-    def create_writer(self, data_id, run_id):
-        self.created.add((data_id, run_id))
+    def create_writer(self, data_ref, name=None, tags=None):
+        self.created.add(data_ref)
+        self.writer.ref = data_ref
         return self.writer
 
 
@@ -65,7 +73,10 @@ class BytesIOReader:
 class BytesIOWriter(Writer):
 
     def __init__(self):
-        self.info = {}
+        self.ref = None
+        self.info_origin = None
+        self.info_parents = None
+        self.info_meta = None
         self.stream = io.BytesIO()
         def stream_close():
             self.stream_closed = True
@@ -80,8 +91,11 @@ class BytesIOWriter(Writer):
     def as_stream(self):
         return self.stream
 
-    def write_info(self, info):
-        self.info = info
+    def write_info(self, origin, parents, meta):
+        self.info_origin = origin
+        self.info_parents = parents
+        self.info_meta = meta
+        return DataInfo(self.ref, self.info_origin)
 
     def write_value(self, value, value_type):
         value_type.write_value_to_writer(value, self)
@@ -118,39 +132,16 @@ class TestBox(unittest.TestCase):
         data = self.box.store(b'My content', run_id='1')
         self.assertEqual('df854a08d6f482a0', data.data_id)
         self.assertEqual(b'My content', self.storage.writer.stream.getvalue())
-        self.assertEqual({
-            'ref': {
-                'data_id': 'df854a08d6f482a0',
-                'box_id': 'box-id',
-                'run_id': '1',
-            },
-            'meta': {
-                'value_type': 'boxs.value_types:BytesValueType:',
-            },
-            'name': None,
-            'parents': [],
-            'origin': 'test_store_writes_content_and_info',
-            'tags': {},
-        }, self.storage.writer.info)
+        self.assertEqual('test_store_writes_content_and_info', self.storage.writer.info_origin)
+        self.assertEqual(tuple(), self.storage.writer.info_parents)
+        self.assertEqual({'value_type': 'boxs.value_types:BytesValueType:'}, self.storage.writer.info_meta)
 
     def test_store_uses_tags_and_meta(self):
         self.box.store('My content', tags={'my': 'tag'}, meta={'my': 'meta'}, run_id='1')
-        self.assertEqual({
-            'ref': {
-                'data_id': '6b9507ecd44bd3f2',
-                'box_id': 'box-id',
-                'run_id': '1',
-            },
-            'meta': {
-                'encoding': 'utf-8',
-                'my': 'meta',
-                'value_type': 'boxs.value_types:StringValueType:utf-8',
-            },
-            'name': None,
-            'parents': [],
-            'origin': 'test_store_uses_tags_and_meta',
-            'tags': {'my': 'tag'},
-        }, self.storage.writer.info)
+        self.assertEqual(
+            {'my': 'meta', 'value_type': 'boxs.value_types:StringValueType:utf-8'},
+            self.storage.writer.info_meta,
+        )
 
     def test_store_without_origin_raises(self):
         with self.assertRaisesRegex(ValueError, "No origin given"):

@@ -75,12 +75,16 @@ class Storage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def create_writer(self, data_ref):
+    def create_writer(self, data_ref, name=None, tags=None):
         """
         Creates a `Writer` instance, that allows to store new data.
 
         Args:
             data_ref (boxs.data.DataRef): The reference to the new data item.
+            name (str): An optional name, that can be used for referring to this item
+                within the run. Defaults to `None`.
+            tags (Dict[str,str]): A dictionary containing tags that can be used for
+                grouping multiple items together. Defaults to an empty dictionary.
 
         Returns:
             boxs.storage.Writer: The writer that will write the data into the
@@ -177,7 +181,7 @@ class Writer(abc.ABC):
     Base class for the storage specific writer implementations.
     """
 
-    def __init__(self, data_ref):
+    def __init__(self, data_ref, name, tags):
         """
         Creates a `Writer` instance, that allows to store new data.
 
@@ -185,11 +189,23 @@ class Writer(abc.ABC):
             data_ref (boxs.data.DataRef): The `data_ref` of the new data.
         """
         self._data_ref = data_ref
+        self._name = name
+        self._tags = tags
 
     @property
     def data_ref(self):
         """Returns the data_ref of the DataItem which this writer writes to."""
         return self._data_ref
+
+    @property
+    def name(self):
+        """Returns the name of the new data item."""
+        return self._name
+
+    @property
+    def tags(self):
+        """Returns the tags of the new data item."""
+        return self._tags
 
     @property
     @abc.abstractmethod
@@ -213,12 +229,18 @@ class Writer(abc.ABC):
         value_type.write_value_to_writer(value, self)
 
     @abc.abstractmethod
-    def write_info(self, info):
+    def write_info(self, origin, parents, meta):
         """
         Write the info for the data item to the storage.
 
         Args:
-            info (Dict[str,Any]): Info for the data item.
+            origin (str): The origin of the data.
+            parents (tuple[DataInfo]): The infos about the parent data items from
+                which this new data item was derived.
+            meta (Dict[str,Any]): Meta-data about the new data item.
+
+        Returns:
+            boxs.data.DataInfo: The data info about the new data item.
         """
 
     @abc.abstractmethod
@@ -241,7 +263,7 @@ class DelegatingWriter(Writer):
 
     def __init__(self, delegate):
         self.delegate = delegate
-        super().__init__(delegate.data_ref)
+        super().__init__(delegate.data_ref, delegate.name, delegate.tags)
 
     @property
     def meta(self):
@@ -250,8 +272,8 @@ class DelegatingWriter(Writer):
     def write_value(self, value, value_type):
         self.delegate.write_value(value, value_type)
 
-    def write_info(self, info):
-        self.delegate.write_info(info)
+    def write_info(self, origin, parents, meta):
+        return self.delegate.write_info(origin, parents, meta)
 
     def as_stream(self):
         return self.delegate.as_stream()

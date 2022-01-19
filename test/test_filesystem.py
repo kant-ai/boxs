@@ -20,13 +20,13 @@ class TestFileSystemStorage(unittest.TestCase):
 
     def test_runs_can_be_listed(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
         time.sleep(0.1)
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run2'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
         time.sleep(0.1)
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run3'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
 
         runs = self.storage.list_runs()
         self.assertEqual('run3', runs[0].run_id)
@@ -38,13 +38,13 @@ class TestFileSystemStorage(unittest.TestCase):
 
     def test_list_runs_can_be_limited(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
         time.sleep(0.01)
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run2'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
         time.sleep(0.01)
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run3'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
 
         runs = self.storage.list_runs(limit=2)
         self.assertEqual(2, len(runs))
@@ -53,13 +53,13 @@ class TestFileSystemStorage(unittest.TestCase):
 
     def test_items_in_run_can_be_listed(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
         time.sleep(0.01)
         writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
         time.sleep(0.01)
         writer = self.storage.create_writer(DataRef('box-id', 'data3', 'run'))
-        writer.write_info({})
+        writer.write_info('origin', [], {})
 
         items = self.storage.list_items_in_run('run')
         self.assertEqual('run', items[0].run_id)
@@ -73,8 +73,8 @@ class TestFileSystemStorage(unittest.TestCase):
         self.assertLess(items[1].time, items[2].time)
 
     def test_items_in_run_can_be_listed_with_their_name(self):
-        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'))
-        writer.write_info({'name': 'item-name'})
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
+        writer.write_info('origin', [], {})
 
         items = self.storage.list_items_in_run('run')
         self.assertEqual('item-name', items[0].name)
@@ -107,7 +107,7 @@ class TestFileSystemStorage(unittest.TestCase):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
         with writer.as_stream() as stream:
             stream.write(b'My data')
-        writer.write_info({})
+        writer.write_info('origin', [], {})
 
         self.assertTrue(self.storage.exists(DataRef('box-id', 'data-id', 'rev-id')))
 
@@ -127,29 +127,36 @@ class TestFileSystemStorage(unittest.TestCase):
 
     def test_reader_reads_previously_written_info(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
-        writer.write_info({'my': 'info'})
+        writer.write_info('origin', [], {})
 
         reader = self.storage.create_reader(DataRef('box-id', 'data-id', 'rev-id'))
 
-        self.assertEqual({'my': 'info'}, reader.info)
+        self.assertEqual({
+            'meta': {},
+            'name': None,
+            'origin': 'origin',
+            'parents': [],
+            'ref': {'box_id': 'box-id', 'data_id': 'data-id', 'run_id': 'rev-id'},
+            'tags': {}
+        }, reader.info)
 
     def test_reader_caches_info(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
-        writer.write_info({'my': 'info'})
+        writer.write_info('origin', [], {})
 
         reader = self.storage.create_reader(DataRef('box-id', 'data-id', 'rev-id'))
         first_info = reader.info
         second_info = reader.info
         self.assertIs(second_info, first_info)
 
-    def test_reader_takes_meta_from_info(self):
+    def test_reader_takes_meta_from_writer(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
-        writer.write_info({'meta': {'my': 'meta'}})
+        writer.meta['my'] = 'meta'
+        writer.write_info('origin', [], {})
 
         reader = self.storage.create_reader(DataRef('box-id', 'data-id', 'rev-id'))
-        info = reader.info
         meta = reader.meta
-        self.assertEqual(meta, info['meta'])
+        self.assertEqual({'my': 'meta'}, meta)
 
 
 if __name__ == '__main__':
