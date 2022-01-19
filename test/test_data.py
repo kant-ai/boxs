@@ -18,6 +18,11 @@ class TestDataRef(unittest.TestCase):
         self.assertEqual('data-id', data_ref.data_id)
         self.assertEqual('run-id', data_ref.run_id)
 
+    def test_str_returns_uri(self):
+        data_ref = DataRef('my-storage', 'data-id', 'my-revision')
+        uri = data_ref.uri
+        self.assertEqual(uri, str(data_ref))
+
     def test_from_value_info(self):
         value_info = {
             'data_id': 'data-id',

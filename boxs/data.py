@@ -126,6 +126,9 @@ class DataRef:
     def __hash__(self):
         return hash((self.box_id, self.data_id, self.run_id))
 
+    def __str__(self):
+        return self.uri
+
 
 class DataInfo:
     """
