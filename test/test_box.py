@@ -36,6 +36,9 @@ class DummyStorage(Storage):
     def list_items_in_run(self, run_id):
         pass
 
+    def set_run_name(self, run_id, name):
+        pass
+
     def __init__(self):
         self.created = set()
         self.writer = BytesIOWriter()

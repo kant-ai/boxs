@@ -2,7 +2,7 @@
 import abc
 import collections
 
-Run = collections.namedtuple('Run', 'run_id time')
+Run = collections.namedtuple('Run', 'run_id name time')
 Item = collections.namedtuple('Item', 'data_id run_id name time')
 
 
@@ -45,6 +45,22 @@ class Storage(abc.ABC):
 
         Returns:
             List[box.storage.Item]: The runs.
+        """
+
+    @abc.abstractmethod
+    def set_run_name(self, run_id, name):
+        """
+        Set the name of a run.
+
+        The name can be updated and removed by providing `None`.
+
+        Args;
+            run_id (str): Run id of the run which should be named.
+            name (Optional[str]): New name of the run. If `None`, an existing name
+                will be removed.
+
+        Returns:
+            box.storage.Run: The run with its new name.
         """
 
     @abc.abstractmethod

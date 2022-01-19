@@ -79,6 +79,31 @@ class TestFileSystemStorage(unittest.TestCase):
         items = self.storage.list_items_in_run('run')
         self.assertEqual('item-name', items[0].name)
 
+    def test_a_run_can_be_named(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
+        writer.write_info('origin', [], {})
+
+        run = self.storage.set_run_name('run', 'My run name')
+        self.assertEqual('My run name', run.name)
+
+    def test_a_run_can_be_renamed(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
+        writer.write_info('origin', [], {})
+
+        run = self.storage.set_run_name('run', 'My first name')
+        run = self.storage.set_run_name('run', 'My second name')
+
+        self.assertEqual('My second name', run.name)
+
+    def test_a_run_name_can_be_removed(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
+        writer.write_info('origin', [], {})
+
+        run = self.storage.set_run_name('run', 'My first name')
+        run = self.storage.set_run_name('run', None)
+
+        self.assertIsNone(run.name)
+
     def test_writer_writes_data_to_file(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
         with writer.as_stream() as stream:
