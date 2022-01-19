@@ -45,6 +45,7 @@ dependencies = [
 ]
 
 [project.scripts]
+boxs = "boxs.cli:main"
 
 [project.urls]
 Documentation = "https://docs.kant.ai/boxs/latest/"
