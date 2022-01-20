@@ -2,12 +2,13 @@
 import argparse
 import collections.abc
 import datetime
-import importlib
 import json
 import math
 import shutil
 import sys
 
+from boxs.box_registry import get_box
+from boxs.config import get_config
 from boxs.data import DataRef
 from boxs.errors import BoxsError
 
@@ -30,10 +31,20 @@ def main(argv=None):
     parser.set_defaults(command=lambda _: parser.print_help())
     parser.add_argument(
         '-b',
-        '--box',
-        dest='box',
-        required=True,
-        help="The box to inspect (format <module>.<variable>)",
+        '--default-box',
+        metavar='BOX',
+        dest='default_box',
+        default=get_config().default_box,
+        help="The id of the default box to use. If not set, the default is taken "
+        "from the BOXS_DEFAULT_BOX environment variable.",
+    )
+    parser.add_argument(
+        '-i',
+        '--init-module',
+        dest='init_module',
+        default=get_config().init_module,
+        help="A python module that should be automatically loaded. If not set, the "
+        "default is taken from the BOXS_INIT_MODULE environment variable.",
     )
     parser.add_argument(
         '-j',
@@ -109,7 +120,7 @@ def list_runs(args):
     Args:
         args (argparse.Namespace): The parsed arguments from command line.
     """
-    box = _load_box(args.box)
+    box = _load_box(args.default_box)
     storage = box.storage
     runs = storage.list_runs(box.box_id)
     _print_result("List runs", runs, args)
@@ -122,7 +133,7 @@ def list_run(args):
     Args:
         args (argparse.Namespace): The parsed arguments from command line.
     """
-    box = _load_box(args.box)
+    box = _load_box(args.default_box)
     storage = box.storage
     run = _get_run_from_args(args)
     if run is None:
@@ -138,7 +149,7 @@ def name_command(args):
     Args:
         args (argparse.Namespace): The parsed arguments from command line.
     """
-    box = _load_box(args.box)
+    box = _load_box(args.default_box)
     storage = box.storage
     run = _get_run_from_args(args)
     if run is None:
@@ -154,7 +165,7 @@ def info_command(args):
     Args:
         args (argparse.Namespace): The parsed arguments from command line.
     """
-    box = _load_box(args.box)
+    box = _load_box(args.default_box)
     storage = box.storage
     run = _get_run_from_args(args)
     if run is None:
@@ -168,14 +179,14 @@ def info_command(args):
     _print_result(f"Info {item.data_id} {item.run_id}", info, args)
 
 
-def _load_box(box_import_path):
-    module_name, variable_name = box_import_path.rsplit('.', maxsplit=1)
-    module = importlib.import_module(module_name)
-    return getattr(module, variable_name)
+def _load_box(default_box):
+    config = get_config()
+    config.default_box = default_box
+    return get_box(default_box)
 
 
 def _get_run_from_args(args):
-    box = _load_box(args.box)
+    box = _load_box(args.default_box)
     storage = box.storage
     runs = storage.list_runs(box.box_id)
     specified_run = None
@@ -189,7 +200,7 @@ def _get_run_from_args(args):
 
 
 def _get_item_in_run_from_args(args, run):
-    box = _load_box(args.box)
+    box = _load_box(args.default_box)
     storage = box.storage
     items = storage.list_items_in_run(box.box_id, run.run_id)
 

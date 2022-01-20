@@ -26,15 +26,19 @@ class TestCli(unittest.TestCase):
         unregister_box(self.box.box_id)
         self.load_box_patcher.stop()
 
-    def test_main_without_args_raises_error_and_exits(self):
-        with self.assertRaisesRegex(SystemExit, "2"):
+    def test_main_without_args_shows_help(self):
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main([])
+            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name}', fake_out.getvalue())
+            self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
+            self.assertIn('positional arguments:', fake_out.getvalue())
+            self.assertIn('optional arguments:', fake_out.getvalue())
 
     def test_main_with_help_shows_help(self):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             with self.assertRaisesRegex(SystemExit, "0"):
                 main(['-h'])
-            self.assertIn('usage: boxs [-h] -b BOX [-j] {list,info,name}', fake_out.getvalue())
+            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -125,6 +129,7 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-other-data'])
             self.assertIn('Error: No item found with data-id starting with my-other-data', fake_out.getvalue())
+
 
 if __name__ == '__main__':
     unittest.main()
