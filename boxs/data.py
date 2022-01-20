@@ -59,7 +59,7 @@ class DataRef:
     @property
     def uri(self):
         """Return the URI of the data item referenced."""
-        return f'box://{self.box_id}/{self.data_id}/{self.run_id}'
+        return f'boxs://{self.box_id}/{self.data_id}/{self.run_id}'
 
     @classmethod
     def from_uri(cls, uri):
@@ -76,7 +76,7 @@ class DataRef:
             ValueError: If the URI doesn't follow the expected format.
         """
         url_parts = urllib.parse.urlparse(uri)
-        if url_parts.scheme != 'box':
+        if url_parts.scheme != 'boxs':
             raise ValueError("Invalid scheme")
         box_id = url_parts.hostname
         data_id, run_id = url_parts.path[1:].split('/', 1)

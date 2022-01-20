@@ -83,7 +83,7 @@ class TestChecksumTransformer(unittest.TestCase):
 
             result = transformed_reader.read_value(BytesValueType())
             self.assertEqual(cm.output, [
-                'INFO:boxs.checksum:Checksum when reading data box://box_id/my-data-id/1: '
+                'INFO:boxs.checksum:Checksum when reading data boxs://box_id/my-data-id/1: '
                 'ce858b5195f68056187c143dc2023caaabb07a8c1eacf482ee222bfc481ffa0a'
             ])
 
@@ -104,7 +104,7 @@ class TestChecksumTransformer(unittest.TestCase):
 
             result = transformed_reader.read_value(BytesValueType())
             self.assertEqual(cm.output, [
-                'INFO:boxs.checksum:Checksum when reading data box://box_id/my-data-id/1: '
+                'INFO:boxs.checksum:Checksum when reading data boxs://box_id/my-data-id/1: '
                 'a7b9bb7a4fb93658f8c4d4d68dfd3ef3'
             ])
 
@@ -122,7 +122,7 @@ class TestChecksumTransformer(unittest.TestCase):
         })
         with self.assertRaisesRegex(
                 DataChecksumMismatch,
-                "Data 'box://box_id/my-data-id/1' has wrong checksum 'be68aba8b3041f8292681595',"
+                "Data 'boxs://box_id/my-data-id/1' has wrong checksum 'be68aba8b3041f8292681595',"
                 " expected 'invalid-0123456789'"):
             transformed_reader = self.transformer.transform_reader(reader)
             transformed_reader.read_value(BytesValueType())
@@ -144,13 +144,13 @@ class TestChecksumTransformer(unittest.TestCase):
         writer = unittest.mock.MagicMock()
         writer.meta = {}
         writer.as_stream.return_value = io.BytesIO()
-        writer.data_ref = 'box://box_id/my-data-id/1'
+        writer.data_ref = 'boxs://box_id/my-data-id/1'
         transformed_writer = self.transformer.transform_writer(writer)
 
         with self.assertLogs('boxs.checksum', level='INFO') as cm:
             transformed_writer.write_value(b'My content', BytesValueType())
             self.assertEqual(cm.output, [
-                'INFO:boxs.checksum:Checksum when writing data box://box_id/my-data-id/1: '
+                'INFO:boxs.checksum:Checksum when writing data boxs://box_id/my-data-id/1: '
                 'ce858b5195f68056187c143dc2023caaabb07a8c1eacf482ee222bfc481ffa0a'
             ])
 
@@ -207,7 +207,7 @@ class TestChecksumTransformer(unittest.TestCase):
         self.assertEqual(transformed_writer.meta['checksum_digest'], '336e597e7437529d340c')
 
         reader = unittest.mock.MagicMock()
-        reader.data_ref = 'box://box_id/my-data-id/1'
+        reader.data_ref = 'boxs://box_id/my-data-id/1'
         reader.as_stream.return_value = io.BytesIO(b'My content')
 
         reader.meta = writer.meta
@@ -217,7 +217,7 @@ class TestChecksumTransformer(unittest.TestCase):
 
             result = transformed_reader.read_value(BytesValueType())
             self.assertEqual(cm.output, [
-                'INFO:boxs.checksum:Checksum when reading data box://box_id/my-data-id/1: '
+                'INFO:boxs.checksum:Checksum when reading data boxs://box_id/my-data-id/1: '
                 '336e597e7437529d340c'
             ])
 

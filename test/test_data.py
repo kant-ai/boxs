@@ -9,10 +9,10 @@ class TestDataRef(unittest.TestCase):
     def test_uri_contains_run_id_if_set(self):
         data_ref = DataRef('my-storage', 'data-id', 'my-revision')
         uri = data_ref.uri
-        self.assertEqual('box://my-storage/data-id/my-revision', uri)
+        self.assertEqual('boxs://my-storage/data-id/my-revision', uri)
 
     def test_from_uri_sets_ids(self):
-        uri = 'box://my-storage/data-id/run-id'
+        uri = 'boxs://my-storage/data-id/run-id'
         data_ref = DataRef.from_uri(uri)
         self.assertEqual('my-storage', data_ref.box_id)
         self.assertEqual('data-id', data_ref.data_id)
