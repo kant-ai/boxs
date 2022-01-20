@@ -1,7 +1,52 @@
 import unittest.mock
 
 from boxs.data import DataRef
-from boxs.storage import DelegatingReader, DelegatingWriter, Reader, Transformer, Writer
+from boxs.storage import DelegatingReader, DelegatingWriter, ItemQuery, Reader, Transformer, Writer
+
+
+class TestItemQuery(unittest.TestCase):
+
+    def test_single_string_is_only_run(self):
+        query = ItemQuery('run-id')
+        self.assertIsNotNone(query.run)
+        self.assertEqual(query.run, 'run-id')
+        self.assertIsNone(query.data)
+        self.assertIsNone(query.box)
+
+    def test_single_string_with_trailing_colon_is_only_data(self):
+        query = ItemQuery('data-id:')
+        self.assertIsNotNone(query.data)
+        self.assertEqual(query.data, 'data-id')
+        self.assertIsNone(query.run)
+        self.assertIsNone(query.box)
+
+    def test_single_string_with_leading_colon_is_only_run(self):
+        query = ItemQuery(':run-id')
+        self.assertIsNotNone(query.run)
+        self.assertEqual(query.run, 'run-id')
+        self.assertIsNone(query.data)
+        self.assertIsNone(query.box)
+
+    def test_single_string_with_leading_and_trailing_colon_is_only_data(self):
+        query = ItemQuery(':data-id:')
+        self.assertIsNotNone(query.data)
+        self.assertEqual(query.data, 'data-id')
+        self.assertIsNone(query.run)
+        self.assertIsNone(query.box)
+
+    def test_empty_query_raises_value_error(self):
+        with self.assertRaisesRegex(ValueError, "Neither, box, data or run is specified."):
+            ItemQuery('::')
+        with self.assertRaisesRegex(ValueError, "Neither, box, data or run is specified."):
+            ItemQuery(':')
+        with self.assertRaisesRegex(ValueError, "Neither, box, data or run is specified."):
+            ItemQuery('')
+        with self.assertRaisesRegex(ValueError, "Neither, box, data or run is specified."):
+            ItemQuery('    ')
+
+    def test_more_than_2_colons_raises_value_error(self):
+        with self.assertRaisesRegex(ValueError, "Invalid query"):
+            ItemQuery('something:box:data:run')
 
 
 class ReaderImplementation(Reader):

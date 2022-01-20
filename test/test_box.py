@@ -30,6 +30,9 @@ class TestCalculateDataId(unittest.TestCase):
 
 class DummyStorage(Storage):
 
+    def list_items(self, item_query):
+        pass
+
     def list_runs(self, limit=None):
         pass
 

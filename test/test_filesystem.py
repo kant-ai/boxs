@@ -8,6 +8,7 @@ import unittest
 from boxs.data import DataRef
 from boxs.errors import BoxNotFound, RunNotFound
 from boxs.filesystem import FileSystemStorage
+from boxs.storage import Item, ItemQuery
 
 
 class TestFileSystemStorage(unittest.TestCase):
@@ -87,19 +88,189 @@ class TestFileSystemStorage(unittest.TestCase):
         items = self.storage.list_items_in_run('box-id', 'run')
         self.assertEqual('item-name', items[0].name)
 
-    def test_listing_items_in_invalid_box_id_raises(self):
+    def test_listing_items_in_run_in_invalid_box_id_raises(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
         writer.write_info('origin', [], {})
 
         with self.assertRaisesRegex(BoxNotFound, "Box unknown-box-id does not exist"):
             self.storage.list_items_in_run('unknown-box-id', 'run')
 
-    def test_listing_items_for_invalid_run_id_raises(self):
+    def test_listing_items_in_run_for_invalid_run_id_raises(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
         writer.write_info('origin', [], {})
 
         with self.assertRaisesRegex(RunNotFound, "Run unknown-run does not exist"):
             self.storage.list_items_in_run('box-id', 'unknown-run')
+
+    def test_list_items_with_invalid_box_id_raises(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+
+        with self.assertRaisesRegex(BoxNotFound, "Box unknown-box-id does not exist"):
+            query = ItemQuery('unknown-box-id::')
+            self.storage.list_items(query)
+
+    def test_list_items_with_only_box_in_query_returns_all(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run2'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run2'))
+        writer.write_info('origin', [], {})
+
+        query = ItemQuery('box-id::')
+        items = self.storage.list_items(query)
+        self.assertEqual(len(items), 4)
+        self.assertEqual('run1', items[0].run_id)
+        self.assertEqual('data1', items[0].data_id)
+        self.assertEqual('run1', items[1].run_id)
+        self.assertEqual('data2', items[1].data_id)
+        self.assertEqual('run2', items[2].run_id)
+        self.assertEqual('data1', items[2].data_id)
+        self.assertEqual('run2', items[3].run_id)
+        self.assertEqual('data2', items[3].data_id)
+        self.assertIsInstance(items[0].time, datetime.datetime)
+        self.assertLess(items[0].time, items[1].time)
+        self.assertLess(items[1].time, items[2].time)
+        self.assertLess(items[2].time, items[3].time)
+
+    def test_list_items_with_data_in_query_returns_only_matching_items(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data21', 'run2'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run2'))
+        writer.write_info('origin', [], {})
+
+        query = ItemQuery('box-id:data2:')
+        items = self.storage.list_items(query)
+        self.assertEqual(len(items), 3)
+        self.assertEqual('run1', items[0].run_id)
+        self.assertEqual('data2', items[0].data_id)
+        self.assertEqual('run2', items[1].run_id)
+        self.assertEqual('data21', items[1].data_id)
+        self.assertEqual('run2', items[2].run_id)
+        self.assertEqual('data2', items[2].data_id)
+        self.assertIsInstance(items[0].time, datetime.datetime)
+        self.assertLess(items[0].time, items[1].time)
+        self.assertLess(items[1].time, items[2].time)
+
+    def test_list_items_with_data_in_query_returns_matching_names(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run1'), name='train_data')
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data21', 'run2'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run2'), name='train_data')
+        writer.write_info('origin', [], {})
+
+        query = ItemQuery('box-id:train:')
+        items = self.storage.list_items(query)
+        self.assertEqual(len(items), 2)
+        self.assertEqual('run1', items[0].run_id)
+        self.assertEqual('data2', items[0].data_id)
+        self.assertEqual('run2', items[1].run_id)
+        self.assertEqual('data2', items[1].data_id)
+        self.assertIsInstance(items[0].time, datetime.datetime)
+        self.assertLess(items[0].time, items[1].time)
+
+    def test_list_items_with_run_in_query_returns_only_matching_runs(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data21', 'run2'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run2'))
+        writer.write_info('origin', [], {})
+
+        query = ItemQuery('box-id::run1')
+        items = self.storage.list_items(query)
+        self.assertEqual(len(items), 2)
+        self.assertEqual('run1', items[0].run_id)
+        self.assertEqual('data1', items[0].data_id)
+        self.assertEqual('run1', items[1].run_id)
+        self.assertEqual('data2', items[1].data_id)
+        self.assertIsInstance(items[0].time, datetime.datetime)
+        self.assertLess(items[0].time, items[1].time)
+
+    def test_list_items_with_run_in_query_returns_only_matching_run_name(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data21', 'run2'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run2'))
+        writer.write_info('origin', [], {})
+        self.storage.set_run_name('box-id', 'run1', 'test-name')
+
+        query = ItemQuery('box-id::test')
+        items = self.storage.list_items(query)
+        self.assertEqual(len(items), 2)
+        self.assertEqual('run1', items[0].run_id)
+        self.assertEqual('data1', items[0].data_id)
+        self.assertEqual('run1', items[1].run_id)
+        self.assertEqual('data2', items[1].data_id)
+        self.assertIsInstance(items[0].time, datetime.datetime)
+        self.assertLess(items[0].time, items[1].time)
+
+    def test_list_items_with_data_and_run_in_query(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run2'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run2'))
+        writer.write_info('origin', [], {})
+
+        query = ItemQuery('box-id:data1:run2')
+        items = self.storage.list_items(query)
+        self.assertEqual(len(items), 1)
+        self.assertEqual('run2', items[0].run_id)
+        self.assertEqual('data1', items[0].data_id)
+        self.assertIsInstance(items[0].time, datetime.datetime)
+
+    def test_list_items_with_nothing_matches_returns_empty_list(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run1'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run2'))
+        writer.write_info('origin', [], {})
+        time.sleep(0.01)
+        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run2'))
+        writer.write_info('origin', [], {})
+
+        query = ItemQuery('box-id:data3:run3')
+        items = self.storage.list_items(query)
+        self.assertEqual(len(items), 0)
 
     def test_a_run_can_be_named(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')

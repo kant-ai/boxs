@@ -60,15 +60,19 @@ class FileSystemStorage(Storage):
         if not box_directory.exists():
             raise BoxNotFound(box_id)
 
+        runs = self._list_runs_in_box(box_id)
+        runs = sorted(runs, key=lambda x: x.time, reverse=True)
+        if limit is not None:
+            runs = runs[:limit]
+        return runs
+
+    def _list_runs_in_box(self, box_id):
         runs_directory = self._runs_directory_path(box_id)
         runs = [
             self._create_run_from_run_path(box_id, path)
             for path in runs_directory.iterdir()
             if path.is_dir() and path != self._runs_names_directory_path(box_id)
         ]
-        runs = sorted(runs, key=lambda x: x.time, reverse=True)
-        if limit is not None:
-            runs = runs[:limit]
         return runs
 
     def list_items_in_run(self, box_id, run_id):
@@ -104,6 +108,36 @@ class FileSystemStorage(Storage):
         ]
         items = sorted(items, key=lambda x: x.time)
         return items
+
+    def list_items(self, item_query):
+        box_id = item_query.box
+        box_directory = self._box_directory_path(box_id)
+        if not box_directory.exists():
+            raise BoxNotFound(box_id)
+
+        runs = self._list_runs_in_box(box_id)
+        if item_query.run:
+            runs = [
+                run
+                for run in runs
+                if run.run_id.startswith(item_query.run or '')
+                or (run.name or '').startswith(item_query.run or '')
+            ]
+        runs = sorted(runs, key=lambda x: x.time)
+
+        all_items = []
+        for run in runs:
+            items = self._get_items_in_run(box_id, run.run_id)
+            items = sorted(items, key=lambda x: x.time)
+            all_items.extend(
+                (
+                    item
+                    for item in items
+                    if item.data_id.startswith(item_query.data or '')
+                    or (item.name or '').startswith(item_query.data or '')
+                )
+            )
+        return all_items
 
     def set_run_name(self, box_id, run_id, name):
         box_directory = self._box_directory_path(box_id)
@@ -160,6 +194,34 @@ class FileSystemStorage(Storage):
             name_dir = self._runs_names_directory_path(box_id)
             name_symlink_file = name_dir / run_names[run_id]
             name_symlink_file.unlink()
+
+    def _get_items_in_run(self, box_id, run_id):
+        named_items = self._get_item_names_in_run(box_id, run_id)
+        items = [
+            Item(
+                path.name,
+                run_id,
+                named_items.get(path.name, ''),
+                datetime.datetime.fromtimestamp(
+                    path.stat().st_mtime,
+                    tz=datetime.timezone.utc,
+                ),
+            )
+            for path in self._run_directory_path(box_id, run_id).iterdir()
+            if path.is_file()
+        ]
+        return items
+
+    def _get_item_names_in_run(self, box_id, run_id):
+        name_directory = self._run_directory_path(box_id, run_id) / '_named'
+        named_items = {}
+        if name_directory.exists():
+            for named_link_file in name_directory.iterdir():
+                name = named_link_file.name
+                resolved_info_file = named_link_file.resolve()
+                data_id = resolved_info_file.name
+                named_items[data_id] = name
+        return named_items
 
     def _create_run_from_run_path(self, box_id, run_path):
         run_names = self._get_run_names(box_id)

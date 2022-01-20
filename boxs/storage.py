@@ -2,8 +2,60 @@
 import abc
 import collections
 
+
 Run = collections.namedtuple('Run', 'run_id name time')
 Item = collections.namedtuple('Item', 'data_id run_id name time')
+
+
+class ItemQuery:
+    """
+    Query object that allows to query a Storage for items.
+
+    The query is build from a string with up to 3 components separated by ':'.
+    The individual components are the <box-id>:<data-id>:<run-id>.
+    A query doesn't have to contain all components, but it needs to contain at least
+    one with its trailing ':'.
+
+    All components are treated as prefixes, so one doesn't have to write the full ids.
+
+
+    Examples:
+        # Query all items in a specific run
+        >>> ItemQuery('my-run-id')
+        # or with written separators
+        >>> ItemQuery('::my-run-id')
+
+        # Query all items with the same data-id in all runs
+        >>> ItemQuery('my-data-id:')
+
+        # Query all items with the same data-id in specific runs with a shared prefix
+        >>> ItemQuery('my-data-id:my-run')
+        # for multiple runs like e.g. my-run-1 and my-run-2
+
+        # Query everything in a specific box:
+        >>> ItemQuery('box-id::')
+
+    Attributes:
+        box (Optional[str]): The optional box id.
+        data (Optional[str]): The optional prefix for data ids or names.
+        run (Optional[str]): The optional prefix for run ids or names.
+    """
+
+    def __init__(self, string):
+        parts = list(reversed(string.strip().rsplit(':')))
+        self.run = parts[0] or None
+        if len(parts) > 1:
+            self.data = parts[1] or None
+        else:
+            self.data = None
+        if len(parts) > 2:
+            self.box = parts[2] or None
+        else:
+            self.box = None
+        if len(parts) > 3:
+            raise ValueError("Invalid query, must be in format '<box>:<data>:<run>'.")
+        if self.run is None and self.data is None and self.box is None:
+            raise ValueError("Neither, box, data or run is specified.")
 
 
 class Storage(abc.ABC):
@@ -44,6 +96,23 @@ class Storage(abc.ABC):
         Args:
             box_id (str): `box_id` of the box in which to look for.
             run_id (str): Run id of the run for which all items should be returned.
+
+        Returns:
+            List[box.storage.Item]: The runs.
+        """
+
+    @abc.abstractmethod
+    def list_items(self, item_query):
+        """
+        List all items that match a given query.
+
+        The item query can contain parts of box id, run id or run name and data id or
+        data name. If a query value is not set (`== None`) it is not used as a filter
+        criteria.
+
+        Args:
+            item_query (boxs.storage.ItemQuery): The query which defines which items
+                should be listed.
 
         Returns:
             List[box.storage.Item]: The runs.
