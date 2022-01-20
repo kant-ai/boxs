@@ -190,6 +190,11 @@ class DataInfo:
         return self.ref.run_id
 
     @property
+    def uri(self):
+        """Returns the uri."""
+        return self.ref.uri
+
+    @property
     def info(self):
         """Returns the info. This is to be compatible with DataRef"""
         return self

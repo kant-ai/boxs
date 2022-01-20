@@ -161,6 +161,8 @@ class FileValueType(ValueType):
             shutil.copyfileobj(file_reader, destination_stream)
 
     def read_value_from_reader(self, reader):
+        if hasattr(reader, 'as_file'):
+            return reader.as_file()
         file_path = self._file_path
         if self._file_path is None:
             file_path = tempfile.mktemp()

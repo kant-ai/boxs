@@ -95,6 +95,7 @@ class FileSystemStorage(Storage):
 
         items = [
             Item(
+                box_id,
                 path.name,
                 run_id,
                 named_items.get(path.name, ''),
@@ -199,6 +200,7 @@ class FileSystemStorage(Storage):
         named_items = self._get_item_names_in_run(box_id, run_id)
         items = [
             Item(
+                box_id,
                 path.name,
                 run_id,
                 named_items.get(path.name, ''),
@@ -255,6 +257,18 @@ class _FileSystemReader(Reader):
 
     def as_stream(self):
         return io.FileIO(self.data_file, 'r')
+
+    def as_file(self):
+        """
+        Returns the file path containing the data.
+
+        Additional method that is especially implemented for the boxs CLI to inspect a
+        FileSystemStorage without having to copy files.
+
+        Returns:
+            pathlib.Path: The file path to the file containing the data.
+        """
+        return self.data_file
 
 
 class _FileSystemWriter(Writer):

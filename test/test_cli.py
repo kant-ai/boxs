@@ -29,7 +29,7 @@ class TestCli(unittest.TestCase):
     def test_main_without_args_shows_help(self):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main([])
-            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name}', fake_out.getvalue())
+            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name,diff}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -38,7 +38,7 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             with self.assertRaisesRegex(SystemExit, "0"):
                 main(['-h'])
-            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name}', fake_out.getvalue())
+            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name,diff}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -129,6 +129,56 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-other-data'])
             self.assertIn('Error: No item found with data-id starting with my-other-data', fake_out.getvalue())
+
+    def test_main_diff(self):
+        self.box.store('My value', name='my-data', run_id='run-1')
+        self.box.store('My other', name='my-data', run_id='run-2')
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'diff', 'my-data:run-1', 'my-data:run-2'])
+            self.assertIn('< My value', fake_out.getvalue())
+            self.assertIn('> My other', fake_out.getvalue())
+
+    def test_main_diff_with_uris(self):
+        data_ref1 = self.box.store('My value', name='my-data', run_id='run-1')
+        data_ref2 = self.box.store('My other', name='my-data', run_id='run-2')
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'diff', data_ref1.uri, data_ref2.uri])
+            self.assertIn('< My value', fake_out.getvalue())
+            self.assertIn('> My other', fake_out.getvalue())
+
+    def test_main_diff_with_custom_diff(self):
+        self.box.store('My value', name='my-data', run_id='run-1')
+        self.box.store('My other', name='my-data', run_id='run-2')
+        with unittest.mock.patch('boxs.cli.subprocess.run') as run_mock:
+            main(['-b', 'cli-box', 'diff', '--diff-command', 'my-diff', 'my-data:run-1', 'my-data:run-2'])
+            run_mock.assert_called()
+            self.assertEqual('my-diff', run_mock.call_args[0][0][0])
+
+    def test_main_diff_with_additional_diff_arguments(self):
+        self.box.store('My value', name='my-data', run_id='run-1')
+        self.box.store('My other', name='my-data', run_id='run-2')
+        with unittest.mock.patch('boxs.cli.subprocess.run') as run_mock:
+            main(['-b', 'cli-box', 'diff', 'my-data:run-1', 'my-data:run-2', '--', '--my-arg'])
+            run_mock.assert_called()
+            self.assertEqual('--my-arg', run_mock.call_args[0][0][7])
+
+    def test_main_diff_without_labels(self):
+        self.box.store('My value', name='my-data', run_id='run-1')
+        self.box.store('My other', name='my-data', run_id='run-2')
+        with unittest.mock.patch('boxs.cli.subprocess.run') as run_mock:
+            main(['-b', 'cli-box', 'diff', 'my-data:run-1', 'my-data:run-2', '--without-labels'])
+            run_mock.assert_called()
+            self.assertNotIn('--label', run_mock.call_args[0][0])
+            self.assertNotIn('my-data:run-1', run_mock.call_args[0][0])
+            self.assertNotIn('my-data:run-2', run_mock.call_args[0][0])
+
+    def test_main_diff_with_ambiguous_data(self):
+        self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        self.box.store('My value', origin='2', name='my-other', run_id='run-1')
+        self.box.store('My other', name='my-data', run_id='run-2')
+        with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'diff', 'my-:run-1', 'my-data:run-2'])
+            self.assertIn('Error: Ambiguous values to diff', fake_out.getvalue())
 
 
 if __name__ == '__main__':

@@ -5,12 +5,16 @@ import datetime
 import json
 import math
 import shutil
+import subprocess
 import sys
 
+import boxs
 from boxs.box_registry import get_box
 from boxs.config import get_config
 from boxs.data import DataRef
 from boxs.errors import BoxsError
+from boxs.storage import ItemQuery
+from boxs.value_types import FileValueType
 
 
 def main(argv=None):
@@ -81,6 +85,36 @@ def main(argv=None):
         help="The new name of the run, if left out, the current name will be removed.",
     )
     run_name_parser.set_defaults(command=name_command)
+
+    diff_parser = subparsers.add_parser("diff", help="Compare runs or data items")
+    diff_parser.add_argument(
+        nargs=2,
+        metavar='OBJECT',
+        dest='objects',
+        default=None,
+        help="The runs or items to compare.",
+    )
+    diff_parser.add_argument(
+        '-d',
+        '--diff-command',
+        dest='diff',
+        default='diff',
+        help="The command to use for comparing.",
+    )
+    diff_parser.add_argument(
+        '-l',
+        '--without-labels',
+        dest='labels',
+        action='store_false',
+        help="Disable the labels.",
+    )
+    diff_parser.add_argument(
+        nargs='*',
+        metavar='DIFF-ARGS',
+        dest='diff_args',
+        help="Arbitrary arguments for the diff command.",
+    )
+    diff_parser.set_defaults(command=diff_command)
 
     args = parser.parse_args(argv)
 
@@ -177,6 +211,57 @@ def info_command(args):
 
     info = storage.create_reader(DataRef(box.box_id, item.data_id, item.run_id)).info
     _print_result(f"Info {item.data_id} {item.run_id}", info, args)
+
+
+def diff_command(args):
+    """
+    Command that compares two runs or data items.
+
+    Args:
+        args (argparse.Namespace): The parsed arguments from command line.
+    """
+
+    def _parse_query(string):
+        try:
+            data_ref = DataRef.from_uri(string)
+            return ItemQuery(
+                ':'.join([data_ref.box_id, data_ref.data_id, data_ref.run_id])
+            )
+        except ValueError:
+            return ItemQuery(string)
+
+    def _get_item_as_file(item):
+        ref = DataRef(item.box_id, item.data_id, item.run_id)
+        return boxs.load(ref, value_type=FileValueType())
+
+    results = []
+    for obj_string in args.objects:
+        item_query = _parse_query(obj_string)
+        item_query.box = item_query.box or args.default_box
+        box = _load_box(item_query.box)
+        results.append(box.storage.list_items(item_query))
+
+    if len(results[0]) == 1 and len(results[1]) == 1:
+        first_file_path = _get_item_as_file(results[0][0])
+        first_label = args.objects[0]
+        second_file_path = _get_item_as_file(results[1][0])
+        second_label = args.objects[1]
+        command = [args.diff, str(first_file_path), str(second_file_path)]
+        if args.labels:
+            command.extend(
+                [
+                    '--label',
+                    first_label,
+                    '--label',
+                    second_label,
+                ]
+            )
+        command.extend(args.diff_args)
+        diff_process = subprocess.run(command, stdout=subprocess.PIPE, check=False)
+        result = diff_process.stdout.decode()
+        print(result)
+    else:
+        _print_error("Ambiguous values to diff.", args)
 
 
 def _load_box(default_box):

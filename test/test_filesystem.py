@@ -357,6 +357,17 @@ class TestFileSystemStorage(unittest.TestCase):
 
         self.assertEqual(b'My data', data)
 
+    def test_reader_can_return_a_file_path_to_content(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
+        with writer.as_stream() as stream:
+            stream.write(b'My data')
+
+        reader = self.storage.create_reader(DataRef('box-id', 'data-id', 'rev-id'))
+        file_path = reader.as_file()
+        data = file_path.read_bytes()
+
+        self.assertEqual(b'My data', data)
+
     def test_reader_reads_previously_written_info(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
         writer.write_info('origin', [], {})

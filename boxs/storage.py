@@ -4,7 +4,7 @@ import collections
 
 
 Run = collections.namedtuple('Run', 'run_id name time')
-Item = collections.namedtuple('Item', 'data_id run_id name time')
+Item = collections.namedtuple('Item', 'box_id data_id run_id name time')
 
 
 class ItemQuery:
