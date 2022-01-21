@@ -4,6 +4,7 @@ import collections.abc
 import datetime
 import json
 import math
+import pathlib
 import shutil
 import subprocess
 import sys
@@ -116,6 +117,25 @@ def main(argv=None):
     )
     diff_parser.set_defaults(command=diff_command)
 
+    export_parser = subparsers.add_parser(
+        "export", help="Export items to a local file."
+    )
+    export_parser.add_argument(
+        nargs=1,
+        metavar='OBJECT',
+        dest='item',
+        default=None,
+        help="The item to export.",
+    )
+    export_parser.add_argument(
+        nargs=1,
+        metavar='FILE',
+        dest='file',
+        default=None,
+        help="The file to export to.",
+    )
+    export_parser.set_defaults(command=export_command)
+
     args = parser.parse_args(argv)
 
     try:
@@ -221,15 +241,6 @@ def diff_command(args):
         args (argparse.Namespace): The parsed arguments from command line.
     """
 
-    def _parse_query(string):
-        try:
-            data_ref = DataRef.from_uri(string)
-            return ItemQuery(
-                ':'.join([data_ref.box_id, data_ref.data_id, data_ref.run_id])
-            )
-        except ValueError:
-            return ItemQuery(string)
-
     def _get_item_as_file(item):
         ref = DataRef(item.box_id, item.data_id, item.run_id)
         return boxs.load(ref, value_type=FileValueType())
@@ -262,6 +273,37 @@ def diff_command(args):
         print(result)
     else:
         _print_error("Ambiguous values to diff.", args)
+
+
+def export_command(args):
+    """
+    Command that exports a data item to a file.
+
+    Args:
+        args (argparse.Namespace): The parsed arguments from command line.
+    """
+
+    def _export_item_as_file(item, file_path):
+        ref = DataRef(item.box_id, item.data_id, item.run_id)
+        return boxs.load(ref, value_type=FileValueType(file_path=file_path))
+
+    item_query = _parse_query(args.item[0])
+    item_query.box = item_query.box or args.default_box
+    box = _load_box(item_query.box)
+    items = box.storage.list_items(item_query)
+
+    if len(items) == 0:
+        _print_error(f"No item found for {args.item[0]}.", args)
+    elif len(items) > 1:
+        _print_error(f"Multiple items found for {args.item[0]}.", args)
+        _print_result('', items, args)
+    else:
+        export_file_path = pathlib.Path(args.file[0])
+
+        _export_item_as_file(items[0], export_file_path)
+        _print_result(
+            f"{args.item[0]} successfully exported to {args.file[0]}", [], args
+        )
 
 
 def _load_box(default_box):
@@ -297,6 +339,14 @@ def _get_item_in_run_from_args(args, run):
     if item is None:
         _print_error(f"No item found with data-id starting with {args.data}", args)
     return item
+
+
+def _parse_query(string):
+    try:
+        data_ref = DataRef.from_uri(string)
+        return ItemQuery(':'.join([data_ref.box_id, data_ref.data_id, data_ref.run_id]))
+    except ValueError:
+        return ItemQuery(string)
 
 
 def _print_result(title, result, args):

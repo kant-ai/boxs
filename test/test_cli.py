@@ -29,7 +29,8 @@ class TestCli(unittest.TestCase):
     def test_main_without_args_shows_help(self):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main([])
-            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name,diff}', fake_out.getvalue())
+            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
+            self.assertIn('{list,info,name,diff,export}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -38,7 +39,8 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             with self.assertRaisesRegex(SystemExit, "0"):
                 main(['-h'])
-            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j] {list,info,name,diff}', fake_out.getvalue())
+            self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
+            self.assertIn('{list,info,name,diff,export}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -179,6 +181,45 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'diff', 'my-:run-1', 'my-data:run-2'])
             self.assertIn('Error: Ambiguous values to diff', fake_out.getvalue())
+
+    def test_main_export(self):
+        export_file_path = pathlib.Path(tempfile.mktemp())
+        self.assertFalse(export_file_path.exists())
+        self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'export', 'my-:run-1', str(export_file_path)])
+            self.assertIn('my-:run-1 successfully exported to', fake_out.getvalue())
+        self.assertTrue(export_file_path.exists())
+        export_file_path.unlink()
+
+    def test_main_export_with_uri(self):
+        export_file_path = pathlib.Path(tempfile.mktemp())
+        self.assertFalse(export_file_path.exists())
+        data_ref = self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'export', data_ref.uri, str(export_file_path)])
+            self.assertIn('boxs://cli-box/f6fc42039fba3776/run-1 successfully exported to', fake_out.getvalue())
+        self.assertTrue(export_file_path.exists())
+        export_file_path.unlink()
+
+    def test_main_export_with_not_existing_data(self):
+        export_file_path = pathlib.Path(tempfile.mktemp())
+        self.assertFalse(export_file_path.exists())
+        self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'export', 'my-:run-2', str(export_file_path)])
+            self.assertIn('Error: No item found for my-:run-2.', fake_out.getvalue())
+        self.assertFalse(export_file_path.exists())
+
+    def test_main_export_with_multiple_data(self):
+        export_file_path = pathlib.Path(tempfile.mktemp())
+        self.assertFalse(export_file_path.exists())
+        self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        self.box.store('My value', origin='2', name='my-other', run_id='run-1')
+        with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'export', 'my-:run-1', str(export_file_path)])
+            self.assertIn('Error: Multiple items found for my-:run-1.', fake_out.getvalue())
+        self.assertFalse(export_file_path.exists())
 
 
 if __name__ == '__main__':

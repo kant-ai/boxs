@@ -162,6 +162,9 @@ class FileValueType(ValueType):
 
     def read_value_from_reader(self, reader):
         if hasattr(reader, 'as_file'):
+            if self._file_path:
+                shutil.copyfile(str(reader.as_file()), str(self._file_path))
+                return self._file_path
             return reader.as_file()
         file_path = self._file_path
         if self._file_path is None:
