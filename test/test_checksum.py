@@ -1,9 +1,10 @@
 import io
+import pathlib
 import unittest.mock
 
 from boxs.checksum import ChecksumTransformer, DataChecksumMismatch
 from boxs.data import DataRef
-from boxs.value_types import BytesValueType
+from boxs.value_types import BytesValueType, FileValueType
 from boxs.storage import Reader
 
 
@@ -23,6 +24,12 @@ class ReaderImpl(Reader):
 
     def as_stream(self):
         return io.BytesIO(b'My content')
+
+
+class ReaderImplWithFile(ReaderImpl):
+
+    def as_file(self):
+        return pathlib.Path()
 
 
 class TestChecksumTransformer(unittest.TestCase):
@@ -126,6 +133,22 @@ class TestChecksumTransformer(unittest.TestCase):
                 " expected 'invalid-0123456789'"):
             transformed_reader = self.transformer.transform_reader(reader)
             transformed_reader.read_value(BytesValueType())
+
+    def test_transformed_reader_ignores_checksum_if_read_from_file(self):
+        reader = ReaderImplWithFile()
+        reader.meta.update({
+            'checksum_algorithm': 'blake2b',
+            'checksum_digest': 'a7b9bb7a4fb93658f8c4d4d68dfd3ef3',
+            'checksum_digest_size': 16,
+        })
+        with self.assertLogs('boxs.checksum', level='INFO') as cm:
+            transformed_reader = self.transformer.transform_reader(reader)
+
+            result = transformed_reader.read_value(FileValueType())
+            self.assertEqual(cm.output, [
+                'WARNING:boxs.checksum:Ignoring checksum when loading from local file.'
+            ])
+        self.assertIsInstance(result, pathlib.Path)
 
     def test_transformed_writer_calculates_checksum(self):
         writer = unittest.mock.MagicMock()

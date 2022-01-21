@@ -81,22 +81,34 @@ class _ChecksumReader(DelegatingReader):
             'checksum_digest_size', default_digest_size
         )
         self._stream = None
+        if hasattr(delegate, 'as_file'):
+            self.as_file = self._as_file
 
     def read_value(self, value_type):
         result = value_type.read_value_from_reader(self)
-        found_checksum = self._stream.checksum
-        if self._verify:
-            expected_checksum = self.delegate.meta['checksum_digest']
-            if expected_checksum != found_checksum:
-                raise DataChecksumMismatch(
-                    self.data_ref, expected_checksum, found_checksum
-                )
-        logger.info("Checksum when reading data %s: %s", self.data_ref, found_checksum)
+        if self._stream is not None:
+            found_checksum = self._stream.checksum
+            if self._verify:
+                expected_checksum = self.delegate.meta['checksum_digest']
+                if expected_checksum != found_checksum:
+                    raise DataChecksumMismatch(
+                        self.data_ref, expected_checksum, found_checksum
+                    )
+            logger.info(
+                "Checksum when reading data %s: %s", self.data_ref, found_checksum
+            )
+        else:
+            logger.warning("Ignoring checksum when loading from local file.")
         return result
 
     def as_stream(self):
         self._stream = _ChecksumStream(self.delegate.as_stream(), self._digest_size)
         return self._stream
+
+    def _as_file(self):
+        # We don't calculate if we read from a local file.
+        # Just return the original file path
+        return self.delegate.as_file()
 
 
 class _ChecksumWriter(DelegatingWriter):
