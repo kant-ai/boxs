@@ -17,14 +17,14 @@ class TestCli(unittest.TestCase):
         self.dir = pathlib.Path(tempfile.mkdtemp())
         self.storage = FileSystemStorage(self.dir)
         self.box = Box('cli-box', self.storage)
-        self.load_box_patcher = unittest.mock.patch('boxs.cli._load_box')
-        self.load_box_mock = self.load_box_patcher.start()
-        self.load_box_mock.return_value = self.box
+        self.get_box_patcher = unittest.mock.patch('boxs.cli.get_box')
+        self.get_box_mock = self.get_box_patcher.start()
+        self.get_box_mock.return_value = self.box
 
     def tearDown(self):
         shutil.rmtree(self.dir)
         unregister_box(self.box.box_id)
-        self.load_box_patcher.stop()
+        self.get_box_patcher.stop()
 
     def test_main_without_args_shows_help(self):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
