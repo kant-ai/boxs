@@ -1,5 +1,6 @@
 """Boxes to store items in"""
 import hashlib
+import logging
 
 from .box_registry import register_box
 from .data import DataRef
@@ -13,6 +14,9 @@ from .value_types import (
     StringValueType,
     ValueType,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_data_id(origin, parent_ids=tuple()):
@@ -104,10 +108,15 @@ class Box:
         else:
             meta = dict(meta)
         origin = determine_origin(origin)
-        data_id = calculate_data_id(
-            origin, parent_ids=tuple(p.data_id for p in parents)
+        logger.info("Storing value in box %s with origin %s", self.box_id, origin)
+        parent_ids = tuple(p.data_id for p in parents)
+        data_id = calculate_data_id(origin, parent_ids=parent_ids)
+        logger.debug(
+            "Calculate data_id %s from origin %s with parents %s",
+            data_id,
+            origin,
+            parent_ids,
         )
-
         if run_id is None:
             run_id = get_run_id()
 
@@ -117,23 +126,35 @@ class Box:
             raise DataCollision(self.box_id, data_id, run_id)
 
         writer = self.storage.create_writer(ref, name, tags)
+        logger.debug("Created writer %s for data %s", writer, ref)
+
         for transformer in self.transformers:
+            logger.debug("Applying transformer %s", transformer)
             writer = transformer.transform_writer(writer)
 
         if value_type is None:
             for configured_value_type in self.value_types:
                 if configured_value_type.supports(value):
                     value_type = configured_value_type
+                    logger.debug(
+                        "Automatically chose value type %s",
+                        value_type.get_specification(),
+                    )
 
         if value_type is None:
             raise MissingValueType(value)
 
+        logger.debug(
+            "Write value for data %s with value type %s",
+            ref.uri,
+            value_type.get_specification(),
+        )
         writer.write_value(value, value_type)
 
         meta['value_type'] = value_type.get_specification()
 
-        data = writer.write_info(origin, parents, meta)
-        return data
+        logger.debug("Write info for data %s", ref.uri)
+        return writer.write_info(origin, parents, meta)
 
     def load(self, data_ref, value_type=None):
         """
@@ -157,17 +178,30 @@ class Box:
         if data_ref.box_id != self.box_id:
             raise ValueError("Data references different box id")
 
+        logger.info("Loading value %s from box %s", data_ref.uri, self.box_id)
+
         info = data_ref.info
 
         if value_type is None:
             value_type_specification = info.meta['value_type']
             value_type = ValueType.from_specification(value_type_specification)
+            logger.debug(
+                "Use value type %s taken from meta-data",
+                value_type.get_specification(),
+            )
 
         reader = self.storage.create_reader(data_ref)
+        logger.debug("Created reader %s for data %s", reader, data_ref)
 
         for transformer in reversed(self.transformers):
+            logger.debug("Applying transformer %s", transformer)
             reader = transformer.transform_reader(reader)
 
+        logger.debug(
+            "Read value from data %s with value type %s",
+            data_ref.uri,
+            value_type.get_specification(),
+        )
         return reader.read_value(value_type)
 
     def info(self, data_ref):
@@ -188,8 +222,12 @@ class Box:
         """
         if data_ref.box_id != self.box_id:
             raise ValueError("Data references different box id")
+
+        logger.info("Getting info for value %s from box %s", data_ref.uri, self.box_id)
+
         if not self.storage.exists(data_ref):
             raise DataNotFound(self.box_id, data_ref.data_id, data_ref.run_id)
 
         reader = self.storage.create_reader(data_ref)
+        logger.debug("Created reader %s for data %s", reader, data_ref)
         return reader.info

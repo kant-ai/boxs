@@ -1,12 +1,16 @@
 """Store data in a local filesystem"""
 import datetime
 import io
+import logging
 import json
 import pathlib
 
 from .data import DataInfo
 from .errors import BoxNotFound, RunNotFound
 from .storage import Storage, Reader, Writer, Run, Item
+
+
+logger = logging.getLogger(__name__)
 
 
 class FileSystemStorage(Storage):
@@ -57,6 +61,7 @@ class FileSystemStorage(Storage):
 
     def list_runs(self, box_id, limit=None):
         box_directory = self._box_directory_path(box_id)
+        logger.debug("List runs from directory %s", box_directory)
         if not box_directory.exists():
             raise BoxNotFound(box_id)
 
@@ -116,6 +121,8 @@ class FileSystemStorage(Storage):
         if not box_directory.exists():
             raise BoxNotFound(box_id)
 
+        logger.debug("List items with query %s", item_query)
+
         runs = self._list_runs_in_box(box_id)
         if item_query.run:
             runs = [
@@ -141,6 +148,8 @@ class FileSystemStorage(Storage):
         return all_items
 
     def set_run_name(self, box_id, run_id, name):
+        logger.debug("Set name of run %s in box %s to query %s", run_id, box_id, name)
+
         box_directory = self._box_directory_path(box_id)
         if not box_directory.exists():
             raise BoxNotFound(box_id)
@@ -164,12 +173,14 @@ class FileSystemStorage(Storage):
         return info_file.exists()
 
     def create_writer(self, data_ref, name=None, tags=None):
+        logger.debug("Create writer for %s", data_ref)
         tags = tags or {}
         data_file, info_file = self._data_file_paths(data_ref)
         run_file = self._run_file_path(data_ref)
         return _FileSystemWriter(data_ref, name, tags, data_file, info_file, run_file)
 
     def create_reader(self, data_ref):
+        logger.debug("Create reader for %s", data_ref)
         data_file, info_file = self._data_file_paths(data_ref)
         return _FileSystemReader(data_ref, data_file, info_file)
 

@@ -3,6 +3,7 @@ import argparse
 import collections.abc
 import datetime
 import json
+import logging
 import math
 import pathlib
 import shutil
@@ -18,6 +19,9 @@ from boxs.storage import ItemQuery
 from boxs.value_types import FileValueType
 
 
+logger = logging.getLogger(__name__)
+
+
 def main(argv=None):
     """
     main() method of our command line interface.
@@ -29,6 +33,20 @@ def main(argv=None):
     argv = argv or sys.argv[1:]
 
     config = get_config()
+
+    config.home_directory.mkdir(exist_ok=True)
+
+    file_handler = logging.FileHandler(config.home_directory / 'cli.log')
+    file_handler.level = logging.DEBUG
+    file_handler.setFormatter(
+        logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    )
+    logging.basicConfig(
+        level=logging.DEBUG,
+        handlers=[file_handler],
+    )
+
+    logger.debug("Command line arguments: %s", argv)
 
     parser = argparse.ArgumentParser(
         prog='boxs',
@@ -179,8 +197,10 @@ def list_runs(args):
     Args:
         args (argparse.Namespace): The parsed arguments from command line.
     """
+
     box = get_box()
     storage = box.storage
+    logger.info("Listing all runs in box %s", box.box_id)
     runs = storage.list_runs(box.box_id)
     _print_result("List runs", runs, args)
 
@@ -197,6 +217,7 @@ def list_run(args):
     run = _get_run_from_args(args)
     if run is None:
         return
+    logger.info("Listing run %s in box %s", run.run_id, box.box_id)
     items = storage.list_items_in_run(box.box_id, run.run_id)
     _print_result(f"List run {run.run_id}", items, args)
 
@@ -213,6 +234,12 @@ def name_command(args):
     run = _get_run_from_args(args)
     if run is None:
         return
+    logger.info(
+        "Setting name of run %s in box %s to %s",
+        run.run_id,
+        box.box_id,
+        args.name,
+    )
     run = storage.set_run_name(box.box_id, run.run_id, args.name)
     _print_result(f"Run name set {run.run_id}", [run], args)
 
@@ -234,6 +261,13 @@ def info_command(args):
     if item is None:
         return
 
+    logger.info(
+        "Showing info about item %s from run %s in box %s",
+        item.data_id,
+        run.run_id,
+        box.box_id,
+    )
+
     info = storage.create_reader(DataRef(box.box_id, item.data_id, item.run_id)).info
     _print_result(f"Info {item.data_id} {item.run_id}", info, args)
 
@@ -246,8 +280,7 @@ def diff_command(args):
         args (argparse.Namespace): The parsed arguments from command line.
     """
 
-    def _get_item_as_file(item):
-        ref = DataRef(item.box_id, item.data_id, item.run_id)
+    def _get_data_item_as_file(ref):
         return boxs.load(ref, value_type=FileValueType())
 
     results = []
@@ -258,10 +291,19 @@ def diff_command(args):
         results.append(box.storage.list_items(item_query))
 
     if len(results[0]) == 1 and len(results[1]) == 1:
-        first_file_path = _get_item_as_file(results[0][0])
+        first_ref = DataRef.from_item(results[0][0])
+        second_ref = DataRef.from_item(results[1][0])
+        logger.info(
+            "Showing diff between items %s and %s",
+            first_ref.uri,
+            second_ref.uri,
+        )
+        first_file_path = _get_data_item_as_file(first_ref)
         first_label = args.objects[0]
-        second_file_path = _get_item_as_file(results[1][0])
+
+        second_file_path = _get_data_item_as_file(second_ref)
         second_label = args.objects[1]
+
         command = [args.diff, str(first_file_path), str(second_file_path)]
         if args.labels:
             command.extend(
@@ -273,6 +315,7 @@ def diff_command(args):
                 ]
             )
         command.extend(args.diff_args)
+        logger.info("Calling diff %s", command)
         diff_process = subprocess.run(command, stdout=subprocess.PIPE, check=False)
         result = diff_process.stdout.decode()
         print(result)
@@ -288,8 +331,7 @@ def export_command(args):
         args (argparse.Namespace): The parsed arguments from command line.
     """
 
-    def _export_item_as_file(item, file_path):
-        ref = DataRef(item.box_id, item.data_id, item.run_id)
+    def _export_item_as_file(ref, file_path):
         return boxs.load(ref, value_type=FileValueType(file_path=file_path))
 
     item_query = _parse_query(args.item[0])
@@ -303,9 +345,11 @@ def export_command(args):
         _print_error(f"Multiple items found for {args.item[0]}.", args)
         _print_result('', items, args)
     else:
+        ref = DataRef.from_item(items[0])
         export_file_path = pathlib.Path(args.file[0])
+        logger.info("Exporting item %s to file %s", ref.uri, export_file_path)
 
-        _export_item_as_file(items[0], export_file_path)
+        _export_item_as_file(ref, export_file_path)
         _print_result(
             f"{args.item[0]} successfully exported to {args.file[0]}", [], args
         )
@@ -442,7 +486,7 @@ def _print_result_as_json(result):
 
 
 def _print_error(error, args):
-
+    logger.error(error)
     if args.json:
         result = {"error": error}
         json.dump(

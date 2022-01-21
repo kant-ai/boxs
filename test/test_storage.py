@@ -48,6 +48,27 @@ class TestItemQuery(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Invalid query"):
             ItemQuery('something:box:data:run')
 
+    def test_str(self):
+        query = ItemQuery('box-id:data-id:run-id')
+        self.assertEqual('box-id:data-id:run-id', str(query))
+
+        query = ItemQuery(':data-id:run-id')
+        self.assertEqual(':data-id:run-id', str(query))
+        query = ItemQuery('data-id:run-id')
+        self.assertEqual(':data-id:run-id', str(query))
+
+        query = ItemQuery('::run-id')
+        self.assertEqual('::run-id', str(query))
+        query = ItemQuery(':run-id')
+        self.assertEqual('::run-id', str(query))
+        query = ItemQuery('run-id')
+        self.assertEqual('::run-id', str(query))
+
+        query = ItemQuery(':data-id:')
+        self.assertEqual(':data-id:', str(query))
+        query = ItemQuery('data-id:')
+        self.assertEqual(':data-id:', str(query))
+
 
 class ReaderImplementation(Reader):
 

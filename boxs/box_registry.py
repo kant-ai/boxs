@@ -1,7 +1,11 @@
 """Registry of boxes"""
+import logging
+
 from .config import get_config
 from .errors import BoxAlreadyDefined, BoxNotDefined
 
+
+logger = logging.getLogger(__name__)
 
 _BOX_REGISTRY = {}
 
@@ -18,6 +22,7 @@ def register_box(box):
             registered.
     """
     box_id = box.box_id
+    logger.info("Registering box %s", box_id)
     if box_id in _BOX_REGISTRY:
         raise BoxAlreadyDefined(box_id)
     _BOX_REGISTRY[box.box_id] = box
@@ -33,6 +38,7 @@ def unregister_box(box_id):
     Raises:
         boxs.errors.BoxNotDefined: If no box with the given id is defined.
     """
+    logger.info("Unregistering box %s", box_id)
     if box_id not in _BOX_REGISTRY:
         raise BoxNotDefined(box_id)
     del _BOX_REGISTRY[box_id]
@@ -53,7 +59,11 @@ def get_box(box_id=None):
     Raises:
         boxs.errors.BoxNotDefined: If no box with the given id is defined.
     """
-    box_id = box_id or get_config().default_box
+    logger.debug("Getting box %s", box_id)
+    if box_id is None:
+        box_id = get_config().default_box
+        logger.debug("Using default_box %s from config", box_id)
+
     if box_id not in _BOX_REGISTRY:
         raise BoxNotDefined(box_id)
     return _BOX_REGISTRY[box_id]

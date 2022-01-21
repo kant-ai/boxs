@@ -3,9 +3,13 @@ import abc
 import importlib
 import io
 import json
+import logging
 import pathlib
 import shutil
 import tempfile
+
+
+logger = logging.getLogger(__name__)
 
 
 class ValueType(abc.ABC):
@@ -13,6 +17,9 @@ class ValueType(abc.ABC):
     Base class for implementing the type depending reading and writing of values to
     and from Readers and Writers.
     """
+
+    def __init__(self):
+        self._logger = logging.getLogger(str(self.__class__))
 
     def supports(self, value):  # pylint: disable=unused-argument,no-self-use
         """
@@ -87,6 +94,7 @@ class ValueType(abc.ABC):
         Returns:
             ValueType: The specified ValueType instance.
         """
+        logger.debug("Recreating value type from specification %s", specification)
         module_name, class_name, parameter_string = specification.split(':', maxsplit=2)
         module = importlib.import_module(module_name)
         class_ = getattr(module, class_name)
@@ -152,6 +160,7 @@ class FileValueType(ValueType):
 
     def __init__(self, file_path=None):
         self._file_path = file_path
+        super().__init__()
 
     def supports(self, value):
         return isinstance(value, pathlib.Path) and value.exists() and value.is_file()
@@ -162,7 +171,9 @@ class FileValueType(ValueType):
 
     def read_value_from_reader(self, reader):
         if hasattr(reader, 'as_file'):
+            self._logger.debug("Reader has as_file()")
             if self._file_path:
+                self._logger.debug("Copying file directly")
                 shutil.copyfile(str(reader.as_file()), str(self._file_path))
                 return self._file_path
             return reader.as_file()
@@ -173,6 +184,7 @@ class FileValueType(ValueType):
         with reader.as_stream() as read_stream, io.FileIO(
             file_path, 'w'
         ) as file_stream:
+            self._logger.debug("Writing file from stream")
             shutil.copyfileobj(read_stream, file_stream)
         return file_path
 
@@ -220,6 +232,7 @@ class StringValueType(ValueType):
 
     def __init__(self, default_encoding='utf-8'):
         self._default_encoding = default_encoding
+        super().__init__()
 
     def supports(self, value):
         return isinstance(value, str)
@@ -232,6 +245,7 @@ class StringValueType(ValueType):
 
     def read_value_from_reader(self, reader):
         encoding = reader.meta.get('encoding', self._default_encoding)
+        self._logger.debug("Reading string with encoding %s", encoding)
         with reader.as_stream() as stream, io.TextIOWrapper(
             stream, encoding=encoding
         ) as text_reader:

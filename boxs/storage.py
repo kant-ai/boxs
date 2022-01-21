@@ -57,6 +57,9 @@ class ItemQuery:
         if self.run is None and self.data is None and self.box is None:
             raise ValueError("Neither, box, data or run is specified.")
 
+    def __str__(self):
+        return ':'.join([self.box or '', self.data or '', self.run or ''])
+
 
 class Storage(abc.ABC):
     """

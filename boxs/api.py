@@ -1,6 +1,12 @@
 """API to be used by users"""
+import logging
+
 from .box_registry import get_box
+from .config import get_config
 from .origin import determine_origin, ORIGIN_FROM_FUNCTION_NAME
+
+
+logger = logging.getLogger(__name__)
 
 
 def store(
@@ -50,6 +56,9 @@ def store(
             defined.
     """
     if box is None:
+        box = get_config().default_box
+        logger.debug("No box defined, using default_box %s from config", box)
+    if box is None:
         raise ValueError("'box' must be set.")
     if isinstance(box, str):
         box = get_box(box)
@@ -86,6 +95,7 @@ def load(data, value_type=None):
     """
     box_id = data.box_id
     box = get_box(box_id)
+    logger.debug("Loading value %s from box %s", data.uri, box.box_id)
     return box.load(data, value_type=value_type)
 
 
@@ -107,4 +117,5 @@ def info(data_ref):
     """
     box_id = data_ref.box_id
     box = get_box(box_id)
+    logger.debug("Getting info about value %s from box %s", data_ref.uri, box.box_id)
     return box.info(data_ref)
