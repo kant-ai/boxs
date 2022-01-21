@@ -83,6 +83,20 @@ class DataRef:
         data = DataRef(box_id, data_id, run_id)
         return data
 
+    @classmethod
+    def from_item(cls, item):
+        """
+        Recreate a DataRef from an Item.
+
+        Args:
+            item (boxs.storage.Item): The item which describes the data we want to
+                refer to.
+
+        Returns:
+            DataRef: The DataRef referencing the data.
+        """
+        return DataRef(item.box_id, item.data_id, item.run_id)
+
     @property
     def info(self):
         """

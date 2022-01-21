@@ -2,6 +2,7 @@ import json
 import unittest.mock
 
 from boxs.data import DataInfo, DataRef
+from boxs.storage import Item
 
 
 class TestDataRef(unittest.TestCase):
@@ -30,6 +31,13 @@ class TestDataRef(unittest.TestCase):
             'box_id': 'my-box',
         }
         data_ref = DataRef.from_value_info(value_info)
+        self.assertEqual('my-box', data_ref.box_id)
+        self.assertEqual('data-id', data_ref.data_id)
+        self.assertEqual('run-id', data_ref.run_id)
+
+    def test_from_item(self):
+        item = Item('my-box', 'data-id', 'run-id', None, 'some-time')
+        data_ref = DataRef.from_item(item)
         self.assertEqual('my-box', data_ref.box_id)
         self.assertEqual('data-id', data_ref.data_id)
         self.assertEqual('run-id', data_ref.run_id)
