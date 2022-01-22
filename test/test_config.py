@@ -46,27 +46,27 @@ class TestConfig(unittest.TestCase):
 
     def test_configuration_setting_non_existing_init_module_raises_import_error(self):
         config = get_config()
+        config.initialized = True
         with self.assertRaisesRegex(ImportError, "No module named 'not_existing_module'"):
             config.init_module = 'not_existing_module'
-        self.assertIsNone(config.init_module)
+        self.assertFalse(config.initialized)
 
-    def test_configuration_setting_init_module_imports_the_module_if_not_loaded(self):
+    def test_configuration_setting_init_module_imports_the_module_when_initialized(self):
         config = get_config()
+        config.initialized = True
         self.assertNotIn(self.test_init_module, sys.modules)
         config.init_module = self.test_init_module
         self.assertIn(self.test_init_module, sys.modules)
         del sys.modules[self.test_init_module]
         self.assertNotIn(self.test_init_module, sys.modules)
+        config.initialized = False
 
-    def test_configuration_init_module_is_initialized_from_env_variable_if_set(self):
+    def test_configuration_init_module_is_initialized_from_env_variable_if_set_but_not_loaded(self):
         self.assertNotIn(self.test_init_module, sys.modules)
         os.environ['BOXS_INIT_MODULE'] = self.test_init_module
         reloaded_module = importlib.reload(sys.modules['boxs.config'])
         config = reloaded_module.get_config()
         self.assertEqual(self.test_init_module, config.init_module)
-        self.assertIn(self.test_init_module, sys.modules)
-        del os.environ['BOXS_INIT_MODULE']
-        del sys.modules[self.test_init_module]
         self.assertNotIn(self.test_init_module, sys.modules)
 
 

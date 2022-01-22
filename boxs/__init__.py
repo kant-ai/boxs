@@ -10,6 +10,7 @@ from .api import load, store, info
 from .box import Box
 from .box_registry import get_box
 from .checksum import ChecksumTransformer
+from .config import get_config
 from .data import DataRef
 from .filesystem import FileSystemStorage
 from .origin import ORIGIN_FROM_FUNCTION_NAME, ORIGIN_FROM_NAME, ORIGIN_FROM_TAGS
@@ -25,3 +26,5 @@ from .value_types import (
 )
 
 __version__ = '0.1.dev'
+
+get_config().initialized = True

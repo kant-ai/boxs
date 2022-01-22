@@ -28,6 +28,7 @@ class Configuration:
     """
 
     def __init__(self):
+        self._initialized = False
         self.default_box = os.environ.get('BOXS_DEFAULT_BOX', None)
         logger.info("Using default_box %s", self.default_box)
         self.home_directory = pathlib.Path(
@@ -55,15 +56,48 @@ class Configuration:
         """
         Set the name of the init_module.
 
-        Setting this value leads to the module being imported.
+        Setting this value might lead to the module being imported, if boxs is
+        properly initialized.
 
         Args:
             init_module (str): The name of the module to use for initialization.
         """
-        if init_module is not None:
-            logger.info("Import init_module %s", init_module)
-            importlib.import_module(init_module)
         self._init_module = init_module
+        self._load_init_module()
+
+    @property
+    def initialized(self):
+        """
+        Returns if boxs is completely initialized.
+
+        Returns:
+            bool: `True` if the boxs library is initialized, otherwise `False`.
+        """
+        return self._initialized
+
+    @initialized.setter
+    def initialized(self, initialized):
+        """
+        Set the initialization status of boxs.
+
+        Setting this value to `True` might lead to the init_module being imported, if
+        `init_module` is set.
+
+        Args:
+            initialized (bool): If the library is fully initialized.
+        """
+        if not self._initialized and initialized:
+            self._load_init_module()
+        self._initialized = initialized
+
+    def _load_init_module(self):
+        if self.init_module is not None and self.initialized:
+            logger.info("Import init_module %s", self.init_module)
+            try:
+                importlib.import_module(self.init_module)
+            except ImportError as import_error:
+                self.initialized = False
+                raise import_error
 
 
 _CONFIG = Configuration()
