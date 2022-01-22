@@ -29,6 +29,28 @@ class DataCollision(DataError):
         )
 
 
+class NameCollision(DataError):
+    """
+    Error that is raised if a data item with the same name already exists.
+
+    Attributes:
+        box_id (str): The id of the box containing the data item.
+        data_id (str): The id of the data item.
+        run_id (str): The id of the run when the data was created.
+        name (str)
+    """
+
+    def __init__(self, box_id, data_id, run_id, name):
+        self.box_id = box_id
+        self.data_id = data_id
+        self.run_id = run_id
+        self.name = name
+        super().__init__(
+            f"There already exists a data item in run {self.run_id} with the "
+            f"name {self.name} in box {self.box_id}"
+        )
+
+
 class DataNotFound(DataError):
     """
     Error that is raised if a data item can't be found.

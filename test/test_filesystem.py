@@ -6,9 +6,10 @@ import time
 import unittest
 
 from boxs.data import DataRef
-from boxs.errors import BoxNotFound, RunNotFound
+from boxs.errors import BoxNotFound, DataCollision, NameCollision, RunNotFound
 from boxs.filesystem import FileSystemStorage
-from boxs.storage import Item, ItemQuery
+from boxs.storage import ItemQuery
+from boxs.value_types import BytesValueType
 
 
 class TestFileSystemStorage(unittest.TestCase):
@@ -319,16 +320,29 @@ class TestFileSystemStorage(unittest.TestCase):
         data_file = self.dir / 'box-id' / 'data' / 'data-id' / 'rev-id.data'
         self.assertEqual(b'My data', data_file.read_bytes())
 
-    def test_writer_raises_collision_if_same_ids_twice(self):
+    def test_writer_raises_collision_writing_data_with_same_ids_twice(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
-        with writer.as_stream() as stream:
-            stream.write(b'My data')
+        writer.write_value(b'My data', BytesValueType())
 
-        with writer.as_stream() as stream:
-            stream.write(b'My data')
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
+        with self.assertRaisesRegex(DataCollision, "Data data-id from run rev-id already exists"):
+            writer.write_value(b'My data', BytesValueType())
 
-        data_file = self.dir / 'box-id' / 'data' / 'data-id' / 'rev-id.data'
-        self.assertEqual(b'My data', data_file.read_bytes())
+    def test_writer_raises_collision_writing_info_with_same_ids_twice(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
+        writer.write_info('origin', tuple(), {})
+
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))
+        with self.assertRaisesRegex(DataCollision, "Data data-id from run rev-id already exists"):
+            writer.write_info('origin', tuple(), {})
+
+    def test_writer_raises_collision_if_same_name_twice(self):
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'), name='a')
+        writer.write_info('origin', tuple(), {})
+
+        writer = self.storage.create_writer(DataRef('box-id', 'data-id2', 'rev-id'), name='a')
+        with self.assertRaisesRegex(NameCollision, "There already exists a data item in run rev-id with the name a"):
+            writer.write_info('origin', tuple(), {})
 
     def test_writer_meta_can_be_set(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'rev-id'))

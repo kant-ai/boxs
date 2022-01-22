@@ -6,7 +6,7 @@ import json
 import pathlib
 
 from .data import DataInfo
-from .errors import BoxNotFound, RunNotFound
+from .errors import BoxNotFound, DataCollision, NameCollision, RunNotFound
 from .storage import Storage, Reader, Writer, Run, Item
 
 
@@ -298,6 +298,10 @@ class _FileSystemWriter(Writer):
 
     def as_stream(self):
         self.data_file.parent.mkdir(parents=True, exist_ok=True)
+        if self.data_file.exists():
+            raise DataCollision(
+                self.data_ref.box_id, self.data_ref.data_id, self.data_ref.run_id
+            )
         return io.FileIO(self.data_file, 'w')
 
     def write_info(self, origin, parents, meta):
@@ -313,6 +317,10 @@ class _FileSystemWriter(Writer):
         )
 
         self.info_file.parent.mkdir(parents=True, exist_ok=True)
+        if self.info_file.exists():
+            raise DataCollision(
+                self.data_ref.box_id, self.data_ref.data_id, self.data_ref.run_id
+            )
         self.info_file.write_text(json.dumps(data_info.value_info()))
         run_dir = self.run_file.parent
         run_dir.mkdir(parents=True, exist_ok=True)
@@ -321,5 +329,12 @@ class _FileSystemWriter(Writer):
             name_dir = run_dir / '_named'
             name_dir.mkdir(exist_ok=True)
             name_symlink_file = name_dir / self.name
+            if name_symlink_file.exists():
+                raise NameCollision(
+                    self.data_ref.box_id,
+                    self.data_ref.data_id,
+                    self.data_ref.run_id,
+                    self.name,
+                )
             name_symlink_file.symlink_to(self.run_file)
         return data_info
