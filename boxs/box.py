@@ -3,13 +3,14 @@ import hashlib
 import logging
 
 from .box_registry import register_box
-from .data import DataRef
+from .data import DataInfo, DataRef
 from .errors import DataCollision, DataNotFound, MissingValueType
 from .origin import ORIGIN_FROM_FUNCTION_NAME, determine_origin
 from .run import get_run_id
 from .value_types import (
     BytesValueType,
     FileValueType,
+    JsonValueType,
     StreamValueType,
     StringValueType,
     ValueType,
@@ -19,7 +20,7 @@ from .value_types import (
 logger = logging.getLogger(__name__)
 
 
-def calculate_data_id(origin, parent_ids=tuple()):
+def calculate_data_id(origin, parent_ids=tuple(), name=None):
     """
     Derive a data_id from origin and parent_ids
 
@@ -34,6 +35,7 @@ def calculate_data_id(origin, parent_ids=tuple()):
     id_origin_data = ':'.join(
         [
             origin,
+            name or '',
         ]
         + sorted(parent_ids)
     )
@@ -60,6 +62,7 @@ class Box:
             StreamValueType(),
             StringValueType(),
             FileValueType(),
+            JsonValueType(),
         ]
         register_box(self)
 
@@ -110,7 +113,7 @@ class Box:
         origin = determine_origin(origin)
         logger.info("Storing value in box %s with origin %s", self.box_id, origin)
         parent_ids = tuple(p.data_id for p in parents)
-        data_id = calculate_data_id(origin, parent_ids=parent_ids)
+        data_id = calculate_data_id(origin, parent_ids=parent_ids, name=name)
         logger.debug(
             "Calculate data_id %s from origin %s with parents %s",
             data_id,
@@ -230,4 +233,4 @@ class Box:
 
         reader = self.storage.create_reader(data_ref)
         logger.debug("Created reader %s for data %s", reader, data_ref)
-        return reader.info
+        return DataInfo.from_value_info(reader.info)

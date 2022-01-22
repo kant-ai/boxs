@@ -126,8 +126,11 @@ class TestBox(unittest.TestCase):
         self.assertIs(self.box, box)
 
     def test_store_raises_if_no_supported_value_type(self):
-        with self.assertRaisesRegex(MissingValueType, "No value type found for '{'a': '1'}"):
-            self.box.store({'a': '1'}, run_id='1')
+        class MyClass:
+            def __str__(self):
+                return '<MyClass>'
+        with self.assertRaisesRegex(MissingValueType, "No value type found for '<MyClass>'"):
+            self.box.store(MyClass(), run_id='1')
 
     def test_store_uses_specified_value_type_if_given(self):
         value_type = unittest.mock.MagicMock()
@@ -136,7 +139,7 @@ class TestBox(unittest.TestCase):
 
     def test_store_writes_content_and_info(self):
         data = self.box.store(b'My content', run_id='1')
-        self.assertEqual('df854a08d6f482a0', data.data_id)
+        self.assertEqual('1fd070fa88f35b3a', data.data_id)
         self.assertEqual(b'My content', self.storage.writer.stream.getvalue())
         self.assertEqual('test_store_writes_content_and_info', self.storage.writer.info_origin)
         self.assertEqual(tuple(), self.storage.writer.info_parents)
@@ -228,12 +231,21 @@ class TestBox(unittest.TestCase):
 
     def test_info_reads_content(self):
         self.storage.exists = unittest.mock.MagicMock(return_value=True)
-        self.storage.reader.info['my'] = 'info'
+        ref = DataRef(self.box.box_id, 'data-id', 'rev-id')
+        self.storage.reader.info['ref'] = ref.value_info()
+        self.storage.reader.info['origin'] = 'my-origin'
+        self.storage.reader.info['name'] = None
+        self.storage.reader.info['parents'] = []
+        self.storage.reader.info['tags'] = {'my': 'tag'}
+        self.storage.reader.info['meta'] = {'my': 'meta'}
 
-        data = DataRef(self.box.box_id, 'data-id', 'rev-id')
-
-        result = self.box.info(data)
-        self.assertEqual({'my': 'info'}, result)
+        info = self.box.info(ref)
+        self.assertEqual(ref, info.ref)
+        self.assertEqual('my-origin', info.origin)
+        self.assertIsNone(info.name)
+        self.assertEqual(tuple(), info.parents)
+        self.assertEqual({'my': 'tag'}, info.tags)
+        self.assertEqual({'my': 'meta'}, info.meta)
 
     def test_info_raises_if_wrong_box_id(self):
         data = DataRef('wrong-box-id', 'data-id', 'rev-id')
