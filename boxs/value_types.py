@@ -194,6 +194,9 @@ class JsonValueType(ValueType):
     ValueType for storing values as JSON.
     """
 
+    def supports(self, value):
+        return isinstance(value, (dict, list))
+
     def write_value_to_writer(self, value, writer):
         writer.meta['media_type'] = 'application/json'
         with writer.as_stream() as destination_stream, io.TextIOWrapper(

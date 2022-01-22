@@ -367,6 +367,16 @@ class TestJsonValueType(unittest.TestCase):
         self.reader = DummyReader()
         self.writer = DummyWriter()
 
+    def test_value_type_supports_lists(self):
+        value_type = JsonValueType()
+        support = value_type.supports([])
+        self.assertTrue(support)
+
+    def test_value_type_supports_dicts(self):
+        value_type = JsonValueType()
+        support = value_type.supports({})
+        self.assertTrue(support)
+
     def test_supports_returns_false_even_though_it_supports_strings(self):
         value_type = JsonValueType()
         support = value_type.supports('My string')
@@ -439,6 +449,31 @@ class TestJsonValueType(unittest.TestCase):
         value_type = JsonValueType()
         result = str(value_type)
         self.assertEqual('boxs.value_types:JsonValueType:', result)
+
+
+class DummyValueType(ValueType):
+    def write_value_to_writer(self, value, writer):
+        pass
+
+    def read_value_from_reader(self, reader):
+        pass
+
+
+class TestValueTypeBase(unittest.TestCase):
+
+    def test_value_type_doesnt_support_anything(self):
+        value_type = DummyValueType()
+        support = value_type.supports('string')
+        self.assertFalse(support)
+
+        support = value_type.supports(b'bytes')
+        self.assertFalse(support)
+
+        support = value_type.supports([])
+        self.assertFalse(support)
+
+        support = value_type.supports({})
+        self.assertFalse(support)
 
 
 if __name__ == '__main__':
