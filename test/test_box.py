@@ -7,7 +7,7 @@ from boxs.box_registry import get_box, unregister_box
 from boxs.data import DataInfo, DataRef
 from boxs.errors import DataCollision, DataNotFound, MissingValueType
 from boxs.storage import Storage, Writer
-from boxs.value_types import StringValueType
+from boxs.value_types import StringValueType, ValueType
 
 
 class TestCalculateDataId(unittest.TestCase):
@@ -124,6 +124,28 @@ class TestBox(unittest.TestCase):
     def test_box_registers_itself_automatically(self):
         box = get_box('box-id')
         self.assertIs(self.box, box)
+
+    def test_store_can_use_custom_value_type(self):
+        class MyClass:
+            def __str__(self):
+                return '<MyClass>'
+
+        self._write_value_called = False
+
+        class MyClassValueType(ValueType):
+            def supports(value_type, value):
+                return isinstance(value, MyClass)
+
+            def write_value_to_writer(value_type, value, writer):
+
+                self._write_value_called = True
+
+            def read_value_from_reader(value_type, reader):
+                pass
+
+        self.box.add_value_type(MyClassValueType())
+        self.box.store(MyClass(), run_id='1')
+        self.assertTrue(self._write_value_called)
 
     def test_store_raises_if_no_supported_value_type(self):
         class MyClass:

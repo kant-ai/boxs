@@ -66,6 +66,18 @@ class Box:
         ]
         register_box(self)
 
+    def add_value_type(self, value_type):
+        """
+        Add a new value type.
+
+        The value type is added at the beginning of the list, so that it takes
+        precedence over the already added value types.
+
+        Args:
+            value_type (boxs.value_types.ValueType): The new value type to add.
+        """
+        self.value_types.insert(0, value_type)
+
     def store(
         self,
         value,
