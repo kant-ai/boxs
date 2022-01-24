@@ -197,6 +197,11 @@ class TestDataInfo(unittest.TestCase):
         self.assertEqual(data_info.meta, recreated_info.meta)
         self.assertEqual(parent.ref, recreated_info.parents[0].ref)
 
+    def test_str_returns_uri(self):
+        data = DataInfo(DataRef('my-storage', 'data-id', 'revision-id'), 'origin')
+        uri = data.uri
+        self.assertEqual(uri, str(data))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -280,3 +280,6 @@ class DataInfo:
             tags=tags,
             meta=meta,
         )
+
+    def __str__(self):
+        return self.uri
