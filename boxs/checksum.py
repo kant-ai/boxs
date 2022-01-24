@@ -140,9 +140,9 @@ class _ChecksumStream(DelegatingStream):
         self.checksum = self.hash.digest().hex()
         super().close()
 
-    def readinto(self, byte_buffer):
-        read_bytes = super().readinto(byte_buffer)
-        self.hash.update(byte_buffer[:read_bytes])
+    def read(self, size=-1):
+        read_bytes = super().read(size)
+        self.hash.update(read_bytes)
         return read_bytes
 
     def write(self, byte_buffer):
