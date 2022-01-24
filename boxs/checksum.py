@@ -141,7 +141,7 @@ class _ChecksumStream(DelegatingStream):
         super().close()
 
     def read(self, size=-1):
-        read_bytes = super().read(size)
+        read_bytes = self.delegate.read(size)
         self.hash.update(read_bytes)
         return read_bytes
 
