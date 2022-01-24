@@ -19,7 +19,7 @@ class Configuration:
         home_directory (pathlib.Path): The home directory to use for boxs.
             This directory can be used for logging or other purposes, where boxs needs
             to persist data.
-        init_module (str); The name of a python module, that should be automatically
+        init_module (str): The name of a python module, that should be automatically
             loaded at initialization time. Ideally, the loading of this module should
             trigger the definition of all boxes that are used, so that they can be
             found if needed. Setting this to a new module name will lead to an import
@@ -40,6 +40,27 @@ class Configuration:
         logger.info("Using home_directory %s", self.home_directory)
         self.init_module = os.environ.get('BOXS_INIT_MODULE', None)
         logger.info("Using init_module %s", self.init_module)
+
+    @property
+    def default_box(self):
+        """
+        Returns the id of the default box.
+
+        Returns:
+            str: The id of the id of the default box.
+        """
+        return self._default_box
+
+    @default_box.setter
+    def default_box(self, default_box):
+        """
+        Set the id of the default box.
+
+        Args:
+            default_box (str): The ix of the box that should be used if no box is
+                specified.
+        """
+        self._default_box = default_box
 
     @property
     def init_module(self):
@@ -100,7 +121,7 @@ class Configuration:
                 raise import_error
 
 
-_CONFIG = Configuration()
+_CONFIG = None
 
 
 def get_config():
