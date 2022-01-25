@@ -7,7 +7,7 @@ import logging
 import pathlib
 import shutil
 import tempfile
-
+import zipfile
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +149,53 @@ class BytesValueType(ValueType):
     def read_value_from_reader(self, reader):
         with reader.as_stream() as stream:
             return stream.read()
+
+
+class DirectoryValueType(ValueType):
+    """
+    A ValueType for reading and writing directories.
+
+    The values have to be instances of `pathlib.Path` and must point to an existing
+    directory. Everything within this directory is then added to a new zip archive,
+    that is written to the storage.
+    """
+
+    def __init__(self, dir_path=None):
+        self._dir_path = dir_path
+        super().__init__()
+
+    def supports(self, value):
+        return isinstance(value, pathlib.Path) and value.exists() and value.is_dir()
+
+    def write_value_to_writer(self, value, writer):
+        def _add_directory(root, directory, _zip_file):
+            for path in directory.iterdir():
+                if path.is_file():
+                    _zip_file.write(path, arcname=path.relative_to(root))
+                if path.is_dir():
+                    _add_directory(root, path, _zip_file)
+
+        with writer.as_stream() as destination_stream:
+            zip_file = zipfile.ZipFile(destination_stream, mode='w')
+            _add_directory(value, value, zip_file)
+            zip_file.close()
+
+    def read_value_from_reader(self, reader):
+        dir_path = self._dir_path
+        if self._dir_path is None:
+            dir_path = tempfile.mkdtemp()
+        dir_path = pathlib.Path(dir_path)
+        self._logger.debug("Directory will be stored in %s", dir_path)
+        with reader.as_stream() as read_stream, zipfile.ZipFile(
+            read_stream, 'r'
+        ) as zip_file:
+            for zip_info in zip_file.infolist():
+                target_path = dir_path / zip_info.filename
+                self._logger.debug(
+                    "Extracting %s to %s", zip_info.filename, target_path
+                )
+                zip_file.extract(zip_info, target_path)
+        return dir_path
 
 
 class FileValueType(ValueType):

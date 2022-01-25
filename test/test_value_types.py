@@ -1,11 +1,14 @@
 import io
 import json
 import pathlib
+import shutil
 import tempfile
 import unittest
+import zipfile
 
 from boxs.value_types import (
-    BytesValueType, FileValueType, StreamValueType, StringValueType, JsonValueType,
+    BytesValueType, DirectoryValueType, FileValueType,
+    StreamValueType, StringValueType, JsonValueType,
     ValueType,
 )
 
@@ -44,6 +47,10 @@ class DummyWriter:
     @property
     def content(self):
         return self.stream.getvalue()
+
+    def reset(self):
+        self.stream.seek(0)
+        return self.stream
 
 
 class TestBytesValueType(unittest.TestCase):
@@ -106,6 +113,117 @@ class TestBytesValueType(unittest.TestCase):
         value_type = BytesValueType()
         result = str(value_type)
         self.assertEqual('boxs.value_types:BytesValueType:', result)
+
+
+class TestDirectoryValueType(unittest.TestCase):
+
+    def setUp(self):
+        self.reader = DummyReader()
+        self.writer = DummyWriter()
+        self.dir_path = pathlib.Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.dir_path)
+
+    def test_supports_only_paths_to_directories(self):
+        value_type = DirectoryValueType()
+        self.assertFalse(value_type.supports('/just/a/string/file/path'))
+        file_path = pathlib.Path(__file__)
+        self.assertFalse(value_type.supports(file_path))
+        dir_path = file_path.parent
+        self.assertTrue(value_type.supports(dir_path))
+
+    def test_empty_archive_returns_empty_dir(self):
+        archive_path = pathlib.Path(__file__).parent / 'empty.zip'
+        self.reader.stream = io.FileIO(archive_path)
+        value_type = DirectoryValueType()
+        try:
+            file_path = value_type.read_value_from_reader(self.reader)
+            result = len(list(file_path.iterdir()))
+            self.assertEqual(0, result)
+        finally:
+            shutil.rmtree(file_path)
+
+    def test_destination_directory_can_be_specified(self):
+        dest_dir = pathlib.Path(tempfile.mkdtemp())
+        try:
+            archive_path = pathlib.Path(__file__).parent / 'empty.zip'
+            self.reader.stream = io.FileIO(archive_path)
+            value_type = DirectoryValueType(dest_dir)
+            file_path = value_type.read_value_from_reader(self.reader)
+            self.assertEqual(file_path, dest_dir)
+        finally:
+            shutil.rmtree(dest_dir)
+
+    def test_complete_zip_extracted(self):
+        archive_path = pathlib.Path(__file__).parent / 'with_sub_dir.zip'
+        self.reader.stream = io.FileIO(archive_path)
+        value_type = DirectoryValueType()
+        try:
+            file_path = value_type.read_value_from_reader(self.reader)
+            result = len(list(file_path.iterdir()))
+            self.assertEqual(2, result)
+            self.assertTrue((file_path / 'file1.txt').exists())
+            self.assertTrue((file_path / 'sub-dir' / 'file-2.txt').exists())
+        finally:
+            shutil.rmtree(file_path)
+
+    def test_empty_value_writes_empty_zip(self):
+        value_type = DirectoryValueType()
+        value_type.write_value_to_writer(self.dir_path, self.writer)
+
+        zip_file = zipfile.ZipFile(self.writer.reset())
+        self.assertEqual(0, len(zip_file.namelist()))
+
+    def test_value_write_closes_stream(self):
+        value_type = DirectoryValueType()
+        value_type.write_value_to_writer(self.dir_path, self.writer)
+        self.assertTrue(self.writer.closed)
+
+    def test_value_writes_top_level_files(self):
+        (self.dir_path / 'file1.txt').write_text("My first test")
+        (self.dir_path / 'file2.bin').write_bytes(b"My binary file")
+        value_type = DirectoryValueType()
+        value_type.write_value_to_writer(self.dir_path, self.writer)
+
+        zip_file = zipfile.ZipFile(self.writer.reset())
+        self.assertEqual(2, len(zip_file.namelist()))
+        self.assertEqual(b"My first test", zip_file.read('file1.txt'))
+        self.assertEqual(b"My binary file", zip_file.read('file2.bin'))
+
+    def test_value_writes_subdirectory_files(self):
+        subdirectory = self.dir_path / 'my-sub-dir'
+        subdirectory.mkdir()
+        (subdirectory / 'file1.txt').write_text("My first test")
+        (subdirectory / 'file2.bin').write_bytes(b"My binary file")
+        value_type = DirectoryValueType()
+        value_type.write_value_to_writer(self.dir_path, self.writer)
+
+        zip_file = zipfile.ZipFile(self.writer.reset())
+        self.assertEqual(2, len(zip_file.namelist()))
+        self.assertEqual(b"My first test", zip_file.read('my-sub-dir/file1.txt'))
+        self.assertEqual(b"My binary file", zip_file.read('my-sub-dir/file2.bin'))
+
+    def test_get_specification_returns_class_and_module_name(self):
+        value_type = DirectoryValueType()
+        specification = value_type.get_specification()
+        self.assertEqual('boxs.value_types:DirectoryValueType:', specification)
+
+    def test_create_from_specification_can_create_from_specification(self):
+        value_type = DirectoryValueType()
+        specification = value_type.get_specification()
+        recreated_value_type = ValueType.from_specification(specification)
+        self.assertIsInstance(recreated_value_type, DirectoryValueType)
+
+    def test_repr_returns_specification(self):
+        value_type = DirectoryValueType()
+        result = repr(value_type)
+        self.assertEqual('boxs.value_types:DirectoryValueType:', result)
+
+    def test_str_returns_specification(self):
+        value_type = DirectoryValueType()
+        result = str(value_type)
+        self.assertEqual('boxs.value_types:DirectoryValueType:', result)
 
 
 class TestFileValueType(unittest.TestCase):
