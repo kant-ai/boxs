@@ -1,7 +1,9 @@
 """Command line interface"""
 import argparse
+import codecs
 import collections.abc
 import datetime
+import io
 import json
 import logging
 import math
@@ -15,6 +17,7 @@ from boxs.box_registry import get_box
 from boxs.config import get_config
 from boxs.data import DataRef
 from boxs.errors import BoxsError
+from boxs.graph import write_graph_of_refs
 from boxs.storage import ItemQuery
 from boxs.value_types import FileValueType
 
@@ -59,7 +62,6 @@ def main(argv=None):
         '--default-box',
         metavar='BOX',
         dest='default_box',
-        default=config.default_box,
         help="The id of the default box to use. If not set, the default is taken "
         "from the BOXS_DEFAULT_BOX environment variable.",
     )
@@ -67,7 +69,6 @@ def main(argv=None):
         '-i',
         '--init-module',
         dest='init_module',
-        default=config.init_module,
         help="A python module that should be automatically loaded. If not set, the "
         "default is taken from the BOXS_INIT_MODULE environment variable.",
     )
@@ -156,10 +157,33 @@ def main(argv=None):
     )
     export_parser.set_defaults(command=export_command)
 
+    graph_parser = subparsers.add_parser(
+        "graph",
+        help="Create a dependency graph from objects in DOT format.",
+    )
+    graph_parser.add_argument(
+        nargs=1,
+        metavar='OBJECT',
+        dest='objects',
+        default=None,
+        help="The runs or items to graph.",
+    )
+    graph_parser.add_argument(
+        nargs='?',
+        metavar='FILE',
+        dest='file',
+        default='-',
+        help="The file to write the graph to. If left empty, the graph is written to"
+        " stdout.",
+    )
+    graph_parser.set_defaults(command=graph_command)
+
     args = parser.parse_args(argv)
 
-    config.init_module = args.init_module
-    config.default_box = args.default_box
+    if args.default_box:
+        config.default_box = args.default_box
+    if args.init_module:
+        config.init_module = args.init_module
 
     try:
         args.command(args)
@@ -353,6 +377,31 @@ def export_command(args):
         _print_result(
             f"{args.item[0]} successfully exported to {args.file[0]}", [], args
         )
+
+
+def graph_command(args):
+    """
+    Command that creates a graph out of data items.
+
+    Args:
+        args (argparse.Namespace): The parsed arguments from command line.
+    """
+
+    item_query = _parse_query(args.objects[0])
+    if item_query.box is None:
+        item_query.box = get_config().default_box
+    box = get_box(item_query.box)
+    items = box.storage.list_items(item_query)
+    refs = [DataRef.from_item(item) for item in items]
+
+    if args.file == '-':
+        writer = sys.stdout
+    else:
+        writer = io.FileIO(args.file, 'w')
+        writer = codecs.getwriter('utf-8')(writer)
+
+    with writer:
+        write_graph_of_refs(writer, refs)
 
 
 def _get_run_from_args(args):

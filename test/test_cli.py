@@ -8,6 +8,7 @@ import unittest.mock
 from boxs.box import Box
 from boxs.box_registry import unregister_box
 from boxs.cli import main
+from boxs.errors import BoxNotDefined
 from boxs.filesystem import FileSystemStorage
 
 
@@ -30,7 +31,7 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main([])
             self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
-            self.assertIn('{list,info,name,diff,export}', fake_out.getvalue())
+            self.assertIn('{list,info,name,diff,export,graph}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -40,10 +41,16 @@ class TestCli(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, "0"):
                 main(['-h'])
             self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
-            self.assertIn('{list,info,name,diff,export}', fake_out.getvalue())
+            self.assertIn('{list,info,name,diff,export,graph}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
+
+    def test_main_with_init_module_sets_config(self):
+        with unittest.mock.patch('boxs.cli.get_config') as get_config_mock:
+            get_config_mock.return_value.home_directory = self.dir
+            main(['-i', 'my_init_module'])
+            self.assertEqual('my_init_module', get_config_mock.return_value.init_module)
 
     def test_main_list_runs(self):
         self.box.store('My value', run_id='run-1')
@@ -79,6 +86,20 @@ class TestCli(unittest.TestCase):
             self.assertIn('Error: Box cli-box does not exist in storage', fake_out.getvalue())
 
     def test_main_list_data_items_with_invalid_box_prints_error(self):
+        self.get_box_mock.side_effect = BoxNotDefined('unknown-box')
+        self.box.store('My value', run_id='run-1')
+        with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
+            main(['-b', 'unknown-box', 'list', '-r', 'run-2'])
+            self.assertIn('Error: Box with box id unknown-box not defined', fake_out.getvalue())
+
+    def test_main_list_data_items_without_default_box_prints_error(self):
+        self.get_box_mock.side_effect = BoxNotDefined(None)
+        self.box.store('My value', run_id='run-1')
+        with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
+            main(['list', '-r', 'run-2'])
+            self.assertIn('Error: Box with box id None not defined', fake_out.getvalue())
+
+    def test_main_list_data_items_with_invalid_run_prints_error(self):
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'list', '-r', 'run-2'])
@@ -108,7 +129,7 @@ class TestCli(unittest.TestCase):
         self.box.store('My value', name='my-data', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-data'])
-            self.assertIn('Info 7ae40d399daba304 run-1', fake_out.getvalue())
+            self.assertIn('Info fb920699f86b785a run-1', fake_out.getvalue())
             self.assertIn('Property  Value', fake_out.getvalue())
             self.assertIn('name    : my-data', fake_out.getvalue())
             self.assertIn('meta    :', fake_out.getvalue())
@@ -198,7 +219,7 @@ class TestCli(unittest.TestCase):
         data_ref = self.box.store('My value', origin='1', name='my-data', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'export', data_ref.uri, str(export_file_path)])
-            self.assertIn('boxs://cli-box/f6fc42039fba3776/run-1 successfully exported to', fake_out.getvalue())
+            self.assertIn('boxs://cli-box/92eb5d2d4f7d499c/run-1 successfully exported to', fake_out.getvalue())
         self.assertTrue(export_file_path.exists())
         export_file_path.unlink()
 
@@ -220,6 +241,35 @@ class TestCli(unittest.TestCase):
             main(['-b', 'cli-box', 'export', 'my-:run-1', str(export_file_path)])
             self.assertIn('Error: Multiple items found for my-:run-1.', fake_out.getvalue())
         self.assertFalse(export_file_path.exists())
+
+    def test_main_graph_to_file(self):
+        graph_file_path = pathlib.Path(tempfile.mktemp())
+        self.assertFalse(graph_file_path.exists())
+        self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        main(['-b', 'cli-box', 'graph', 'my-:run-1', str(graph_file_path)])
+        self.assertTrue(graph_file_path.exists())
+        graph = graph_file_path.read_text()
+        self.assertIn('digraph {', graph)
+        graph_file_path.unlink()
+
+    def test_main_graph_to_stdout(self):
+        self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        fake_io = io.StringIO()
+        fake_io.close = lambda: None
+        with unittest.mock.patch('sys.stdout', new=fake_io) as fake_out:
+            main(['-b', 'cli-box', 'graph', 'my-:run-1'])
+            graph = fake_out.getvalue()
+        self.assertIn('digraph {', graph)
+
+    def test_main_graph_with_box_as_part_of_query(self):
+        graph_file_path = pathlib.Path(tempfile.mktemp())
+        self.assertFalse(graph_file_path.exists())
+        self.box.store('My value', origin='1', name='my-data', run_id='run-1')
+        main(['graph', 'cli-box:my-:run-1', str(graph_file_path)])
+        self.assertTrue(graph_file_path.exists())
+        graph = graph_file_path.read_text()
+        self.assertIn('digraph {', graph)
+        graph_file_path.unlink()
 
 
 if __name__ == '__main__':
