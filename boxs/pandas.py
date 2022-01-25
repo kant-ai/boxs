@@ -1,3 +1,4 @@
+"""Value type definitions for pandas specific classes"""
 import codecs
 import io
 import logging
@@ -9,12 +10,12 @@ logger = logging.getLogger(__name__)
 try:
     import pandas
 
-    from .value_types import ValueType
+    from .value_types import StringValueType
 
-    class PandasDataFrameCsvValueType(ValueType):
-        def __init__(self, default_encoding='utf-8'):
-            self._default_encoding = default_encoding
-            super().__init__()
+    class PandasDataFrameCsvValueType(StringValueType):
+        """
+        A value type for storing and loading pandas DataFrame.
+        """
 
         def supports(self, value):
             return isinstance(value, pandas.DataFrame)
@@ -33,13 +34,6 @@ try:
                 setattr(text_stream, 'mode', 'r')
                 result = pandas.read_csv(text_stream, encoding=encoding)
                 return result
-
-        def _get_parameter_string(self):
-            return self._default_encoding
-
-        @classmethod
-        def _from_parameter_string(cls, parameters):
-            return cls(default_encoding=parameters)
 
 except ImportError as error:
     logger.warning(

@@ -175,10 +175,10 @@ class DirectoryValueType(ValueType):
                 if path.is_dir():
                     _add_directory(root, path, _zip_file)
 
-        with writer.as_stream() as destination_stream:
-            zip_file = zipfile.ZipFile(destination_stream, mode='w')
+        with writer.as_stream() as destination_stream, zipfile.ZipFile(
+            destination_stream, mode='w'
+        ) as zip_file:
             _add_directory(value, value, zip_file)
-            zip_file.close()
 
     def read_value_from_reader(self, reader):
         dir_path = self._dir_path
