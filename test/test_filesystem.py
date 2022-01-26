@@ -61,48 +61,6 @@ class TestFileSystemStorage(unittest.TestCase):
         self.assertEqual('run3', runs[0].run_id)
         self.assertEqual('run2', runs[1].run_id)
 
-    def test_items_in_run_can_be_listed(self):
-        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'))
-        writer.write_info('origin', [], {})
-        time.sleep(0.01)
-        writer = self.storage.create_writer(DataRef('box-id', 'data2', 'run'))
-        writer.write_info('origin', [], {})
-        time.sleep(0.01)
-        writer = self.storage.create_writer(DataRef('box-id', 'data3', 'run'))
-        writer.write_info('origin', [], {})
-
-        items = self.storage.list_items_in_run('box-id', 'run')
-        self.assertEqual('run', items[0].run_id)
-        self.assertEqual('run', items[1].run_id)
-        self.assertEqual('run', items[2].run_id)
-        self.assertEqual('data1', items[0].data_id)
-        self.assertEqual('data2', items[1].data_id)
-        self.assertEqual('data3', items[2].data_id)
-        self.assertIsInstance(items[0].time, datetime.datetime)
-        self.assertLess(items[0].time, items[1].time)
-        self.assertLess(items[1].time, items[2].time)
-
-    def test_items_in_run_can_be_listed_with_their_name(self):
-        writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run'), name='item-name')
-        writer.write_info('origin', [], {})
-
-        items = self.storage.list_items_in_run('box-id', 'run')
-        self.assertEqual('item-name', items[0].name)
-
-    def test_listing_items_in_run_in_invalid_box_id_raises(self):
-        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
-        writer.write_info('origin', [], {})
-
-        with self.assertRaisesRegex(BoxNotFound, "Box unknown-box-id does not exist"):
-            self.storage.list_items_in_run('unknown-box-id', 'run')
-
-    def test_listing_items_in_run_for_invalid_run_id_raises(self):
-        writer = self.storage.create_writer(DataRef('box-id', 'data-id', 'run1'))
-        writer.write_info('origin', [], {})
-
-        with self.assertRaisesRegex(RunNotFound, "Run unknown-run does not exist"):
-            self.storage.list_items_in_run('box-id', 'unknown-run')
-
     def test_list_items_with_invalid_box_id_raises(self):
         writer = self.storage.create_writer(DataRef('box-id', 'data1', 'run1'))
         writer.write_info('origin', [], {})

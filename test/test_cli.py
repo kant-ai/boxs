@@ -65,7 +65,7 @@ class TestCli(unittest.TestCase):
             self.assertIn('run-1', fake_out.getvalue())
             self.assertIn('run-2', fake_out.getvalue())
 
-    def test_main_list_data_items_in_run(self):
+    def test_main_list_items(self):
         self.box.store('My value', origin='1', name='data_1', run_id='run-1')
         self.box.store('My other', origin='2', name='data_2', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
@@ -75,7 +75,7 @@ class TestCli(unittest.TestCase):
             self.assertIn('run-1  data_1', fake_out.getvalue())
             self.assertIn('run-1  data_2', fake_out.getvalue())
 
-    def test_main_list_data_items_in_run_in_json(self):
+    def test_main_list_items_in_json(self):
         self.box.store('My value', origin='1', name='data_1', run_id='run-1')
         self.box.store('My other', origin='2', name='data_2', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
@@ -83,32 +83,32 @@ class TestCli(unittest.TestCase):
             result = json.loads(fake_out.getvalue())
             self.assertEqual(len(result), 2)
 
-    def test_main_list_data_items_with_invalid_box_prints_error(self):
+    def test_main_list_items_with_empty_box_prints_error(self):
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'list', '-r', 'run-1'])
             self.assertIn('Error: Box cli-box does not exist in storage', fake_out.getvalue())
 
-    def test_main_list_data_items_with_invalid_box_prints_error(self):
+    def test_main_list_items_with_invalid_box_prints_error(self):
         self.get_box_mock.side_effect = BoxNotDefined('unknown-box')
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'unknown-box', 'list', '-r', 'run-2'])
             self.assertIn('Error: Box with box id unknown-box not defined', fake_out.getvalue())
 
-    def test_main_list_data_items_without_default_box_prints_error(self):
+    def test_main_list_items_without_default_box_prints_error(self):
         self.get_box_mock.side_effect = BoxNotDefined(None)
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['list', '-r', 'run-2'])
             self.assertIn('Error: Box with box id None not defined', fake_out.getvalue())
 
-    def test_main_list_data_items_with_invalid_run_prints_error(self):
+    def test_main_list_items_with_invalid_run_prints_error(self):
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'list', '-r', 'run-2'])
             self.assertIn('Error: No run found with run-id or name starting with run-2', fake_out.getvalue())
 
-    def test_main_list_data_items_with_invalid_box_prints_error_in_json(self):
+    def test_main_list_items_with_invalid_box_prints_error_in_json(self):
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', '-j', 'list', '-r', 'run-2'])
@@ -155,6 +155,13 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-other-data'])
             self.assertIn('Error: No item found with data-id starting with my-other-data', fake_out.getvalue())
+
+    def test_main_info_with_multiple_matching_data(self):
+        self.box.store('My value', name='my-data1', run_id='run-1')
+        self.box.store('My value', name='my-data2', run_id='run-1')
+        with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-data'])
+            self.assertIn('Error: Multiple items found for data-id my-data', fake_out.getvalue())
 
     def test_main_diff(self):
         self.box.store('My value', name='my-data', run_id='run-1')

@@ -241,7 +241,8 @@ def list_run(args):
     if run is None:
         return
     logger.info("Listing run %s in box %s", run.run_id, box.box_id)
-    items = storage.list_items_in_run(box.box_id, run.run_id)
+    query = ItemQuery(box.box_id + '::' + run.run_id)
+    items = storage.list_items(query)
     _print_result(f"List run {run.run_id}", items, args)
 
 
@@ -280,9 +281,15 @@ def info_command(args):
     if run is None:
         return
 
-    item = _get_item_in_run_from_args(args, run)
-    if item is None:
+    query = ItemQuery.from_fields(box=box.box_id, data=args.data, run=run.run_id)
+    items = storage.list_items(query)
+    if len(items) == 0:
+        _print_error(f"No item found with data-id starting with {args.data}", args)
         return
+    if len(items) > 1:
+        _print_error(f"Multiple items found for data-id {args.data}", args)
+        return
+    item = items[0]
 
     logger.info(
         "Showing info about item %s from run %s in box %s",

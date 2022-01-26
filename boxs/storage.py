@@ -57,6 +57,24 @@ class ItemQuery:
         if self.run is None and self.data is None and self.box is None:
             raise ValueError("Neither, box, data or run is specified.")
 
+    @classmethod
+    def from_fields(cls, box=None, data=None, run=None):
+        """
+        Create an ItemQuery from the individual fields of the query.
+
+        Args:
+            box (Optional[str]): The search string for boxes. Defaults to `None`
+                matching all boxes.
+            data (Optional[str]): The search string for data items. Defaults to `None`
+                matching all data items.
+            run (Optional[str]): The search string for run. Defaults to `None`
+                matching all runs.
+
+        Returns:
+            ItemQuery: The new item query with the given search fields.
+        """
+        return ItemQuery(':'.join([box or '', data or '', run or '']))
+
     def __str__(self):
         return ':'.join([self.box or '', self.data or '', self.run or ''])
 
@@ -87,21 +105,6 @@ class Storage(abc.ABC):
 
         Returns:
             List[box.storage.Run]: The runs.
-        """
-
-    @abc.abstractmethod
-    def list_items_in_run(self, box_id, run_id):
-        """
-        List all items that were created in a run.
-
-        The runs should be returned in descending order of their start time.
-
-        Args:
-            box_id (str): `box_id` of the box in which to look for.
-            run_id (str): Run id of the run for which all items should be returned.
-
-        Returns:
-            List[box.storage.Item]: The runs.
         """
 
     @abc.abstractmethod

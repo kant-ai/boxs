@@ -69,6 +69,19 @@ class TestItemQuery(unittest.TestCase):
         query = ItemQuery('data-id:')
         self.assertEqual(':data-id:', str(query))
 
+    def test_from_fields(self):
+        query = ItemQuery.from_fields(box='box-id', data='data-id', run='run-id')
+        self.assertEqual('box-id:data-id:run-id', str(query))
+
+        query = ItemQuery.from_fields(data='data-id', run='run-id')
+        self.assertEqual(':data-id:run-id', str(query))
+
+        query = ItemQuery.from_fields(run='run-id')
+        self.assertEqual('::run-id', str(query))
+
+        query = ItemQuery.from_fields(data='data-id')
+        self.assertEqual(':data-id:', str(query))
+
 
 class ReaderImplementation(Reader):
 

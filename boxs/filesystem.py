@@ -80,41 +80,6 @@ class FileSystemStorage(Storage):
         ]
         return runs
 
-    def list_items_in_run(self, box_id, run_id):
-        box_directory = self._box_directory_path(box_id)
-        if not box_directory.exists():
-            raise BoxNotFound(box_id)
-
-        run_directory = self._run_directory_path(box_id, run_id)
-        if not run_directory.exists():
-            raise RunNotFound(box_id, run_id)
-
-        name_directory = run_directory / '_named'
-        named_items = {}
-        if name_directory.exists():
-            for named_link_file in name_directory.iterdir():
-                name = named_link_file.name
-                resolved_info_file = named_link_file.resolve()
-                data_id = resolved_info_file.name
-                named_items[data_id] = name
-
-        items = [
-            Item(
-                box_id,
-                path.name,
-                run_id,
-                named_items.get(path.name, ''),
-                datetime.datetime.fromtimestamp(
-                    path.stat().st_mtime,
-                    tz=datetime.timezone.utc,
-                ),
-            )
-            for path in run_directory.iterdir()
-            if path.is_file()
-        ]
-        items = sorted(items, key=lambda x: x.time)
-        return items
-
     def list_items(self, item_query):
         box_id = item_query.box
         box_directory = self._box_directory_path(box_id)
