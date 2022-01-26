@@ -2,7 +2,6 @@
 import importlib
 import logging
 import os
-import pathlib
 
 
 logger = logging.getLogger(__name__)
@@ -16,9 +15,6 @@ class Configuration:
         default_box (str): The id of a box that should be used, no other box id is
             specified. Will be initialized from the `BOXS_DEFAULT_BOX` environment
             variable if defined, otherwise is initialized to `None`.
-        home_directory (pathlib.Path): The home directory to use for boxs.
-            This directory can be used for logging or other purposes, where boxs needs
-            to persist data.
         init_module (str): The name of a python module, that should be automatically
             loaded at initialization time. Ideally, the loading of this module should
             trigger the definition of all boxes that are used, so that they can be
@@ -30,16 +26,9 @@ class Configuration:
     def __init__(self):
         self._initialized = False
         self.default_box = os.environ.get('BOXS_DEFAULT_BOX', None)
-        logger.info("Using default_box %s", self.default_box)
-        self.home_directory = pathlib.Path(
-            os.environ.get(
-                'BOXS_HOME_DIRECTORY',
-                str(pathlib.Path.home() / '.boxs'),
-            )
-        )
-        logger.info("Using home_directory %s", self.home_directory)
+        logger.info("Setting default_box to %s", self.default_box)
         self.init_module = os.environ.get('BOXS_INIT_MODULE', None)
-        logger.info("Using init_module %s", self.init_module)
+        logger.info("Setting init_module to %s", self.init_module)
 
     @property
     def default_box(self):
@@ -107,9 +96,12 @@ class Configuration:
         Args:
             initialized (bool): If the library is fully initialized.
         """
+        if self._initialized and not initialized:
+            self._initialized = False
+
         if not self._initialized and initialized:
+            self._initialized = True
             self._load_init_module()
-        self._initialized = initialized
 
     def _load_init_module(self):
         if self.init_module is not None and self.initialized:
@@ -135,4 +127,5 @@ def get_config():
     if _CONFIG is None:
         logger.info("Create new configuration")
         _CONFIG = Configuration()
+        _CONFIG.initialized = True
     return _CONFIG

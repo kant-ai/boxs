@@ -12,7 +12,6 @@ import shutil
 import subprocess
 import sys
 
-import boxs
 from boxs.box_registry import get_box
 from boxs.config import get_config
 from boxs.data import DataRef
@@ -35,11 +34,7 @@ def main(argv=None):
     """
     argv = argv or sys.argv[1:]
 
-    config = get_config()
-
-    config.home_directory.mkdir(exist_ok=True)
-
-    file_handler = logging.FileHandler(config.home_directory / 'cli.log')
+    file_handler = logging.FileHandler(pathlib.Path.home() / '.boxs' / 'cli.log')
     file_handler.level = logging.DEBUG
     file_handler.setFormatter(
         logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -180,6 +175,8 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
 
+    config = get_config()
+
     if args.default_box:
         config.default_box = args.default_box
     if args.init_module:
@@ -305,7 +302,7 @@ def diff_command(args):
     """
 
     def _get_data_item_as_file(ref):
-        return boxs.load(ref, value_type=FileValueType())
+        return ref.load(value_type=FileValueType())
 
     results = []
     for obj_string in args.objects:
@@ -356,7 +353,7 @@ def export_command(args):
     """
 
     def _export_item_as_file(ref, file_path):
-        return boxs.load(ref, value_type=FileValueType(file_path=file_path))
+        return ref.load(value_type=FileValueType(file_path=file_path))
 
     item_query = _parse_query(args.item[0])
     item_query.box = item_query.box or args.default_box

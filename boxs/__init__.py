@@ -27,5 +27,3 @@ from .value_types import (
 )
 
 __version__ = '0.1.dev'
-
-get_config().initialized = True

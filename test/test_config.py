@@ -61,12 +61,15 @@ class TestConfig(unittest.TestCase):
         self.assertNotIn(self.test_init_module, sys.modules)
         config.initialized = False
 
-    def test_configuration_init_module_is_initialized_from_env_variable_if_set_but_not_loaded(self):
+    def test_configuration_init_module_is_initialized_from_env_variable_if_set_and_loaded(self):
         self.assertNotIn(self.test_init_module, sys.modules)
         os.environ['BOXS_INIT_MODULE'] = self.test_init_module
         reloaded_module = importlib.reload(sys.modules['boxs.config'])
         config = reloaded_module.get_config()
         self.assertEqual(self.test_init_module, config.init_module)
+        self.assertIn(self.test_init_module, sys.modules)
+        del os.environ['BOXS_INIT_MODULE']
+        del sys.modules[self.test_init_module]
         self.assertNotIn(self.test_init_module, sys.modules)
 
 
