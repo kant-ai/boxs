@@ -34,7 +34,9 @@ def main(argv=None):
     """
     argv = argv or sys.argv[1:]
 
-    file_handler = logging.FileHandler(pathlib.Path.home() / '.boxs' / 'cli.log')
+    boxs_home_dir = pathlib.Path.home() / '.boxs'
+    boxs_home_dir.mkdir(exist_ok=True)
+    file_handler = logging.FileHandler(boxs_home_dir / 'cli.log')
     file_handler.level = logging.DEBUG
     file_handler.setFormatter(
         logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

@@ -21,11 +21,15 @@ class TestCli(unittest.TestCase):
         self.get_box_patcher = unittest.mock.patch('boxs.cli.get_box')
         self.get_box_mock = self.get_box_patcher.start()
         self.get_box_mock.return_value = self.box
+        self.path_home_patcher = unittest.mock.patch('boxs.cli.pathlib.Path.home')
+        self.path_home_mock = self.path_home_patcher.start()
+        self.path_home_mock.return_value = self.dir
 
     def tearDown(self):
         shutil.rmtree(self.dir)
         unregister_box(self.box.box_id)
         self.get_box_patcher.stop()
+        self.path_home_patcher.stop()
 
     def test_main_without_args_shows_help(self):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
@@ -48,7 +52,6 @@ class TestCli(unittest.TestCase):
 
     def test_main_with_init_module_sets_config(self):
         with unittest.mock.patch('boxs.cli.get_config') as get_config_mock:
-            get_config_mock.return_value.home_directory = self.dir
             main(['-i', 'my_init_module'])
             self.assertEqual('my_init_module', get_config_mock.return_value.init_module)
 
