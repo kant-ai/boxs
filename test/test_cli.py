@@ -3,6 +3,7 @@ import json
 import pathlib
 import shutil
 import tempfile
+import time
 import unittest.mock
 
 from boxs.box import Box
@@ -67,6 +68,7 @@ class TestCli(unittest.TestCase):
 
     def test_main_list_runs_with_limit(self):
         self.box.store('My value', run_id='run-1')
+        time.sleep(0.01)
         self.box.store('My other', run_id='run-2')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main(['-b', 'cli-box', 'list-runs', '-l', '1'])
