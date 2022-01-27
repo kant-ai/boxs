@@ -197,6 +197,25 @@ class TestDataInfo(unittest.TestCase):
         self.assertEqual(data_info.meta, recreated_info.meta)
         self.assertEqual(parent.ref, recreated_info.parents[0].ref)
 
+    def test_from_value_info_supports_parents_as_data_ref(self):
+        parent = DataRef('my-storage', 'parent-id', 'revision-id')
+        data_info = DataInfo(
+            DataRef('my-storage', 'data-id', 'revision-id'),
+            'origin',
+            parents=[parent],
+            name='My name',
+            tags={'my': 'tag'},
+            meta={'my': 'meta'},
+        )
+        value_info = data_info.value_info()
+        recreated_info = DataInfo.from_value_info(value_info)
+        self.assertEqual(data_info.ref, recreated_info.ref)
+        self.assertEqual(data_info.origin, recreated_info.origin)
+        self.assertEqual(data_info.name, recreated_info.name)
+        self.assertEqual(data_info.tags, recreated_info.tags)
+        self.assertEqual(data_info.meta, recreated_info.meta)
+        self.assertEqual(parent, recreated_info.parents[0])
+
     def test_str_returns_uri(self):
         data = DataInfo(DataRef('my-storage', 'data-id', 'revision-id'), 'origin')
         uri = data.uri

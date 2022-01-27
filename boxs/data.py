@@ -263,6 +263,9 @@ class DataInfo:
         Raises:
             KeyError: If necessary attributes are missing from the `value_info`.
         """
+        if 'ref' not in value_info:
+            return DataRef.from_value_info(value_info)
+
         data_ref = DataRef.from_value_info(value_info['ref'])
         origin = value_info['origin']
         name = value_info['name']

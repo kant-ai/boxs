@@ -94,8 +94,8 @@ class Box:
 
         Args:
             value (Any): A value that should be stored.
-            *parents (boxs.data.DataInfo): Parent data instances, that this data
-                depends on.
+            *parents (Union[boxs.data.DataInfo,boxs.data.DataRef]): Parent data refs,
+                that this data depends on.
             origin (Union[str,Callable]): A string or callable returning a string,
                 that is used as an origin for deriving the data's id. Defaults to a
                 callable, that takes the name of the function, from which `store` is
