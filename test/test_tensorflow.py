@@ -1,4 +1,3 @@
-import importlib.abc
 import io
 import pathlib
 import shutil
@@ -7,7 +6,7 @@ import tempfile
 import unittest.mock
 import zipfile
 
-from boxs.tensorflow import TensorflowKerasModelValueType
+from boxs.tensorflow import TensorflowKerasModelValueType, TensorBoardLogDirValueType
 from boxs.value_types import ValueType
 
 from .test_value_types import DummyReader, DummyWriter
@@ -105,6 +104,23 @@ class TestTensorflowKerasModelValueType(unittest.TestCase):
         specification = value_type.get_specification()
         recreated_value_type = ValueType.from_specification(specification)
         self.assertEqual(value_type._default_format, recreated_value_type._default_format)
+
+
+class TestTensorBoardLogDirValueType(unittest.TestCase):
+
+    def setUp(self):
+        self.reader = DummyReader()
+        self.writer = DummyWriter()
+        self.dir_path = pathlib.Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.dir_path)
+
+    def test_write_adds_dir_content_meta_data(self):
+        value_type = TensorBoardLogDirValueType()
+        value_type.write_value_to_writer(self.dir_path, self.writer)
+
+        self.assertEqual({'dir_content': 'tensorboard-logs'}, self.writer.meta)
 
 
 if __name__ == '__main__':

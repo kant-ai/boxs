@@ -56,3 +56,18 @@ class TensorflowKerasModelValueType(DirectoryValueType):
     @classmethod
     def _from_parameter_string(cls, parameters):
         return cls(default_format=parameters)
+
+
+class TensorBoardLogDirValueType(DirectoryValueType):
+    """
+    Value type for storing tensorbord logs.
+
+    The necessary tensorflow functions for saving and loading the model to a directory
+    are dynamically loaded, so that the module can be imported WITHOUT tensorflow.
+    Only if one instantiates an instance of the class, the tensorflow package must be
+    available.
+    """
+
+    def write_value_to_writer(self, value, writer):
+        super().write_value_to_writer(pathlib.Path(value), writer)
+        writer.meta['dir_content'] = 'tensorboard-logs'
