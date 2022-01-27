@@ -92,7 +92,7 @@ class Storage(abc.ABC):
     """
 
     @abc.abstractmethod
-    def list_runs(self, box_id, limit=None):
+    def list_runs(self, box_id, limit=None, name_filter=None):
         """
         List the runs within a box stored in this storage.
 
@@ -102,6 +102,9 @@ class Storage(abc.ABC):
             box_id (str): `box_id` of the box in which to look for runs.
             limit (Optional[int]): Limits the returned runs to maximum `limit` number.
                 Defaults to `None` in which case all runs are returned.
+            name_filter (Optional[str]): If set, only include runs which have names
+                that have the filter as prefix. Defaults to `None` in which case all
+                runs are returned.
 
         Returns:
             List[box.storage.Run]: The runs.

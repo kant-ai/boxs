@@ -59,7 +59,7 @@ class FileSystemStorage(Storage):
     def _box_directory_path(self, box_id):
         return self.root_directory / box_id
 
-    def list_runs(self, box_id, limit=None):
+    def list_runs(self, box_id, limit=None, name_filter=None):
         box_directory = self._box_directory_path(box_id)
         logger.debug("List runs from directory %s", box_directory)
         if not box_directory.exists():
@@ -67,6 +67,8 @@ class FileSystemStorage(Storage):
 
         runs = self._list_runs_in_box(box_id)
         runs = sorted(runs, key=lambda x: x.time, reverse=True)
+        if name_filter is not None:
+            runs = list(filter(lambda x: (x.name or '').startswith(name_filter), runs))
         if limit is not None:
             runs = runs[:limit]
         return runs

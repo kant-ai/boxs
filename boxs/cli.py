@@ -77,103 +77,17 @@ def main(argv=None):
         help="Print output as json",
     )
 
-    subparsers = parser.add_subparsers(help="concepts")
+    subparsers = parser.add_subparsers(help="Commands")
 
-    run_list_parser = subparsers.add_parser("list", help="List runs or items in a run")
-    _add_run_argument(run_list_parser)
-    run_list_parser.set_defaults(command=list_command)
+    _add_list_runs_command(subparsers)
+    _add_name_run_command(subparsers)
 
-    run_info_parser = subparsers.add_parser("info", help="Info about an item")
-    _add_run_argument(run_info_parser, required=True)
-    run_info_parser.add_argument(
-        '-d',
-        '--data',
-        dest='data',
-        required=True,
-        help="The data whose info is requested",
-    )
-    run_info_parser.set_defaults(command=info_command)
+    _add_list_command(subparsers)
+    _add_info_command(subparsers)
+    _add_diff_command(subparsers)
 
-    run_name_parser = subparsers.add_parser("name", help="Set the name of a run")
-    _add_run_argument(run_name_parser, required=True)
-    run_name_parser.add_argument(
-        '-n',
-        '--name',
-        dest='name',
-        default=None,
-        help="The new name of the run, if left out, the current name will be removed.",
-    )
-    run_name_parser.set_defaults(command=name_command)
-
-    diff_parser = subparsers.add_parser("diff", help="Compare runs or data items")
-    diff_parser.add_argument(
-        nargs=2,
-        metavar='OBJECT',
-        dest='objects',
-        default=None,
-        help="The runs or items to compare.",
-    )
-    diff_parser.add_argument(
-        '-d',
-        '--diff-command',
-        dest='diff',
-        default='diff',
-        help="The command to use for comparing.",
-    )
-    diff_parser.add_argument(
-        '-l',
-        '--without-labels',
-        dest='labels',
-        action='store_false',
-        help="Disable the labels.",
-    )
-    diff_parser.add_argument(
-        nargs='*',
-        metavar='DIFF-ARGS',
-        dest='diff_args',
-        help="Arbitrary arguments for the diff command.",
-    )
-    diff_parser.set_defaults(command=diff_command)
-
-    export_parser = subparsers.add_parser(
-        "export", help="Export items to a local file."
-    )
-    export_parser.add_argument(
-        nargs=1,
-        metavar='OBJECT',
-        dest='item',
-        default=None,
-        help="The item to export.",
-    )
-    export_parser.add_argument(
-        nargs=1,
-        metavar='FILE',
-        dest='file',
-        default=None,
-        help="The file to export to.",
-    )
-    export_parser.set_defaults(command=export_command)
-
-    graph_parser = subparsers.add_parser(
-        "graph",
-        help="Create a dependency graph from objects in DOT format.",
-    )
-    graph_parser.add_argument(
-        nargs=1,
-        metavar='OBJECT',
-        dest='objects',
-        default=None,
-        help="The runs or items to graph.",
-    )
-    graph_parser.add_argument(
-        nargs='?',
-        metavar='FILE',
-        dest='file',
-        default='-',
-        help="The file to write the graph to. If left empty, the graph is written to"
-        " stdout.",
-    )
-    graph_parser.set_defaults(command=graph_command)
+    _add_export_command(subparsers)
+    _add_graph_command(subparsers)
 
     args = parser.parse_args(argv)
 
@@ -190,30 +104,27 @@ def main(argv=None):
         _print_error(error, args)
 
 
-def _add_run_argument(parser, required=False):
-    parser.add_argument(
-        '-r',
-        '--run',
-        dest='run',
-        required=required,
-        help="Run id or name, can be just the first characters if unambiguous.",
+def _add_list_runs_command(subparsers):
+    list_runs_parser = subparsers.add_parser("list-runs", help="List runs")
+    list_runs_parser.add_argument(
+        '-f',
+        '--name-filter',
+        metavar='FILTER',
+        dest='filter',
+        help="Only list runs whose name begins with FILTER.",
     )
+    list_runs_parser.add_argument(
+        '-l',
+        '--limit',
+        metavar='LIMIT',
+        dest='limit',
+        type=int,
+        help="Only list the <LIMIT> last runs.",
+    )
+    list_runs_parser.set_defaults(command=list_runs_command)
 
 
-def list_command(args):
-    """
-    Command that either lists runs or the data items in a specific run.
-
-    Args:
-        args (argparse.Namespace): The parsed arguments from command line.
-    """
-    if args.run is not None:
-        list_run(args)
-    else:
-        list_runs(args)
-
-
-def list_runs(args):
+def list_runs_command(args):
     """
     Function that lists runs.
 
@@ -224,29 +135,28 @@ def list_runs(args):
     box = get_box()
     storage = box.storage
     logger.info("Listing all runs in box %s", box.box_id)
-    runs = storage.list_runs(box.box_id)
+    runs = storage.list_runs(box.box_id, name_filter=args.filter, limit=args.limit)
     _print_result("List runs", runs, args)
 
 
-def list_run(args):
-    """
-    Function that lists the data items of a specific run.
+def _add_name_run_command(subparsers):
+    name_run_parser = subparsers.add_parser("name-run", help="Set the name of a run")
+    name_run_parser.add_argument(
+        metavar='RUN',
+        dest='run',
+        help="Run id or name, can be just the first characters.",
+    )
+    name_run_parser.add_argument(
+        '-n',
+        '--name',
+        dest='name',
+        default=None,
+        help="The new name of the run, if left out, the current name will be removed.",
+    )
+    name_run_parser.set_defaults(command=name_run_command)
 
-    Args:
-        args (argparse.Namespace): The parsed arguments from command line.
-    """
-    box = get_box()
-    storage = box.storage
-    run = _get_run_from_args(args)
-    if run is None:
-        return
-    logger.info("Listing run %s in box %s", run.run_id, box.box_id)
-    query = ItemQuery(box.box_id + '::' + run.run_id)
-    items = storage.list_items(query)
-    _print_result(f"List run {run.run_id}", items, args)
 
-
-def name_command(args):
+def name_run_command(args):
     """
     Command that allows to set a name for a specific run.
 
@@ -268,6 +178,52 @@ def name_command(args):
     _print_result(f"Run name set {run.run_id}", [run], args)
 
 
+def _add_list_command(subparsers):
+    list_parser = subparsers.add_parser("list", help="List runs or items in a run")
+    list_parser.add_argument(
+        nargs=1,
+        metavar='QUERY',
+        dest='query',
+        default=None,
+        help="The query in format [<box>:<data>:<run>] for the items which should be"
+        " listed. ",
+    )
+    list_parser.set_defaults(command=list_command)
+
+
+def list_command(args):
+    """
+    Function that lists the data items of a specific run.
+
+    Args:
+        args (argparse.Namespace): The parsed arguments from command line.
+    """
+    item_query = _parse_query(args.query[0])
+    logger.info("Listing items by query %s", item_query)
+
+    box = get_box(item_query.box)
+    item_query.box = box.box_id
+    items = box.storage.list_items(item_query)
+
+    if len(items) == 0:
+        _print_error(f"No items found by query {args.query[0]}", args)
+        return
+    _print_result(f"List items {item_query}", items, args)
+
+
+def _add_info_command(subparsers):
+    info_parser = subparsers.add_parser("info", help="Info about an item")
+    info_parser.add_argument(
+        nargs=1,
+        metavar='QUERY',
+        dest='query',
+        default=None,
+        help="The query in format [<box>:<data>:<run>] for the item whose info should"
+        " be printed.",
+    )
+    info_parser.set_defaults(command=info_command)
+
+
 def info_command(args):
     """
     Command that shows the information about a data item.
@@ -275,31 +231,62 @@ def info_command(args):
     Args:
         args (argparse.Namespace): The parsed arguments from command line.
     """
-    box = get_box()
-    storage = box.storage
-    run = _get_run_from_args(args)
-    if run is None:
-        return
+    item_query = _parse_query(args.query[0])
+    box = get_box(item_query.box)
+    item_query.box = box.box_id
+    items = box.storage.list_items(item_query)
 
-    query = ItemQuery.from_fields(box=box.box_id, data=args.data, run=run.run_id)
-    items = storage.list_items(query)
     if len(items) == 0:
-        _print_error(f"No item found with data-id starting with {args.data}", args)
+        _print_error(f"No item found by query {args.query[0]}", args)
         return
     if len(items) > 1:
-        _print_error(f"Multiple items found for data-id {args.data}", args)
+        _print_error(f"Multiple items found by query {args.query[0]}", args)
+        _print_result('', items, args)
         return
     item = items[0]
 
     logger.info(
         "Showing info about item %s from run %s in box %s",
         item.data_id,
-        run.run_id,
-        box.box_id,
+        item.run_id,
+        item.box_id,
     )
 
-    info = storage.create_reader(DataRef(box.box_id, item.data_id, item.run_id)).info
+    info = box.storage.create_reader(DataRef.from_item(item)).info
     _print_result(f"Info {item.data_id} {item.run_id}", info, args)
+
+
+def _add_diff_command(subparsers):
+    diff_parser = subparsers.add_parser("diff", help="Compare data items")
+    diff_parser.add_argument(
+        nargs=2,
+        metavar='QUERY',
+        dest='queries',
+        default=None,
+        help="The queries in format [<box>:<data>:<run>] describing the items to"
+        " compare.",
+    )
+    diff_parser.add_argument(
+        '-d',
+        '--diff-command',
+        dest='diff',
+        default='diff',
+        help="The command to use for comparing, defaults to 'diff'.",
+    )
+    diff_parser.add_argument(
+        '-l',
+        '--without-labels',
+        dest='labels',
+        action='store_false',
+        help="Disable the labels.",
+    )
+    diff_parser.add_argument(
+        nargs='*',
+        metavar='DIFF-ARG',
+        dest='diff_args',
+        help="Arbitrary arguments for the diff command.",
+    )
+    diff_parser.set_defaults(command=diff_command)
 
 
 def diff_command(args):
@@ -314,7 +301,7 @@ def diff_command(args):
         return ref.load(value_type=FileValueType())
 
     results = []
-    for obj_string in args.objects:
+    for obj_string in args.queries:
         item_query = _parse_query(obj_string)
         item_query.box = item_query.box or args.default_box
         box = get_box(item_query.box)
@@ -329,10 +316,10 @@ def diff_command(args):
             second_ref.uri,
         )
         first_file_path = _get_data_item_as_file(first_ref)
-        first_label = args.objects[0]
+        first_label = args.queries[0]
 
         second_file_path = _get_data_item_as_file(second_ref)
-        second_label = args.objects[1]
+        second_label = args.queries[1]
 
         command = [args.diff, str(first_file_path), str(second_file_path)]
         if args.labels:
@@ -353,6 +340,25 @@ def diff_command(args):
         _print_error("Ambiguous values to diff.", args)
 
 
+def _add_export_command(subparsers):
+    export_parser = subparsers.add_parser(
+        "export", help="Export items to a local file."
+    )
+    export_parser.add_argument(
+        metavar='QUERY',
+        dest='query',
+        default=None,
+        help="The query in format [<box>:<data>:<run>] describing the item to export.",
+    )
+    export_parser.add_argument(
+        metavar='FILE',
+        dest='file',
+        default=None,
+        help="The file path to export to.",
+    )
+    export_parser.set_defaults(command=export_command)
+
+
 def export_command(args):
     """
     Command that exports a data item to a file.
@@ -364,25 +370,45 @@ def export_command(args):
     def _export_item_as_file(ref, file_path):
         return ref.load(value_type=FileValueType(file_path=file_path))
 
-    item_query = _parse_query(args.item[0])
+    item_query = _parse_query(args.query)
     item_query.box = item_query.box or args.default_box
     box = get_box(item_query.box)
     items = box.storage.list_items(item_query)
 
     if len(items) == 0:
-        _print_error(f"No item found for {args.item[0]}.", args)
+        _print_error(f"No item found for {args.query}.", args)
     elif len(items) > 1:
-        _print_error(f"Multiple items found for {args.item[0]}.", args)
+        _print_error(f"Multiple items found for {args.query}.", args)
         _print_result('', items, args)
     else:
         ref = DataRef.from_item(items[0])
-        export_file_path = pathlib.Path(args.file[0])
+        export_file_path = pathlib.Path(args.file)
         logger.info("Exporting item %s to file %s", ref.uri, export_file_path)
 
         _export_item_as_file(ref, export_file_path)
-        _print_result(
-            f"{args.item[0]} successfully exported to {args.file[0]}", [], args
-        )
+        _print_result(f"{args.query} successfully exported to {args.file}", [], args)
+
+
+def _add_graph_command(subparsers):
+    graph_parser = subparsers.add_parser(
+        "graph",
+        help="Create a dependency graph from objects in DOT format.",
+    )
+    graph_parser.add_argument(
+        metavar='QUERY',
+        dest='query',
+        default=None,
+        help="The query describing the items to graph.",
+    )
+    graph_parser.add_argument(
+        nargs='?',
+        metavar='FILE',
+        dest='file',
+        default='-',
+        help="The file to write the graph to. If left empty, the graph is written to"
+        " stdout.",
+    )
+    graph_parser.set_defaults(command=graph_command)
 
 
 def graph_command(args):
@@ -393,7 +419,7 @@ def graph_command(args):
         args (argparse.Namespace): The parsed arguments from command line.
     """
 
-    item_query = _parse_query(args.objects[0])
+    item_query = _parse_query(args.query)
     if item_query.box is None:
         item_query.box = get_config().default_box
     box = get_box(item_query.box)

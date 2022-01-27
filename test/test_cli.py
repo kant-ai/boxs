@@ -35,7 +35,7 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main([])
             self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
-            self.assertIn('{list,info,name,diff,export,graph}', fake_out.getvalue())
+            self.assertIn('{list-runs,name-run,list,info,diff,export,graph}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -45,7 +45,7 @@ class TestCli(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, "0"):
                 main(['-h'])
             self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
-            self.assertIn('{list,info,name,diff,export,graph}', fake_out.getvalue())
+            self.assertIn('{list-runs,name-run,list,info,diff,export,graph}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -59,18 +59,41 @@ class TestCli(unittest.TestCase):
         self.box.store('My value', run_id='run-1')
         self.box.store('My other', run_id='run-2')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'list'])
+            main(['-b', 'cli-box', 'list-runs'])
             self.assertIn('List runs', fake_out.getvalue())
             self.assertIn('run_id|name|', fake_out.getvalue())
             self.assertIn('run-1', fake_out.getvalue())
             self.assertIn('run-2', fake_out.getvalue())
 
+    def test_main_list_runs_with_limit(self):
+        self.box.store('My value', run_id='run-1')
+        self.box.store('My other', run_id='run-2')
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'list-runs', '-l', '1'])
+            self.assertIn('List runs', fake_out.getvalue())
+            self.assertIn('run_id|name|', fake_out.getvalue())
+            self.assertIn('run-2', fake_out.getvalue())
+            self.assertNotIn('run-1', fake_out.getvalue())
+
+    def test_main_list_runs_with_name_filter(self):
+        self.box.store('My value', run_id='my-run-1')
+        self.box.store('My other', run_id='my-run-2')
+        self.box.store('My other', run_id='other-run-1')
+        self.box.storage.set_run_name(self.box.box_id, 'my-run-1', 'my-name')
+        self.box.storage.set_run_name(self.box.box_id, 'my-run-2', 'my-other-name')
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'list-runs', '-f', 'my'])
+            self.assertIn('List runs', fake_out.getvalue())
+            self.assertIn('my-run-1 my-name', fake_out.getvalue())
+            self.assertIn('my-run-2 my-other-name', fake_out.getvalue())
+            self.assertNotIn('other-run', fake_out.getvalue())
+
     def test_main_list_items(self):
         self.box.store('My value', origin='1', name='data_1', run_id='run-1')
         self.box.store('My other', origin='2', name='data_2', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'list', '-r', 'run-1'])
-            self.assertIn('List run run-1', fake_out.getvalue())
+            main(['-b', 'cli-box', 'list', 'run-1'])
+            self.assertIn('List items cli-box::run-1', fake_out.getvalue())
             self.assertIn('data_id     |run_id| name', fake_out.getvalue())
             self.assertIn('run-1  data_1', fake_out.getvalue())
             self.assertIn('run-1  data_2', fake_out.getvalue())
@@ -79,59 +102,68 @@ class TestCli(unittest.TestCase):
         self.box.store('My value', origin='1', name='data_1', run_id='run-1')
         self.box.store('My other', origin='2', name='data_2', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', '-j', 'list', '-r', 'run-1'])
+            main(['-b', 'cli-box', '-j', 'list', 'run-1'])
             result = json.loads(fake_out.getvalue())
             self.assertEqual(len(result), 2)
 
     def test_main_list_items_with_empty_box_prints_error(self):
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'list', '-r', 'run-1'])
+            main(['-b', 'cli-box', 'list', 'run-1'])
             self.assertIn('Error: Box cli-box does not exist in storage', fake_out.getvalue())
 
     def test_main_list_items_with_invalid_box_prints_error(self):
         self.get_box_mock.side_effect = BoxNotDefined('unknown-box')
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'unknown-box', 'list', '-r', 'run-2'])
+            main(['-b', 'unknown-box', 'list', 'run-2'])
             self.assertIn('Error: Box with box id unknown-box not defined', fake_out.getvalue())
 
     def test_main_list_items_without_default_box_prints_error(self):
         self.get_box_mock.side_effect = BoxNotDefined(None)
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['list', '-r', 'run-2'])
+            main(['list', 'run-2'])
             self.assertIn('Error: Box with box id None not defined', fake_out.getvalue())
 
     def test_main_list_items_with_invalid_run_prints_error(self):
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'list', '-r', 'run-2'])
-            self.assertIn('Error: No run found with run-id or name starting with run-2', fake_out.getvalue())
+            main(['-b', 'cli-box', 'list', 'run-2'])
+            self.assertIn('Error: No items found by query run-2', fake_out.getvalue())
 
     def test_main_list_items_with_invalid_box_prints_error_in_json(self):
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', '-j', 'list', '-r', 'run-2'])
-            self.assertIn('{"error":"No run found with run-id or name starting with run-2"}', fake_out.getvalue())
+            main(['-b', 'cli-box', '-j', 'list', 'run-2'])
+            self.assertIn('{"error":"No items found by query run-2"}', fake_out.getvalue())
 
     def test_main_name_run(self):
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'name', '-r', 'run-1', '-n', 'my-name'])
+            main(['-b', 'cli-box', 'name-run', 'run-1', '-n', 'my-name'])
             self.assertIn('Run name set run-1', fake_out.getvalue())
             self.assertIn('run_id| name', fake_out.getvalue())
             self.assertIn('run-1  my-name', fake_out.getvalue())
 
+    def test_main_name_run_can_remove_name(self):
+        self.box.store('My value', run_id='run-1')
+        main(['-b', 'cli-box', 'name-run', 'run-1', '-n', 'my-name'])
+        run = self.box.storage.list_runs(self.box.box_id)[0]
+        self.assertEqual('my-name', run.name)
+        main(['-b', 'cli-box', 'name-run', 'run-1'])
+        run = self.box.storage.list_runs(self.box.box_id)[0]
+        self.assertIsNone(run.name)
+
     def test_main_name_run_with_invalid_run(self):
         self.box.store('My value', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'name', '-r', 'run-2', '-n', 'my-name'])
+            main(['-b', 'cli-box', 'name-run', 'run-2', '-n', 'my-name'])
             self.assertIn('Error: No run found with run-id or name starting with run-2', fake_out.getvalue())
 
     def test_main_info_run(self):
         self.box.store('My value', name='my-data', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-data'])
+            main(['-b', 'cli-box', 'info', 'my-data:run-1'])
             self.assertIn('Info fb920699f86b785a run-1', fake_out.getvalue())
             self.assertIn('Property  Value', fake_out.getvalue())
             self.assertIn('name    : my-data', fake_out.getvalue())
@@ -140,28 +172,28 @@ class TestCli(unittest.TestCase):
     def test_main_info_run_with_json(self):
         self.box.store('My value', name='my-data', run_id='run-1')
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', '-j', 'info', '-r', 'run-1', '-d', 'my-data'])
+            main(['-b', 'cli-box', '-j', 'info', 'my-data:run-1'])
             result = json.loads(fake_out.getvalue())
             self.assertEqual(result['name'], 'my-data')
 
     def test_main_info_with_invalid_run(self):
         self.box.store('My value', name='my-data', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'info', '-r', 'run-2', '-d', 'my-data'])
-            self.assertIn('Error: No run found with run-id or name starting with run-2', fake_out.getvalue())
+            main(['-b', 'cli-box', 'info', 'my-data:run-2'])
+            self.assertIn('Error: No item found by query my-data:run-2', fake_out.getvalue())
 
     def test_main_info_with_invalid_data(self):
         self.box.store('My value', name='my-data', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-other-data'])
-            self.assertIn('Error: No item found with data-id starting with my-other-data', fake_out.getvalue())
+            main(['-b', 'cli-box', 'info', 'my-other-data:run-1'])
+            self.assertIn('Error: No item found by query my-other-data:run-1', fake_out.getvalue())
 
     def test_main_info_with_multiple_matching_data(self):
         self.box.store('My value', name='my-data1', run_id='run-1')
         self.box.store('My value', name='my-data2', run_id='run-1')
         with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
-            main(['-b', 'cli-box', 'info', '-r', 'run-1', '-d', 'my-data'])
-            self.assertIn('Error: Multiple items found for data-id my-data', fake_out.getvalue())
+            main(['-b', 'cli-box', 'info', 'my-data:run-1'])
+            self.assertIn('Error: Multiple items found by query my-data:run-1', fake_out.getvalue())
 
     def test_main_diff(self):
         self.box.store('My value', name='my-data', run_id='run-1')
