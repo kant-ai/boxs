@@ -5,7 +5,7 @@ import logging
 import json
 import pathlib
 
-from .data import DataInfo
+from .data import DataInfo, DataRef
 from .errors import BoxNotFound, DataCollision, NameCollision, RunNotFound
 from .storage import Storage, Reader, Writer, Run, Item
 
@@ -26,22 +26,14 @@ class FileSystemStorage(Storage):
         """
         self.root_directory = pathlib.Path(directory)
 
-    def _data_file_paths(self, data_ref):
+    def _data_file_paths(self, item):
         base_path = (
-            self.root_directory
-            / data_ref.box_id
-            / 'data'
-            / data_ref.data_id
-            / data_ref.run_id
+            self.root_directory / item.box_id / 'data' / item.data_id / item.run_id
         )
         return base_path.with_suffix('.data'), base_path.with_suffix('.info')
 
-    def _run_file_path(self, data_ref):
-        return (
-            self._runs_directory_path(data_ref.box_id)
-            / data_ref.run_id
-            / data_ref.data_id
-        )
+    def _run_file_path(self, item):
+        return self._runs_directory_path(item.box_id) / item.run_id / item.data_id
 
     def _runs_directory_path(self, box_id):
         path = self.root_directory / box_id / 'runs'
@@ -135,8 +127,8 @@ class FileSystemStorage(Storage):
         run = self._create_run_from_run_path(box_id, run_path)
         return run
 
-    def exists(self, data_ref):
-        _, info_file = self._data_file_paths(data_ref)
+    def exists(self, item):
+        _, info_file = self._data_file_paths(item)
         return info_file.exists()
 
     def create_writer(self, data_ref, name=None, tags=None):
@@ -266,16 +258,14 @@ class _FileSystemWriter(Writer):
     def as_stream(self):
         self.data_file.parent.mkdir(parents=True, exist_ok=True)
         if self.data_file.exists():
-            raise DataCollision(
-                self.data_ref.box_id, self.data_ref.data_id, self.data_ref.run_id
-            )
+            raise DataCollision(self.item.box_id, self.item.data_id, self.item.run_id)
         return io.FileIO(self.data_file, 'w')
 
     def write_info(self, origin, parents, meta):
         meta = dict(meta)
         meta.update(self.meta)
         data_info = DataInfo(
-            self.data_ref,
+            DataRef.from_item(self.item),
             origin=origin,
             parents=parents,
             name=self.name,
@@ -285,9 +275,7 @@ class _FileSystemWriter(Writer):
 
         self.info_file.parent.mkdir(parents=True, exist_ok=True)
         if self.info_file.exists():
-            raise DataCollision(
-                self.data_ref.box_id, self.data_ref.data_id, self.data_ref.run_id
-            )
+            raise DataCollision(self.item.box_id, self.item.data_id, self.item.run_id)
         self.info_file.write_text(json.dumps(data_info.value_info()))
         run_dir = self.run_file.parent
         run_dir.mkdir(parents=True, exist_ok=True)
@@ -298,9 +286,9 @@ class _FileSystemWriter(Writer):
             name_symlink_file = name_dir / self.name
             if name_symlink_file.exists():
                 raise NameCollision(
-                    self.data_ref.box_id,
-                    self.data_ref.data_id,
-                    self.data_ref.run_id,
+                    self.item.box_id,
+                    self.item.data_id,
+                    self.item.run_id,
                     self.name,
                 )
             name_symlink_file.symlink_to(self.run_file)

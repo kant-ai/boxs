@@ -15,18 +15,17 @@ class DataChecksumMismatch(DataError):
     Exception that is raised if a checksum doesn't match.
 
     Attributes:
-        data_ref (boxs.data.DataRef): The reference to the data where the mismatch
-            occurred.
+        item (boxs.storage.Item): The item where the mismatch occurred.
         expected (str): Checksum that was expected.
         calculated (str): Checksum that was actually calculated.
     """
 
-    def __init__(self, data_ref, expected, calculated):
-        self.data_ref = data_ref
+    def __init__(self, item, expected, calculated):
+        self.item = item
         self.expected = expected
         self.calculated = calculated
         super().__init__(
-            f"Data '{self.data_ref}' has wrong checksum '{self.calculated}'"
+            f"{self.item} has wrong checksum '{self.calculated}'"
             f", expected '{self.expected}'"
         )
 
@@ -92,11 +91,9 @@ class _ChecksumReader(DelegatingReader):
                 expected_checksum = self.delegate.meta['checksum_digest']
                 if expected_checksum != found_checksum:
                     raise DataChecksumMismatch(
-                        self.data_ref, expected_checksum, found_checksum
+                        self.item, expected_checksum, found_checksum
                     )
-            logger.info(
-                "Checksum when reading data %s: %s", self.data_ref, found_checksum
-            )
+            logger.info("Checksum when reading %s: %s", self.item, found_checksum)
         else:
             logger.warning("Ignoring checksum when loading from local file.")
         return result
@@ -123,7 +120,7 @@ class _ChecksumWriter(DelegatingWriter):
         self.meta['checksum_digest'] = checksum
         self.meta['checksum_digest_size'] = self._digest_size
         self.meta['checksum_algorithm'] = 'blake2b'
-        logger.info("Checksum when writing data %s: %s", self.data_ref, checksum)
+        logger.info("Checksum when writing %s: %s", self.item, checksum)
 
     def as_stream(self):
         self._stream = _ChecksumStream(self.delegate.as_stream(), self._digest_size)

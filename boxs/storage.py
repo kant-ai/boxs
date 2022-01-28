@@ -4,7 +4,16 @@ import collections
 
 
 Run = collections.namedtuple('Run', 'run_id name time')
-Item = collections.namedtuple('Item', 'box_id data_id run_id name time')
+
+
+class Item(collections.namedtuple('Item', 'box_id data_id run_id name time')):
+    __slots__ = ()
+
+    def __str__(self):
+        return f"Item(boxs://{self.box_id}/{self.data_id}/{self.run_id})"
+
+
+Item.__new__.__defaults__ = (None, None)
 
 
 class ItemQuery:
@@ -85,10 +94,10 @@ class Storage(abc.ABC):
 
     This abstract base class defines the interface, that is used by `Box` to store
     and load data. The data items between `Box` and `Storage` are always identified
-    by their `data_id` and `run_id`. The functionality to store data is provided by
-    the `Writer` object, that is created by the `create_writer()` method. Similarly,
-    loading data is implemented in a separate `Reader` object that is created by
-    `create_reader()`.
+    by their `box_id`, `data_id` and `run_id`. The functionality to store data is
+    provided by the `Writer` object, that is created by the `create_writer()` method.
+    Similarly, loading data is implemented in a separate `Reader` object that is
+    created by `create_reader()`.
     """
 
     @abc.abstractmethod
@@ -145,26 +154,24 @@ class Storage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def exists(self, data_ref):
+    def exists(self, item):
         """
         Checks is a specific data already exists.
 
         Args:
-            data_ref (boxs.data.DataRef): The reference to the data that should be
-                checked if it exists.
+            item (boxs.storage.Item): The item that should be checked if it exists.
 
         Returns:
-            bool: `True` if the referenced data already exists, otherwise `False`.
+            bool: `True` if the item exists, otherwise `False`.
         """
 
     @abc.abstractmethod
-    def create_reader(self, data_ref):
+    def create_reader(self, item):
         """
         Creates a `Reader` instance, that allows to load existing data.
 
         Args:
-            data_ref (boxs.data.DataRef): The reference to the data that should be
-                read.
+            item (boxs.storage.Item): The item that should be read.
 
         Returns:
             boxs.storage.Reader: The reader that will load the data from the
@@ -172,12 +179,12 @@ class Storage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def create_writer(self, data_ref, name=None, tags=None):
+    def create_writer(self, item, name=None, tags=None):
         """
         Creates a `Writer` instance, that allows to store new data.
 
         Args:
-            data_ref (boxs.data.DataRef): The reference to the new data item.
+            item (boxs.storage.Item): The new data item.
             name (str): An optional name, that can be used for referring to this item
                 within the run. Defaults to `None`.
             tags (Dict[str,str]): A dictionary containing tags that can be used for
@@ -194,20 +201,20 @@ class Reader(abc.ABC):
     Base class for the storage specific reader implementations.
     """
 
-    def __init__(self, data_ref):
+    def __init__(self, item):
         """
         Creates a `Reader` instance, that allows to load existing data.
 
         Args:
-            data_ref (boxs.data.DataRef): The `data_ref` of the data that should be
+            item (boxs.storage.Item): The `item` with the data that should be
                 loaded.
         """
-        self._data_ref = data_ref
+        self._item = item
 
     @property
-    def data_ref(self):
-        """The data_ref of the data that this reader can read."""
-        return self._data_ref
+    def item(self):
+        """The item of the data that this reader can read."""
+        return self._item
 
     def read_value(self, value_type):
         """
@@ -255,7 +262,7 @@ class DelegatingReader(Reader):
             delegate (boxs.storage.Reader): The reader to which all calls are
                 delegated.
         """
-        super().__init__(delegate.data_ref)
+        super().__init__(delegate.item)
         self.delegate = delegate
 
     @property
@@ -278,21 +285,21 @@ class Writer(abc.ABC):
     Base class for the storage specific writer implementations.
     """
 
-    def __init__(self, data_ref, name, tags):
+    def __init__(self, item, name, tags):
         """
         Creates a `Writer` instance, that allows to store new data.
 
         Args:
-            data_ref (boxs.data.DataRef): The `data_ref` of the new data.
+            item (boxs.storage.Item): The new item.
         """
-        self._data_ref = data_ref
+        self._item = item
         self._name = name
         self._tags = tags
 
     @property
-    def data_ref(self):
-        """Returns the data_ref of the DataItem which this writer writes to."""
-        return self._data_ref
+    def item(self):
+        """Returns the item which this writer writes to."""
+        return self._item
 
     @property
     def name(self):
@@ -308,9 +315,9 @@ class Writer(abc.ABC):
     @abc.abstractmethod
     def meta(self):
         """
-        Returns a dictionary which contains meta-data of the DataItem.
+        Returns a dictionary which contains meta-data of the item.
 
-        This allows either StoreDataFunctions or Transformers to add additional
+        This allows either ValueTypes or Transformers to add additional
         meta-data for the data item.
         """
 
@@ -345,8 +352,7 @@ class Writer(abc.ABC):
         """
         Return a stream to which the data content should be written.
 
-        This method is being used by the StoreDataFunction to actually transfer the
-        data.
+        This method can be used by the ValueType to actually transfer the data.
 
         Returns:
             io.RawIOBase: The binary io-stream.
@@ -360,7 +366,7 @@ class DelegatingWriter(Writer):
 
     def __init__(self, delegate):
         self.delegate = delegate
-        super().__init__(delegate.data_ref, delegate.name, delegate.tags)
+        super().__init__(delegate.item, delegate.name, delegate.tags)
 
     @property
     def meta(self):

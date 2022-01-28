@@ -121,7 +121,7 @@ class TestReader(unittest.TestCase):
         self.reader = ReaderImplementation(self.data_ref)
 
     def test_data_ref_is_taken_from_constructor(self):
-        result = self.reader.data_ref
+        result = self.reader.item
         self.assertEqual(self.data_ref, result)
 
     def test_read_value_calls_method_on_value_type(self):
@@ -137,7 +137,7 @@ class TestWriter(unittest.TestCase):
         self.writer = WriterImplementation(self.data_ref, None, {})
 
     def test_data_ref_is_taken_from_constructor(self):
-        result = self.writer.data_ref
+        result = self.writer.item
         self.assertEqual(self.data_ref, result)
 
     def test_read_value_calls_method_on_value_type(self):
@@ -150,11 +150,11 @@ class TestDelegatingReader(unittest.TestCase):
 
     def setUp(self):
         self.delegate = unittest.mock.MagicMock()
-        self.delegate.data_ref = 'data-id'
+        self.delegate.item = 'data-id'
         self.reader = DelegatingReader(self.delegate)
 
-    def test_data_ref_is_same_as_delegated(self):
-        result = self.reader.data_ref
+    def test_item_is_same_as_delegated(self):
+        result = self.reader.item
         self.assertEqual('data-id', result)
 
     def test_info_is_delegated(self):
@@ -182,11 +182,11 @@ class TestDelegatingWriter(unittest.TestCase):
 
     def setUp(self):
         self.delegate = unittest.mock.MagicMock()
-        self.delegate.data_ref = 'data-id'
+        self.delegate.item = 'data-id'
         self.writer = DelegatingWriter(self.delegate)
 
-    def test_data_ref_is_delegated(self):
-        result = self.writer.data_ref
+    def test_item_is_delegated(self):
+        result = self.writer.item
         self.assertEqual('data-id', result)
 
     def test_meta_is_delegated(self):
