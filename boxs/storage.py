@@ -4,23 +4,37 @@ import collections
 
 
 class Run(collections.namedtuple('Run', 'box_id run_id name time')):
+    """
+    A class representing a run.
+    """
+
     __slots__ = ()
 
     def __str__(self):
         return f"Run({self.box_id}/{self.run_id})"
 
+    def __eq__(self, o):
+        return (self.box_id, self.run_id) == (o.box_id, o.run_id)
 
-Run.__new__.__defaults__ = (None, None)
+    def __hash__(self):
+        return hash((self.box_id, self.run_id))
+
+
+Run.__new__.__defaults__ = (None, None)  # type: ignore
 
 
 class Item(collections.namedtuple('Item', 'box_id data_id run_id name time')):
+    """
+    A class representing a data item.
+    """
+
     __slots__ = ()
 
     def __str__(self):
         return f"Item(boxs://{self.box_id}/{self.data_id}/{self.run_id})"
 
 
-Item.__new__.__defaults__ = (None, None)
+Item.__new__.__defaults__ = (None, None)  # type: ignore
 
 
 class ItemQuery:
@@ -158,6 +172,16 @@ class Storage(abc.ABC):
 
         Returns:
             box.storage.Run: The run with its new name.
+        """
+
+    @abc.abstractmethod
+    def delete_run(self, box_id, run_id):
+        """
+        Delete all the data of the specified run.
+
+        Args;
+            box_id (str): `box_id` of the box in which the run is stored.
+            run_id (str): Run id of the run which should be deleted.
         """
 
     @abc.abstractmethod

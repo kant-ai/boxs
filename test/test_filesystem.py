@@ -60,6 +60,29 @@ class TestFileSystemStorage(unittest.TestCase):
         self.assertEqual('run3', runs[0].run_id)
         self.assertEqual('run2', runs[1].run_id)
 
+    def test_delete_run_removes_data_items(self):
+        writer = self.storage.create_writer(Item('box-id', 'data-id', 'run1'))
+        writer.write_value(b'My data', BytesValueType())
+        writer.write_info('origin', [], {})
+
+        data_file = self.dir / 'box-id' / 'data' / 'data-id' / 'run1.data'
+        info_file = self.dir / 'box-id' / 'data' / 'data-id' / 'run1.info'
+
+        self.assertTrue(data_file.exists())
+        self.assertTrue(info_file.exists())
+
+        self.storage.delete_run('box-id', 'run1')
+
+        self.assertFalse(data_file.exists())
+        self.assertFalse(info_file.exists())
+
+    def test_delete_run_removes_unknown_run(self):
+        writer = self.storage.create_writer(Item('box-id', 'data-id', 'run1'))
+        writer.write_info('origin', [], {})
+
+        with self.assertRaisesRegex(RunNotFound, "Run unknown-run does not exist in box box-id"):
+            self.storage.delete_run('box-id', 'unknown-run')
+
     def test_list_items_with_invalid_box_id_raises(self):
         writer = self.storage.create_writer(Item('box-id', 'data1', 'run1'))
         writer.write_info('origin', [], {})

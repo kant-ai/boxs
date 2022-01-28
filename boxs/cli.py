@@ -17,7 +17,7 @@ from boxs.config import get_config
 from boxs.data import DataRef
 from boxs.errors import BoxsError
 from boxs.graph import write_graph_of_refs
-from boxs.storage import ItemQuery
+from boxs.storage import ItemQuery, Run
 from boxs.value_types import FileValueType
 
 
@@ -81,6 +81,7 @@ def main(argv=None):
 
     _add_list_runs_command(subparsers)
     _add_name_run_command(subparsers)
+    _add_clean_runs_command(subparsers)
 
     _add_list_command(subparsers)
     _add_info_command(subparsers)
@@ -176,6 +177,102 @@ def name_run_command(args):
     )
     run = storage.set_run_name(box.box_id, run.run_id, args.name)
     _print_result(f"Run name set {run.run_id}", [run], args)
+
+
+def _add_clean_runs_command(subparsers):
+    clean_runs_parser = subparsers.add_parser("clean-runs", help="Clean runs")
+    clean_runs_parser.add_argument(
+        '-n',
+        '--remove-named',
+        dest='remove_named',
+        action='store_true',
+        help="Delete runs which have names.",
+    )
+    clean_runs_parser.add_argument(
+        '-r',
+        '--preserve-runs',
+        metavar='COUNT',
+        dest='count',
+        default=5,
+        type=int,
+        help="Preserve the <COUNT> last runs. Defaults to 5.",
+    )
+    clean_runs_parser.add_argument(
+        '-d',
+        '--ignore-dependencies',
+        dest='ignore_dependencies',
+        action='store_true',
+        help="Delete runs which contain data items referenced by kept runs.",
+    )
+    clean_runs_parser.add_argument(
+        '-q',
+        '--quiet',
+        dest='quiet',
+        action='store_true',
+        help="Don't ask for confirmation.",
+    )
+    clean_runs_parser.set_defaults(command=clean_runs_command)
+
+
+def clean_runs_command(args):
+    """
+    Function that removes old runs.
+
+    Args:
+        args (argparse.Namespace): The parsed arguments from command line.
+    """
+
+    box = get_box()
+    storage = box.storage
+    logger.info("Removing runs in box %s", box.box_id)
+    runs = storage.list_runs(box.box_id)
+
+    runs_to_keep = set(runs[: args.count])
+
+    if not args.remove_named:
+        _keep_runs_with_name(runs, runs_to_keep)
+
+    if not args.ignore_dependencies:
+        _keep_runs_that_are_dependencies(runs_to_keep, storage)
+
+    runs_to_delete = [run for run in runs if run not in runs_to_keep]
+    _print_result("Delete runs", runs_to_delete, args)
+
+    if runs_to_delete:
+        if not args.quiet:
+            if not _confirm("Really delete all listed runs? (y/N)"):
+                return
+
+        for run in runs_to_delete:
+            box.storage.delete_run(run.box_id, run.run_id)
+
+
+def _keep_runs_that_are_dependencies(runs_to_keep, storage):
+
+    queue = collections.deque(runs_to_keep)
+
+    def _keep_ancestors_of_ref(ref):
+        info = ref.info
+        for parent in info.parents:
+            run = Run(parent.box_id, parent.run_id)
+            if run not in runs_to_keep:
+                runs_to_keep.add(run)
+                queue.append(run)
+            _keep_ancestors_of_ref(parent)
+
+    while queue:
+        run = queue.popleft()
+        query = ItemQuery.from_fields(box=run.box_id, run=run.run_id)
+        items = storage.list_items(query)
+        for item in items:
+            ref = DataRef.from_item(item)
+            _keep_ancestors_of_ref(ref)
+
+
+def _keep_runs_with_name(runs, runs_to_keep):
+    for run in runs:
+        if run.name is not None:
+            runs_to_keep.add(run)
 
 
 def _add_list_command(subparsers):
@@ -581,6 +678,13 @@ def _print_error(error, args):
         )
     else:
         print(f"Error: {error}", file=sys.stderr)
+
+
+def _confirm(confirmation_message):
+    confirmation = input(confirmation_message)
+    if confirmation in ['y', 'Y']:
+        return True
+    return False
 
 
 class _DatetimeJSONEncoder(json.JSONEncoder):

@@ -1,7 +1,7 @@
 import unittest.mock
 
 from boxs.data import DataRef
-from boxs.storage import DelegatingReader, DelegatingWriter, ItemQuery, Reader, Transformer, Writer
+from boxs.storage import DelegatingReader, DelegatingWriter, Item, ItemQuery, Reader, Run, Transformer, Writer
 
 
 class TestItemQuery(unittest.TestCase):
@@ -81,6 +81,20 @@ class TestItemQuery(unittest.TestCase):
 
         query = ItemQuery.from_fields(data='data-id')
         self.assertEqual(':data-id:', str(query))
+
+
+class TestItem(unittest.TestCase):
+
+    def test_str_representation(self):
+        item = Item('box-id', 'data-id', 'run-id')
+        self.assertEqual('Item(boxs://box-id/data-id/run-id)', str(item))
+
+
+class TestRun(unittest.TestCase):
+
+    def test_str_representation(self):
+        run = Run('box-id', 'run-id')
+        self.assertEqual('Run(box-id/run-id)', str(run))
 
 
 class ReaderImplementation(Reader):

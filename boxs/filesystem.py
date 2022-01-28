@@ -4,6 +4,7 @@ import io
 import logging
 import json
 import pathlib
+import shutil
 
 from .data import DataInfo, DataRef
 from .errors import BoxNotFound, DataCollision, NameCollision, RunNotFound
@@ -127,21 +128,35 @@ class FileSystemStorage(Storage):
         run = self._create_run_from_run_path(box_id, run_path)
         return run
 
+    def delete_run(self, box_id, run_id):
+        run_directory = self._run_directory_path(box_id, run_id)
+        if not run_directory.exists():
+            raise RunNotFound(box_id, run_id)
+
+        items = self._get_items_in_run(box_id, run_id)
+        for item in items:
+            data_file, info_file = self._data_file_paths(item)
+            if data_file.exists():
+                data_file.unlink()
+            if info_file.exists():
+                info_file.unlink()
+        shutil.rmtree(run_directory)
+
     def exists(self, item):
         _, info_file = self._data_file_paths(item)
         return info_file.exists()
 
-    def create_writer(self, data_ref, name=None, tags=None):
-        logger.debug("Create writer for %s", data_ref)
+    def create_writer(self, item, name=None, tags=None):
+        logger.debug("Create writer for %s", item)
         tags = tags or {}
-        data_file, info_file = self._data_file_paths(data_ref)
-        run_file = self._run_file_path(data_ref)
-        return _FileSystemWriter(data_ref, name, tags, data_file, info_file, run_file)
+        data_file, info_file = self._data_file_paths(item)
+        run_file = self._run_file_path(item)
+        return _FileSystemWriter(item, name, tags, data_file, info_file, run_file)
 
-    def create_reader(self, data_ref):
-        logger.debug("Create reader for %s", data_ref)
-        data_file, info_file = self._data_file_paths(data_ref)
-        return _FileSystemReader(data_ref, data_file, info_file)
+    def create_reader(self, item):
+        logger.debug("Create reader for %s", item)
+        data_file, info_file = self._data_file_paths(item)
+        return _FileSystemReader(item, data_file, info_file)
 
     def _get_run_names(self, box_id):
         name_directory = self._runs_names_directory_path(box_id)
@@ -210,8 +225,8 @@ class FileSystemStorage(Storage):
 
 
 class _FileSystemReader(Reader):
-    def __init__(self, data_ref, data_file, info_file):
-        super().__init__(data_ref)
+    def __init__(self, item, data_file, info_file):
+        super().__init__(item)
         self.data_file = data_file
         self.info_file = info_file
         self._info = None
@@ -244,9 +259,9 @@ class _FileSystemReader(Reader):
 
 class _FileSystemWriter(Writer):
     def __init__(  # pylint: disable=too-many-arguments
-        self, data_ref, name, tags, data_file, info_file, run_file
+        self, item, name, tags, data_file, info_file, run_file
     ):
-        super().__init__(data_ref, name, tags)
+        super().__init__(item, name, tags)
         self.data_file = data_file
         self.info_file = info_file
         self.run_file = run_file

@@ -30,6 +30,9 @@ class TestCalculateDataId(unittest.TestCase):
 
 class DummyStorage(Storage):
 
+    def delete_run(self, box_id, run_id):
+        pass
+
     def list_items(self, item_query):
         pass
 
