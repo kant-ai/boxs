@@ -3,7 +3,14 @@ import abc
 import collections
 
 
-Run = collections.namedtuple('Run', 'run_id name time')
+class Run(collections.namedtuple('Run', 'box_id run_id name time')):
+    __slots__ = ()
+
+    def __str__(self):
+        return f"Run({self.box_id}/{self.run_id})"
+
+
+Run.__new__.__defaults__ = (None, None)
 
 
 class Item(collections.namedtuple('Item', 'box_id data_id run_id name time')):

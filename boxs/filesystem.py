@@ -107,7 +107,7 @@ class FileSystemStorage(Storage):
         return all_items
 
     def set_run_name(self, box_id, run_id, name):
-        logger.debug("Set name of run %s in box %s to query %s", run_id, box_id, name)
+        logger.debug("Set name of run %s in box %s to %s", run_id, box_id, name)
 
         box_directory = self._box_directory_path(box_id)
         if not box_directory.exists():
@@ -199,6 +199,7 @@ class FileSystemStorage(Storage):
         run_names = self._get_run_names(box_id)
         run_id = run_path.name
         return Run(
+            box_id,
             run_id,
             run_names.get(run_id),
             datetime.datetime.fromtimestamp(
