@@ -81,6 +81,7 @@ def main(argv=None):
 
     _add_list_runs_command(subparsers)
     _add_name_run_command(subparsers)
+    _add_delete_run_command(subparsers)
     _add_clean_runs_command(subparsers)
 
     _add_list_command(subparsers)
@@ -177,6 +178,50 @@ def name_run_command(args):
     )
     run = storage.set_run_name(box.box_id, run.run_id, args.name)
     _print_result(f"Run name set {run.run_id}", [run], args)
+
+
+def _add_delete_run_command(subparsers):
+    delete_run_parser = subparsers.add_parser("delete-run", help="Delete a run")
+    delete_run_parser.add_argument(
+        metavar='RUN',
+        dest='run',
+        help="Run id or name, can be just the first characters.",
+    )
+    delete_run_parser.add_argument(
+        '-q',
+        '--quiet',
+        dest='quiet',
+        action='store_true',
+        help="Don't ask for confirmation.",
+    )
+    delete_run_parser.set_defaults(command=delete_run_command)
+
+
+def delete_run_command(args):
+    """
+    Command that allows to delete a specific run.
+
+    Args:
+        args (argparse.Namespace): The parsed arguments from command line.
+    """
+    box = get_box()
+    storage = box.storage
+    run = _get_run_from_args(args)
+    if run is None:
+        return
+    logger.info(
+        "Deleting run %s in box %s",
+        run.run_id,
+        box.box_id,
+    )
+    if not args.quiet:
+        if not _confirm(
+            f"Really delete the run {run.run_id}? There might be other "
+            f"runs referencing data from it. (y/N)"
+        ):
+            return
+    storage.delete_run(box.box_id, run.run_id)
+    _print_result(f"Run {run.run_id} deleted.", [run], args)
 
 
 def _add_clean_runs_command(subparsers):
@@ -400,8 +445,8 @@ def diff_command(args):
     results = []
     for obj_string in args.queries:
         item_query = _parse_query(obj_string)
-        item_query.box = item_query.box or args.default_box
         box = get_box(item_query.box)
+        item_query.box = box.box_id
         results.append(box.storage.list_items(item_query))
 
     if len(results[0]) == 1 and len(results[1]) == 1:
@@ -430,9 +475,7 @@ def diff_command(args):
             )
         command.extend(args.diff_args)
         logger.info("Calling diff %s", command)
-        diff_process = subprocess.run(command, stdout=subprocess.PIPE, check=False)
-        result = diff_process.stdout.decode()
-        print(result)
+        subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr, check=False)
     else:
         _print_error("Ambiguous values to diff.", args)
 

@@ -136,10 +136,8 @@ class FileSystemStorage(Storage):
         items = self._get_items_in_run(box_id, run_id)
         for item in items:
             data_file, info_file = self._data_file_paths(item)
-            if data_file.exists():
-                data_file.unlink()
-            if info_file.exists():
-                info_file.unlink()
+            data_file.unlink()
+            info_file.unlink()
         shutil.rmtree(run_directory)
 
     def exists(self, item):

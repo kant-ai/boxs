@@ -36,7 +36,7 @@ class TestCli(unittest.TestCase):
         with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             main([])
             self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
-            self.assertIn('{list-runs,name-run,clean-runs,list,info,diff,export,graph}', fake_out.getvalue())
+            self.assertIn('{list-runs,name-run,delete-run,clean-runs,list,info,diff,export,graph}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -46,7 +46,7 @@ class TestCli(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, "0"):
                 main(['-h'])
             self.assertIn('usage: boxs [-h] [-b BOX] [-i INIT_MODULE] [-j]', fake_out.getvalue())
-            self.assertIn('{list-runs,name-run,clean-runs,list,info,diff,export,graph}', fake_out.getvalue())
+            self.assertIn('{list-runs,name-run,delete-run,clean-runs,list,info,diff,export,graph}', fake_out.getvalue())
             self.assertIn('Allows to inspect and manipulate boxes', fake_out.getvalue())
             self.assertIn('positional arguments:', fake_out.getvalue())
             self.assertIn('optional arguments:', fake_out.getvalue())
@@ -89,6 +89,40 @@ class TestCli(unittest.TestCase):
             self.assertIn('my-run-1 my-name', fake_out.getvalue())
             self.assertIn('my-run-2 my-other-name', fake_out.getvalue())
             self.assertNotIn('other-run', fake_out.getvalue())
+
+    def test_main_delete_run_deleted_when_confirmed(self):
+        self.box.store('My value', run_id='run-1')
+        with unittest.mock.patch('boxs.cli.input', return_value='Y'):
+            with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+                main(['-b', 'cli-box', 'delete-run', 'run-1'])
+                self.assertIn('Run run-1 deleted', fake_out.getvalue())
+        runs = self.box.storage.list_runs(self.box.box_id)
+        self.assertEqual(0, len(runs))
+
+    def test_main_delete_run_not_deleted_when_not_confirmed(self):
+        self.box.store('My value', run_id='run-1')
+        with unittest.mock.patch('boxs.cli.input', return_value='N'):
+            with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+                main(['-b', 'cli-box', 'delete-run', 'run-1'])
+        runs = self.box.storage.list_runs(self.box.box_id)
+        self.assertEqual(1, len(runs))
+
+    def test_main_delete_run_without_confirmation(self):
+        self.box.store('My value', run_id='run-1')
+        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            main(['-b', 'cli-box', 'delete-run', 'run-1', '-q'])
+            self.assertIn('Run run-1 deleted', fake_out.getvalue())
+        runs = self.box.storage.list_runs(self.box.box_id)
+        self.assertEqual(0, len(runs))
+
+    def test_main_delete_run_with_non_existing_run(self):
+        self.box.store('My value', run_id='run-1')
+        with unittest.mock.patch('boxs.cli.input', return_value='Y'):
+            with unittest.mock.patch('sys.stderr', new=io.StringIO()) as fake_out:
+                main(['-b', 'cli-box', 'delete-run', 'run-2'])
+                self.assertIn('Error: No run found with run-id or name starting with run-2', fake_out.getvalue())
+        runs = self.box.storage.list_runs(self.box.box_id)
+        self.assertEqual(1, len(runs))
 
     def test_main_clean_runs(self):
         self.box.store('My value', run_id='run-1')
@@ -411,20 +445,22 @@ class TestCli(unittest.TestCase):
             self.assertIn('Error: Multiple items found by query my-data:run-1', fake_out.getvalue())
 
     def test_main_diff(self):
+        stdout_file = self.dir / 'std.out'
         self.box.store('My value', name='my-data', run_id='run-1')
         self.box.store('My other', name='my-data', run_id='run-2')
-        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+        with unittest.mock.patch('sys.stdout', new=stdout_file.open('w+')):
             main(['-b', 'cli-box', 'diff', 'my-data:run-1', 'my-data:run-2'])
-            self.assertIn('< My value', fake_out.getvalue())
-            self.assertIn('> My other', fake_out.getvalue())
+        self.assertIn('< My value', stdout_file.read_text())
+        self.assertIn('> My other', stdout_file.read_text())
 
     def test_main_diff_with_uris(self):
+        stdout_file = self.dir / 'std.out'
         data_ref1 = self.box.store('My value', name='my-data', run_id='run-1')
         data_ref2 = self.box.store('My other', name='my-data', run_id='run-2')
-        with unittest.mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+        with unittest.mock.patch('sys.stdout', new=stdout_file.open('w+')):
             main(['-b', 'cli-box', 'diff', data_ref1.uri, data_ref2.uri])
-            self.assertIn('< My value', fake_out.getvalue())
-            self.assertIn('> My other', fake_out.getvalue())
+        self.assertIn('< My value', stdout_file.read_text())
+        self.assertIn('> My other', stdout_file.read_text())
 
     def test_main_diff_with_custom_diff(self):
         self.box.store('My value', name='my-data', run_id='run-1')
