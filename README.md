@@ -12,7 +12,7 @@ for data science and machine learning.
 
 ## What it does
 
-Boxs provides simple function that allow storing arbitrary values and loading them at
+Boxs provides simple functions that allow storing arbitrary values and loading them at
 a later point. Instead of passing around file paths or s3 keys, that have to be manually
 defined and versioned, boxs uses references to data, that are automatically generated
 when data is initially stored.

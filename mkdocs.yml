@@ -6,11 +6,6 @@ site_dir: build
 nav:
   - Home: index.md
   - Getting started: getting_started.md
-  - User guide: user_guide.md
-  - Converter: converter.md
-  - Storages:
-      - File: storages/file.md
-  - FAQ: faq.md
   - Changelog: changelog.md
   - API: api.md
 
