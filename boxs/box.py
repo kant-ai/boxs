@@ -4,7 +4,7 @@ import logging
 
 from .box_registry import register_box
 from .data import DataInfo, DataRef
-from .errors import DataCollision, DataNotFound, MissingValueType
+from .errors import MissingValueType
 from .origin import ORIGIN_FROM_FUNCTION_NAME, determine_origin
 from .run import get_run_id
 from .value_types import (
@@ -137,9 +137,6 @@ class Box:
 
         ref = DataRef(self.box_id, data_id, run_id)
 
-        if self.storage.exists(ref):
-            raise DataCollision(self.box_id, data_id, run_id)
-
         writer = self.storage.create_writer(ref, name, tags)
         logger.debug("Created writer %s for data %s", writer, ref)
 
@@ -269,10 +266,7 @@ class Box:
             raise ValueError("Data references different box id")
 
         logger.info("Getting info for value %s from box %s", data_ref.uri, self.box_id)
-
-        if not self.storage.exists(data_ref):
-            raise DataNotFound(self.box_id, data_ref.data_id, data_ref.run_id)
-
         reader = self.storage.create_reader(data_ref)
+
         logger.debug("Created reader %s for data %s", reader, data_ref)
         return DataInfo.from_value_info(reader.info)

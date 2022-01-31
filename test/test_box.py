@@ -46,37 +46,36 @@ class DummyStorage(Storage):
         pass
 
     def __init__(self):
-        self.created = set()
         self.writer = BytesIOWriter()
         self.reader = BytesIOReader(b'My content')
-
-    def exists(self, data_ref):
-        return data_ref in self.created
 
     def create_reader(self, data_ref):
         return self.reader
 
     def create_writer(self, data_ref, name=None, tags=None):
-        self.created.add(data_ref)
         self.writer._item = Item(data_ref.box_id, data_ref.data_id, data_ref.run_id)
         return self.writer
 
 
 class BytesIOReader:
 
-    def read_info(self):
-        return self.info
-
     def __init__(self, content):
-        self.info = {}
+        self._info = {}
         self.meta = {}
         self.stream = io.BytesIO(content)
+        self._raise_info = False
 
     def as_stream(self):
         return self.stream
 
     def read_value(self, value_type):
         return value_type.read_value_from_reader(self)
+
+    @property
+    def info(self):
+        if self._raise_info:
+            raise DataNotFound('box-id', 'data-id', 'run-id')
+        return self._info
 
 
 class BytesIOWriter(Writer):
@@ -90,6 +89,7 @@ class BytesIOWriter(Writer):
         self.stream.close = stream_close
         self.stream_closed = False
         self._meta = {}
+        self.created = set()
 
     @property
     def meta(self):
@@ -102,6 +102,9 @@ class BytesIOWriter(Writer):
         self._info = info
 
     def write_value(self, value, value_type):
+        if self._item in self.created:
+            raise DataCollision(self._item.box_id, self._item.data_id, self._item.run_id)
+        self.created.add(self._item)
         value_type.write_value_to_writer(value, self)
 
 
@@ -226,7 +229,7 @@ class TestBox(unittest.TestCase):
 
     def test_load_raises_if_not_exists(self):
         data = DataRef('box-id', 'data-id', 'rev-id')
-        self.storage.exists = unittest.mock.MagicMock(return_value=False)
+        self.storage.reader._raise_info = True
         with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
             self.box.load(data)
 
@@ -280,7 +283,7 @@ class TestBox(unittest.TestCase):
 
     def test_info_raises_if_not_exists(self):
         data = DataRef('box-id', 'data-id', 'rev-id')
-        self.storage.exists = unittest.mock.MagicMock(return_value=False)
+        self.storage.reader._raise_info = True
         with self.assertRaisesRegex(DataNotFound, "Data data-id .* does not exist"):
             self.box.info(data)
 

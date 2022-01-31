@@ -214,18 +214,6 @@ class Storage(abc.ABC):
             run_id (str): Run id of the run which should be deleted.
         """
 
-    @abc.abstractmethod
-    def exists(self, item):
-        """
-        Checks is a specific data already exists.
-
-        Args:
-            item (boxs.storage.Item): The item that should be checked if it exists.
-
-        Returns:
-            bool: `True` if the item exists, otherwise `False`.
-        """
-
 
 class Reader(abc.ABC):
     """

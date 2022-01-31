@@ -75,12 +75,13 @@ class TestLoad(unittest.TestCase):
         self.box.load.assert_called()
 
     def test_load_raises_if_box_does_not_exist(self):
-        self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(BoxNotDefined, "box .* not defined"):
             load(DataRef('unknown-box-id', 'data-id', 'run-id'))
 
     def test_load_raises_if_data_does_not_exist(self):
-        self.storage.exists = unittest.mock.MagicMock(return_value=False)
+        type(self.storage.create_reader.return_value).info = unittest.mock.PropertyMock(
+            side_effect=DataNotFound('box-id', 'data-id', 'run-id'),
+        )
         with self.assertRaisesRegex(DataNotFound, "Data .* does not exist"):
             load(self.data_ref)
 
@@ -111,12 +112,13 @@ class TestInfo(unittest.TestCase):
         self.box.info.assert_called()
 
     def test_info_raises_if_box_does_not_exist(self):
-        self.storage.exists = unittest.mock.MagicMock(return_value=False)
         with self.assertRaisesRegex(BoxNotDefined, "box .* not defined"):
             info(DataRef('unknown-box-id', 'data-id', 'run-id'))
 
     def test_info_raises_if_data_does_not_exist(self):
-        self.storage.exists = unittest.mock.MagicMock(return_value=False)
+        type(self.storage.create_reader.return_value).info = unittest.mock.PropertyMock(
+            side_effect=DataNotFound('box-id', 'data-id', 'run-id'),
+        )
         with self.assertRaisesRegex(DataNotFound, "Data .* does not exist"):
             info(self.data_ref)
 

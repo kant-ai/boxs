@@ -6,7 +6,7 @@ import json
 import pathlib
 import shutil
 
-from .errors import BoxNotFound, DataCollision, NameCollision, RunNotFound
+from .errors import BoxNotFound, DataCollision, DataNotFound, NameCollision, RunNotFound
 from .storage import Storage, Reader, Writer, Run, Item
 
 
@@ -139,10 +139,6 @@ class FileSystemStorage(Storage):
             info_file.unlink()
         shutil.rmtree(run_directory)
 
-    def exists(self, item):
-        _, info_file = self._data_file_paths(item)
-        return info_file.exists()
-
     def create_writer(self, item, name=None, tags=None):
         logger.debug("Create writer for %s", item)
         tags = tags or {}
@@ -230,11 +226,15 @@ class _FileSystemReader(Reader):
 
     @property
     def info(self):
+        if not self.info_file.exists():
+            raise DataNotFound(self.item.box_id, self.item.data_id, self.item.run_id)
         if self._info is None:
             self._info = json.loads(self.info_file.read_text())
         return self._info
 
     def as_stream(self):
+        if not self.data_file.exists():
+            raise DataNotFound(self.item.box_id, self.item.data_id, self.item.run_id)
         return io.FileIO(self.data_file, 'r')
 
     def as_file(self):

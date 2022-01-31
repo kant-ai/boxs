@@ -5,7 +5,7 @@ import tempfile
 import time
 import unittest
 
-from boxs.errors import BoxNotFound, DataCollision, NameCollision, RunNotFound
+from boxs.errors import BoxNotFound, DataCollision, DataNotFound, NameCollision, RunNotFound
 from boxs.filesystem import FileSystemStorage
 from boxs.storage import Item, ItemQuery
 from boxs.value_types import BytesValueType
@@ -329,17 +329,6 @@ class TestFileSystemStorage(unittest.TestCase):
         writer.meta['my'] = 'meta'
         self.assertEqual({'my': 'meta'}, writer.meta)
 
-    def test_exists_returns_true_for_new_data(self):
-        writer = self.storage.create_writer(Item('box-id', 'data-id', 'rev-id'))
-        with writer.as_stream() as stream:
-            stream.write(b'My data')
-        writer.write_info({})
-
-        self.assertTrue(self.storage.exists(Item('box-id', 'data-id', 'rev-id')))
-
-    def test_exists_returns_false_for_non_existing_data(self):
-        self.assertFalse(self.storage.exists(Item('box-id', 'data-id', 'rev-id')))
-
     def test_reader_reads_previously_written_data(self):
         writer = self.storage.create_writer(Item('box-id', 'data-id', 'rev-id'))
         with writer.as_stream() as stream:
@@ -369,6 +358,16 @@ class TestFileSystemStorage(unittest.TestCase):
         reader = self.storage.create_reader(Item('box-id', 'data-id', 'rev-id'))
 
         self.assertEqual({'my': 'info'}, reader.info)
+
+    def test_reader_raises_when_reading_non_existing_info(self):
+        reader = self.storage.create_reader(Item('box-id', 'data-id', 'rev-id'))
+        with self.assertRaisesRegex(DataNotFound, "Data data-id from run rev-id does not exist in box box-id"):
+            reader.info
+
+    def test_reader_raises_when_reading_non_existing_value(self):
+        reader = self.storage.create_reader(Item('box-id', 'data-id', 'rev-id'))
+        with self.assertRaisesRegex(DataNotFound, "Data data-id from run rev-id does not exist in box box-id"):
+            reader.as_stream()
 
     def test_reader_caches_info(self):
         writer = self.storage.create_writer(Item('box-id', 'data-id', 'rev-id'))
