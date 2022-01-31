@@ -24,7 +24,8 @@ box = boxs.Box('my-box-id', storage)
 
 ## Store data in your box
 
-Use the `store()` function to store your data and return a reference to it:
+Use the `store()` function to store your data, which returns a `DataInfo` object with
+a reference to the stored data and some additional meta-data:
 
 ```python
 ...
@@ -38,6 +39,9 @@ def my_function(x):
 ```
 
 ## Load the data from the reference
+
+Loading the data can be done either directly on the `DataInfo` object, or by giving it
+as argument to the free `load()` function from the `boxs` package:
 
 ```python
 ...
