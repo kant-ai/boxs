@@ -94,7 +94,7 @@ class Box:
 
         Args:
             value (Any): A value that should be stored.
-            *parents (Union[boxs.data.DataInfo,boxs.data.DataRef]): Parent data refs,
+            *parents (Union[boxs.data.DataInfo, boxs.data.DataRef]): Parent data refs,
                 that this data depends on.
             origin (Union[str,Callable]): A string or callable returning a string,
                 that is used as an origin for deriving the data's id. Defaults to a
@@ -122,7 +122,7 @@ class Box:
             meta = {}
         else:
             meta = dict(meta)
-        origin = determine_origin(origin)
+        origin = determine_origin(origin, name=name, tags=tags, level=3)
         logger.info("Storing value in box %s with origin %s", self.box_id, origin)
         parent_ids = tuple(p.data_id for p in parents)
         data_id = calculate_data_id(origin, parent_ids=parent_ids, name=name)

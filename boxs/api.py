@@ -62,7 +62,7 @@ def store(
         raise ValueError("'box' must be set.")
     if isinstance(box, str):
         box = get_box(box)
-    origin = determine_origin(origin)
+    origin = determine_origin(origin, name=name, tags=tags, level=3)
     return box.store(
         value,
         *parents,
