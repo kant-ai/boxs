@@ -4,7 +4,7 @@ import logging
 
 from .errors import DataError
 from .io import DelegatingStream
-from .storage import DelegatingReader, DelegatingWriter, Transformer
+from .transform import DelegatingReader, DelegatingWriter, Transformer
 
 
 logger = logging.getLogger(__name__)

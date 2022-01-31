@@ -2,7 +2,7 @@
 import datetime
 
 from .io import DelegatingStream
-from .storage import Transformer, DelegatingWriter
+from .transform import Transformer, DelegatingWriter
 
 
 class StatisticsTransformer(Transformer):

@@ -11,12 +11,13 @@ from .box import Box
 from .box_registry import get_box
 from .checksum import ChecksumTransformer
 from .config import get_config
-from .data import DataRef
+from .data import DataInfo, DataRef
 from .filesystem import FileSystemStorage
 from .origin import ORIGIN_FROM_FUNCTION_NAME, ORIGIN_FROM_NAME, ORIGIN_FROM_TAGS
 from .run import get_run_id, set_run_id
 from .statistics import StatisticsTransformer
-from .storage import Storage, Transformer
+from .storage import Storage
+from .transform import Transformer
 from .value_types import (
     ValueType,
     BytesValueType,
