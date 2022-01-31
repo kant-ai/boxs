@@ -258,11 +258,6 @@ class _FileSystemWriter(Writer):
         self.data_file = data_file
         self.info_file = info_file
         self.run_file = run_file
-        self._meta = {}
-
-    @property
-    def meta(self):
-        return self._meta
 
     def as_stream(self):
         self.data_file.parent.mkdir(parents=True, exist_ok=True)

@@ -295,6 +295,7 @@ class Writer(abc.ABC):
         self._item = item
         self._name = name
         self._tags = tags
+        self._meta = {}
 
     @property
     def item(self):
@@ -312,7 +313,6 @@ class Writer(abc.ABC):
         return self._tags
 
     @property
-    @abc.abstractmethod
     def meta(self):
         """
         Returns a dictionary which contains meta-data of the item.
@@ -320,6 +320,7 @@ class Writer(abc.ABC):
         This allows either ValueTypes or Transformers to add additional
         meta-data for the data item.
         """
+        return self._meta
 
     def write_value(self, value, value_type):
         """
@@ -339,6 +340,10 @@ class Writer(abc.ABC):
 
         Args:
             info (Dict[str,Any]): The information about the new data item.
+
+        Raises:
+            boxs.errors.DataCollision: If a data item with the same ids already
+                exists.
         """
 
     @abc.abstractmethod
