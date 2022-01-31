@@ -6,7 +6,6 @@ import json
 import pathlib
 import shutil
 
-from .data import DataInfo, DataRef
 from .errors import BoxNotFound, DataCollision, NameCollision, RunNotFound
 from .storage import Storage, Reader, Writer, Run, Item
 
@@ -235,10 +234,6 @@ class _FileSystemReader(Reader):
             self._info = json.loads(self.info_file.read_text())
         return self._info
 
-    @property
-    def meta(self):
-        return self.info['meta']
-
     def as_stream(self):
         return io.FileIO(self.data_file, 'r')
 
@@ -275,22 +270,11 @@ class _FileSystemWriter(Writer):
             raise DataCollision(self.item.box_id, self.item.data_id, self.item.run_id)
         return io.FileIO(self.data_file, 'w')
 
-    def write_info(self, origin, parents, meta):
-        meta = dict(meta)
-        meta.update(self.meta)
-        data_info = DataInfo(
-            DataRef.from_item(self.item),
-            origin=origin,
-            parents=parents,
-            name=self.name,
-            tags=self.tags,
-            meta=meta,
-        )
-
+    def write_info(self, info):
         self.info_file.parent.mkdir(parents=True, exist_ok=True)
         if self.info_file.exists():
             raise DataCollision(self.item.box_id, self.item.data_id, self.item.run_id)
-        self.info_file.write_text(json.dumps(data_info.value_info()))
+        self.info_file.write_text(json.dumps(info))
         run_dir = self.run_file.parent
         run_dir.mkdir(parents=True, exist_ok=True)
         self.run_file.touch()
@@ -306,4 +290,3 @@ class _FileSystemWriter(Writer):
                     self.name,
                 )
             name_symlink_file.symlink_to(self.run_file)
-        return data_info

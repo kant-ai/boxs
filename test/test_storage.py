@@ -101,11 +101,7 @@ class ReaderImplementation(Reader):
 
     @property
     def info(self):
-        pass
-
-    @property
-    def meta(self):
-        pass
+        return {'my': 'info', 'meta': {'my': 'meta'}}
 
     def as_stream(self):
         pass
@@ -143,12 +139,16 @@ class TestReader(unittest.TestCase):
         self.reader.read_value(value_type)
         value_type.read_value_from_reader.assert_called_once_with(self.reader)
 
+    def test_meta_returns_part_of_info(self):
+        meta = self.reader.meta
+        self.assertEqual({'my': 'meta'}, meta)
+
 
 class TestWriter(unittest.TestCase):
 
     def setUp(self):
         self.data_ref = DataRef('box_id', 'data-id', 'run-id')
-        self.writer = WriterImplementation(self.data_ref, None, {})
+        self.writer = WriterImplementation(self.data_ref, None, {'my': 'tag'})
 
     def test_data_ref_is_taken_from_constructor(self):
         result = self.writer.item
@@ -158,6 +158,10 @@ class TestWriter(unittest.TestCase):
         value_type = unittest.mock.MagicMock()
         self.writer.write_value('my value', value_type)
         value_type.write_value_to_writer.assert_called_once_with('my value', self.writer)
+
+    def test_tags(self):
+        tags = self.writer.tags
+        self.assertEqual({'my': 'tag'}, tags)
 
 
 if __name__ == '__main__':

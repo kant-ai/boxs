@@ -6,7 +6,7 @@ from boxs.box import calculate_data_id, Box
 from boxs.box_registry import get_box, unregister_box
 from boxs.data import DataInfo, DataRef
 from boxs.errors import DataCollision, DataNotFound, MissingValueType
-from boxs.storage import Storage, Writer
+from boxs.storage import Item, Storage, Writer
 from boxs.value_types import StringValueType, ValueType
 
 
@@ -58,7 +58,7 @@ class DummyStorage(Storage):
 
     def create_writer(self, data_ref, name=None, tags=None):
         self.created.add(data_ref)
-        self.writer.ref = data_ref
+        self.writer._item = Item(data_ref.box_id, data_ref.data_id, data_ref.run_id)
         return self.writer
 
 
@@ -82,10 +82,8 @@ class BytesIOReader:
 class BytesIOWriter(Writer):
 
     def __init__(self):
-        self.ref = None
-        self.info_origin = None
-        self.info_parents = None
-        self.info_meta = None
+        super().__init__(None, None, None)
+        self._info = None
         self.stream = io.BytesIO()
         def stream_close():
             self.stream_closed = True
@@ -100,11 +98,8 @@ class BytesIOWriter(Writer):
     def as_stream(self):
         return self.stream
 
-    def write_info(self, origin, parents, meta):
-        self.info_origin = origin
-        self.info_parents = parents
-        self.info_meta = meta
-        return DataInfo(self.ref, self.info_origin)
+    def write_info(self, info):
+        self._info = info
 
     def write_value(self, value, value_type):
         value_type.write_value_to_writer(value, self)
@@ -115,8 +110,9 @@ class TestBox(unittest.TestCase):
     def setUp(self):
         self.storage = DummyStorage()
         self.box = Box('box-id', self.storage)
+        self.ref = DataRef(self.box.box_id, 'data-id', 'rev-id')
         self.data = DataInfo(
-            DataRef(self.box.box_id, 'data-id', 'rev-id'),
+            self.ref,
             'origin',
             meta={'value_type': 'boxs.value_types:BytesValueType:'},
         )
@@ -166,15 +162,19 @@ class TestBox(unittest.TestCase):
         data = self.box.store(b'My content', run_id='1')
         self.assertEqual('1fd070fa88f35b3a', data.data_id)
         self.assertEqual(b'My content', self.storage.writer.stream.getvalue())
-        self.assertEqual('test_store_writes_content_and_info', self.storage.writer.info_origin)
-        self.assertEqual(tuple(), self.storage.writer.info_parents)
-        self.assertEqual({'value_type': 'boxs.value_types:BytesValueType:'}, self.storage.writer.info_meta)
+        self.assertEqual('test_store_writes_content_and_info', self.storage.writer._info['origin'])
+        self.assertEqual([], self.storage.writer._info['parents'])
+        self.assertEqual({'value_type': 'boxs.value_types:BytesValueType:'}, self.storage.writer._info['meta'])
 
     def test_store_uses_tags_and_meta(self):
-        self.box.store('My content', tags={'my': 'tag'}, meta={'my': 'meta'}, run_id='1')
+        self.box.store(b'My content', tags={'my': 'tag'}, meta={'my': 'meta'}, run_id='1')
         self.assertEqual(
-            {'my': 'meta', 'value_type': 'boxs.value_types:StringValueType:utf-8'},
-            self.storage.writer.info_meta,
+            {'my': 'meta', 'value_type': 'boxs.value_types:BytesValueType:'},
+            self.storage.writer._info['meta'],
+        )
+        self.assertEqual(
+            {'my': 'tag'},
+            self.storage.writer._info['tags'],
         )
 
     def test_store_without_origin_raises(self):

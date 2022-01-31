@@ -266,9 +266,9 @@ class Reader(abc.ABC):
         """Dictionary containing information about the data."""
 
     @property
-    @abc.abstractmethod
     def meta(self):
         """Dictionary containing the meta-data about the data."""
+        return self.info['meta']
 
     @abc.abstractmethod
     def as_stream(self):
@@ -333,18 +333,12 @@ class Writer(abc.ABC):
         value_type.write_value_to_writer(value, self)
 
     @abc.abstractmethod
-    def write_info(self, origin, parents, meta):
+    def write_info(self, info):
         """
         Write the info for the data item to the storage.
 
         Args:
-            origin (str): The origin of the data.
-            parents (tuple[DataInfo]): The infos about the parent data items from
-                which this new data item was derived.
-            meta (Dict[str,Any]): Meta-data about the new data item.
-
-        Returns:
-            boxs.data.DataInfo: The data info about the new data item.
+            info (Dict[str,Any]): The information about the new data item.
         """
 
     @abc.abstractmethod
@@ -356,4 +350,8 @@ class Writer(abc.ABC):
 
         Returns:
             io.RawIOBase: The binary io-stream.
+
+        Raises:
+            boxs.errors.DataCollision: If a data item with the same ids already
+                exists.
         """

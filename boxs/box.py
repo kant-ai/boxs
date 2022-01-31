@@ -143,18 +143,10 @@ class Box:
         writer = self.storage.create_writer(ref, name, tags)
         logger.debug("Created writer %s for data %s", writer, ref)
 
-        for transformer in self.transformers:
-            logger.debug("Applying transformer %s", transformer)
-            writer = transformer.transform_writer(writer)
+        writer = self._apply_transformers_to_writer(writer)
 
         if value_type is None:
-            for configured_value_type in self.value_types:
-                if configured_value_type.supports(value):
-                    value_type = configured_value_type
-                    logger.debug(
-                        "Automatically chose value type %s",
-                        value_type.get_specification(),
-                    )
+            value_type = self._find_suitable_value_type(value)
 
         if value_type is None:
             raise MissingValueType(value)
@@ -167,9 +159,38 @@ class Box:
         writer.write_value(value, value_type)
 
         meta['value_type'] = value_type.get_specification()
+        meta = dict(meta)
+        meta.update(writer.meta)
+        data_info = DataInfo(
+            DataRef.from_item(writer.item),
+            origin=origin,
+            parents=parents,
+            name=name,
+            tags=tags,
+            meta=meta,
+        )
 
         logger.debug("Write info for data %s", ref.uri)
-        return writer.write_info(origin, parents, meta)
+        writer.write_info(data_info.value_info())
+
+        return data_info
+
+    def _find_suitable_value_type(self, value):
+        value_type = None
+        for configured_value_type in self.value_types:
+            if configured_value_type.supports(value):
+                value_type = configured_value_type
+                logger.debug(
+                    "Automatically chose value type %s",
+                    value_type.get_specification(),
+                )
+        return value_type
+
+    def _apply_transformers_to_writer(self, writer):
+        for transformer in self.transformers:
+            logger.debug("Applying transformer %s", transformer)
+            writer = transformer.transform_writer(writer)
+        return writer
 
     def load(self, data_ref, value_type=None):
         """
@@ -198,19 +219,12 @@ class Box:
         info = data_ref.info
 
         if value_type is None:
-            value_type_specification = info.meta['value_type']
-            value_type = ValueType.from_specification(value_type_specification)
-            logger.debug(
-                "Use value type %s taken from meta-data",
-                value_type.get_specification(),
-            )
+            value_type = self._get_value_type_from_meta_data(info)
 
         reader = self.storage.create_reader(data_ref)
         logger.debug("Created reader %s for data %s", reader, data_ref)
 
-        for transformer in reversed(self.transformers):
-            logger.debug("Applying transformer %s", transformer)
-            reader = transformer.transform_reader(reader)
+        reader = self._apply_transformers_to_reader(reader)
 
         logger.debug(
             "Read value from data %s with value type %s",
@@ -218,6 +232,22 @@ class Box:
             value_type.get_specification(),
         )
         return reader.read_value(value_type)
+
+    @staticmethod
+    def _get_value_type_from_meta_data(info):
+        value_type_specification = info.meta['value_type']
+        value_type = ValueType.from_specification(value_type_specification)
+        logger.debug(
+            "Use value type %s taken from meta-data",
+            value_type.get_specification(),
+        )
+        return value_type
+
+    def _apply_transformers_to_reader(self, reader):
+        for transformer in reversed(self.transformers):
+            logger.debug("Applying transformer %s", transformer)
+            reader = transformer.transform_reader(reader)
+        return reader
 
     def info(self, data_ref):
         """

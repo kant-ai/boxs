@@ -85,8 +85,8 @@ class TestDelegatingWriter(unittest.TestCase):
 
     def test_write_info_is_delegated(self):
         self.delegate.write_info.return_value = 'DataInfo'
-        result = self.writer.write_info('origin', [], {'my': 'info'})
-        self.delegate.write_info.assert_called_with('origin', [], {'my': 'info'})
+        result = self.writer.write_info({'my': 'info'})
+        self.delegate.write_info.assert_called_with({'my': 'info'})
         self.assertEqual('DataInfo', result)
 
     def test_as_stream_is_delegated(self):

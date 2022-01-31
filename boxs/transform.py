@@ -87,8 +87,8 @@ class DelegatingWriter(Writer):
     def write_value(self, value, value_type):
         self.delegate.write_value(value, value_type)
 
-    def write_info(self, origin, parents, meta):
-        return self.delegate.write_info(origin, parents, meta)
+    def write_info(self, info):
+        return self.delegate.write_info(info)
 
     def as_stream(self):
         return self.delegate.as_stream()
