@@ -1,4 +1,4 @@
-site_name: Datastock documentation
+site_name: Boxs documentation
 site_url: https://docs.kant.ai/boxs/
 repo_url: https://gitlab.com/kantai/boxs/
 site_dir: build
@@ -6,6 +6,7 @@ site_dir: build
 nav:
   - Home: index.md
   - Getting started: getting_started.md
+  - User guide: user_guide.md
   - Changelog: changelog.md
   - API: api.md
 
