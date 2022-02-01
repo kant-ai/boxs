@@ -511,8 +511,8 @@ def export_command(args):
         return ref.load(value_type=FileValueType(file_path=file_path))
 
     item_query = _parse_query(args.query)
-    item_query.box = item_query.box or args.default_box
     box = get_box(item_query.box)
+    item_query.box = box.box_id
     items = box.storage.list_items(item_query)
 
     if len(items) == 0:
