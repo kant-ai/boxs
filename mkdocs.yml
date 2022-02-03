@@ -8,6 +8,10 @@ nav:
   - Getting started: getting_started.md
   - User guide: user_guide.md
   - Command line interface: cli.md
+  - Value types:
+      - Common: value_types/common.md
+      - Pandas: value_types/pandas.md
+      - Tensorflow: value_types/tensorflow.md
   - Changelog: changelog.md
   - API: api.md
 
