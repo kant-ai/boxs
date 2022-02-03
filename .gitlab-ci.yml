@@ -1,0 +1,13 @@
+image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+
+stages:
+  - deploy
+
+deploy docs:
+  stage: deploy
+  script:
+    - aws --version
+    - aws s3 sync build/ s3://$AWS_S3_BUCKET/boxs/ --size-only
+    - aws s3 sync build/latest/ s3://$AWS_S3_BUCKET/boxs/latest/
+  only:
+    - docs-deployment
