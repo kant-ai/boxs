@@ -15,6 +15,8 @@ nav:
   - Transformers:
       - Statistics: transformers/statistics.md
       - Checksum: transformers/checksum.md
+  - Storages:
+      - File: storages/file.md
   - Changelog: changelog.md
   - API: api.md
 

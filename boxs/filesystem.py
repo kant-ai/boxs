@@ -3,6 +3,7 @@ import datetime
 import io
 import logging
 import json
+import os.path
 import pathlib
 import shutil
 
@@ -165,7 +166,8 @@ class FileSystemStorage(Storage):
         name_dir = self._runs_names_directory_path(box_id)
         name_dir.mkdir(exist_ok=True)
         name_symlink_file = name_dir / name
-        name_symlink_file.symlink_to(run_path)
+        symlink_path = os.path.relpath(run_path, name_dir)
+        name_symlink_file.symlink_to(symlink_path)
 
     def _remove_name_for_run(self, box_id, run_id):
         run_names = self._get_run_names(box_id)
@@ -284,4 +286,5 @@ class _FileSystemWriter(Writer):
                     self.item.run_id,
                     self.name,
                 )
-            name_symlink_file.symlink_to(self.run_file)
+            symlink_path = os.path.relpath(self.run_file, name_dir)
+            name_symlink_file.symlink_to(symlink_path)
