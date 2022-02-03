@@ -1,0 +1,1767 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://docs.kant.ai/boxs/0.1/cli/">
+      
+      <link rel="icon" href="../favicon.svg">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.9">
+    
+    
+      
+        <title>Command line interface - Boxs documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2b4465f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+    <script defer data-domain="docs.kant.ai" src="https://plausible.io/js/plausible.js"></script>
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="kantai" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#command-line-interface" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        <aside class="md-banner md-banner--warning">
+          
+        </aside>
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://docs.kant.ai" title="Boxs documentation" class="md-header__button md-logo" aria-label="Boxs documentation" data-md-component="logo">
+      
+  <img src="../icon_white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Boxs documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Command line interface
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://gitlab.com/kantai/boxs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitLab
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://docs.kant.ai" title="Boxs documentation" class="md-nav__button md-logo" aria-label="Boxs documentation" data-md-component="logo">
+      
+  <img src="../icon_white.svg" alt="logo">
+
+    </a>
+    Boxs documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://gitlab.com/kantai/boxs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitLab
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        Getting started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user_guide/" class="md-nav__link">
+        User guide
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Command line interface
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Command line interface
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    Global options
+  </a>
+  
+    <nav class="md-nav" aria-label="Global options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-default-box-b" class="md-nav__link">
+    --default-box, -b
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-init-module-i" class="md-nav__link">
+    --init-module, -i
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-json-j" class="md-nav__link">
+    --json, -j
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-runs" class="md-nav__link">
+    list-runs
+  </a>
+  
+    <nav class="md-nav" aria-label="list-runs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-name-filter-f" class="md-nav__link">
+    --name-filter, -f
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-limit-l" class="md-nav__link">
+    --limit, -l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#name-run" class="md-nav__link">
+    name-run
+  </a>
+  
+    <nav class="md-nav" aria-label="name-run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    RUN
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-name-n" class="md-nav__link">
+    --name, -n
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-run" class="md-nav__link">
+    delete-run
+  </a>
+  
+    <nav class="md-nav" aria-label="delete-run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run_1" class="md-nav__link">
+    RUN
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-quiet-q" class="md-nav__link">
+    --quiet, -q
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_2" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clean-runs" class="md-nav__link">
+    clean-runs
+  </a>
+  
+    <nav class="md-nav" aria-label="clean-runs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-preserve-runs-r" class="md-nav__link">
+    --preserve-runs, -r
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-removed-named-n" class="md-nav__link">
+    --removed-named, -n
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-ignore-dependencies-d" class="md-nav__link">
+    --ignore-dependencies, -d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-quiet-q_1" class="md-nav__link">
+    --quiet, -q
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_3" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list" class="md-nav__link">
+    list
+  </a>
+  
+    <nav class="md-nav" aria-label="list">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_4" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#info" class="md-nav__link">
+    info
+  </a>
+  
+    <nav class="md-nav" aria-label="info">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_1" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_5" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    diff
+  </a>
+  
+    <nav class="md-nav" aria-label="diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_2" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diff-arg" class="md-nav__link">
+    DIFF-ARG
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-diff-command-d" class="md-nav__link">
+    --diff-command, -d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-without-labels-l" class="md-nav__link">
+    --without-labels, -l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_6" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export" class="md-nav__link">
+    export
+  </a>
+  
+    <nav class="md-nav" aria-label="export">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_3" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file" class="md-nav__link">
+    FILE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_7" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph" class="md-nav__link">
+    graph
+  </a>
+  
+    <nav class="md-nav" aria-label="graph">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_4" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_1" class="md-nav__link">
+    FILE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_8" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Value types
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Value types" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Value types
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value_types/common/" class="md-nav__link">
+        Common
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value_types/pandas/" class="md-nav__link">
+        Pandas
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value_types/tensorflow/" class="md-nav__link">
+        Tensorflow
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Transformers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Transformers" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Transformers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transformers/statistics/" class="md-nav__link">
+        Statistics
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transformers/checksum/" class="md-nav__link">
+        Checksum
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7">
+          Storages
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Storages" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Storages
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storages/file/" class="md-nav__link">
+        File
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" class="md-nav__link">
+    Global options
+  </a>
+  
+    <nav class="md-nav" aria-label="Global options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-default-box-b" class="md-nav__link">
+    --default-box, -b
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-init-module-i" class="md-nav__link">
+    --init-module, -i
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-json-j" class="md-nav__link">
+    --json, -j
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    Commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#list-runs" class="md-nav__link">
+    list-runs
+  </a>
+  
+    <nav class="md-nav" aria-label="list-runs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-name-filter-f" class="md-nav__link">
+    --name-filter, -f
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-limit-l" class="md-nav__link">
+    --limit, -l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#name-run" class="md-nav__link">
+    name-run
+  </a>
+  
+    <nav class="md-nav" aria-label="name-run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    RUN
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-name-n" class="md-nav__link">
+    --name, -n
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-run" class="md-nav__link">
+    delete-run
+  </a>
+  
+    <nav class="md-nav" aria-label="delete-run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run_1" class="md-nav__link">
+    RUN
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-quiet-q" class="md-nav__link">
+    --quiet, -q
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_2" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clean-runs" class="md-nav__link">
+    clean-runs
+  </a>
+  
+    <nav class="md-nav" aria-label="clean-runs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-preserve-runs-r" class="md-nav__link">
+    --preserve-runs, -r
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-removed-named-n" class="md-nav__link">
+    --removed-named, -n
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-ignore-dependencies-d" class="md-nav__link">
+    --ignore-dependencies, -d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-quiet-q_1" class="md-nav__link">
+    --quiet, -q
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_3" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list" class="md-nav__link">
+    list
+  </a>
+  
+    <nav class="md-nav" aria-label="list">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_4" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#info" class="md-nav__link">
+    info
+  </a>
+  
+    <nav class="md-nav" aria-label="info">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_1" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_5" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    diff
+  </a>
+  
+    <nav class="md-nav" aria-label="diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_2" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diff-arg" class="md-nav__link">
+    DIFF-ARG
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-diff-command-d" class="md-nav__link">
+    --diff-command, -d
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-without-labels-l" class="md-nav__link">
+    --without-labels, -l
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_6" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export" class="md-nav__link">
+    export
+  </a>
+  
+    <nav class="md-nav" aria-label="export">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_3" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file" class="md-nav__link">
+    FILE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_7" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph" class="md-nav__link">
+    graph
+  </a>
+  
+    <nav class="md-nav" aria-label="graph">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query_4" class="md-nav__link">
+    QUERY
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file_1" class="md-nav__link">
+    FILE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_8" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://gitlab.com/kantai/boxs/edit/master/docs/cli.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+<h1 id="command-line-interface">Command line interface<a class="headerlink" href="#command-line-interface" title="Permanent link">🔗</a></h1>
+<p>Boxs brings with it a command line interface, that lets the user inspect and manage
+the data items of a box.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">🔗</a></h2>
+<p>When boxs is installed using <code>pip</code>, the command line interface <code>boxs</code> is automatically
+installed and added to the path:</p>
+<p><div class="highlight"><pre><span></span><code>$ pip install boxs
+...
+$ boxs -h
+usage: boxs <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-b BOX<span class="o">]</span> <span class="o">[</span>-i INIT_MODULE<span class="o">]</span> <span class="o">[</span>-j<span class="o">]</span>
+            <span class="o">{</span>list-runs,name-run,delete-run,clean-runs,list,info,diff,export,graph<span class="o">}</span>
+            ...
+</code></pre></div>
+If the boxs package is used from source, the package can be locally installed together
+with the script by running</p>
+<div class="highlight"><pre><span></span><code>$ flit install
+...
+$ boxs -h
+usage: boxs <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-b BOX<span class="o">]</span> <span class="o">[</span>-i INIT_MODULE<span class="o">]</span> <span class="o">[</span>-j<span class="o">]</span>
+            <span class="o">{</span>list-runs,name-run,delete-run,clean-runs,list,info,diff,export,graph<span class="o">}</span>
+            ...
+</code></pre></div>
+<p>from the boxs root directory. If <code>flit</code> isn't available, the command line interface
+can be directly executed using the python interpreter:</p>
+<div class="highlight"><pre><span></span><code>$ python -m boxs.cli -h
+usage: boxs <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-b BOX<span class="o">]</span> <span class="o">[</span>-i INIT_MODULE<span class="o">]</span> <span class="o">[</span>-j<span class="o">]</span>
+            <span class="o">{</span>list-runs,name-run,delete-run,clean-runs,list,info,diff,export,graph<span class="o">}</span>
+            ...
+</code></pre></div>
+<h2 id="global-options">Global options<a class="headerlink" href="#global-options" title="Permanent link">🔗</a></h2>
+<p>The command line interface supports a set of global options that are relevant for all
+commands:</p>
+<div class="highlight"><pre><span></span><code>optional arguments:
+  -b BOX, --default-box BOX
+                        The id of the default box to use. If not set, the
+                        default is taken from the BOXS_DEFAULT_BOX environment
+                        variable.
+  -i INIT_MODULE, --init-module INIT_MODULE
+                        A python module that should be automatically loaded.
+                        If not set, the default is taken from the
+                        BOXS_INIT_MODULE environment variable.
+  -j, --json            Print output as json
+</code></pre></div>
+<h3 id="-default-box-b">--default-box, -b<a class="headerlink" href="#-default-box-b" title="Permanent link">🔗</a></h3>
+<p>Many commands apply to a single box. This option allows to set the box id of the box,
+that should be used as a default of no other box is specified. This argument has
+precedence over the default box defined by the environment variable <code>BOXS_DEFAULT_BOX</code>.</p>
+<p>See the <a href="../user_guide/#default_box">user guide</a> for more information.</p>
+<h3 id="-init-module-i">--init-module, -i<a class="headerlink" href="#-init-module-i" title="Permanent link">🔗</a></h3>
+<p>This option instructs the command line interface to load the specified python module.
+It is meant for making sure, the box definitions are setup. The argument has
+precedence over the init_module defined by the environment variable
+<code>BOXS_INIT_MODULE</code>, but it is possible, that both modules get loaded, if they differ.</p>
+<p>See the <a href="../user_guide/#init_module">user guide</a> for more information.</p>
+<h3 id="-json-j">--json, -j<a class="headerlink" href="#-json-j" title="Permanent link">🔗</a></h3>
+<p>Often the tools are integrated in some automation. For this, it has the option to
+print all results in JSON format so that they can be parsed more easily.</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">🔗</a></h2>
+<h3 id="list-runs">list-runs<a class="headerlink" href="#list-runs" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs list-runs -h
+usage: boxs list-runs <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-f FILTER<span class="o">]</span> <span class="o">[</span>-l LIMIT<span class="o">]</span>
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -f FILTER, --name-filter FILTER
+                        Only list runs whose name begins with FILTER.
+  -l LIMIT, --limit LIMIT
+                        Only list the &lt;LIMIT&gt; last runs.
+</code></pre></div>
+<p>This commands allows to list the runs that can be found in the default box. Without
+any other options, all runs are returned and printed in descending order based on the
+timestamps of the runs.</p>
+<h4 id="-name-filter-f">--name-filter, -f<a class="headerlink" href="#-name-filter-f" title="Permanent link">🔗</a></h4>
+<p>A name can be manually assigned to a run. This option returns only those runs which
+have a name and whose names start with the specified filter string.</p>
+<h4 id="-limit-l">--limit, -l<a class="headerlink" href="#-limit-l" title="Permanent link">🔗</a></h4>
+<p>Often older runs are not important, so they can be disregarded. This option limits the
+total number of runs that are returned.</p>
+<h4 id="example">Example<a class="headerlink" href="#example" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs list-runs --name-filter release --limit <span class="m">2</span>
+List runs
+<span class="p">|</span>  box_id  <span class="p">|</span>               run_id               <span class="p">|</span>   name    <span class="p">|</span>              <span class="nb">time</span>              <span class="p">|</span>
+ my-box-id  0e63ad74-8102-11ec-9c51-48f17f64520d release_1.1 <span class="m">2022</span>-01-29 <span class="m">12</span>:50:44.422651+00:00
+ my-box-id  12d03f94-7e0a-11ec-9020-48f17f64520d release_1.0 <span class="m">2022</span>-01-25 <span class="m">18</span>:10:35.297825+00:00
+</code></pre></div>
+<h3 id="name-run">name-run<a class="headerlink" href="#name-run" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs name-run -h
+usage: boxs name-run <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-n NAME<span class="o">]</span> RUN
+
+positional arguments:
+  RUN                   Run id or name, can be just the first characters.
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -n NAME, --name NAME  The new name of the run, <span class="k">if</span> left out, the current name will be removed.
+</code></pre></div>
+<p><code>name-run</code> sets the user-defined name of a run. When runs are automatically created,
+they can only be referenced by their cryptic run-id. These run-ids are hard to keep in
+mind. Therefore, it is possible to assign a name to a run.</p>
+<h4 id="run">RUN<a class="headerlink" href="#run" title="Permanent link">🔗</a></h4>
+<p>This positional argument is required and contains the id or name of the run, whose
+name should be modified. The value of argument doesn't have to be the complete name or
+the complete run id, the beginning is sufficient, as long as it is not ambiguous.</p>
+<h4 id="-name-n">--name, -n<a class="headerlink" href="#-name-n" title="Permanent link">🔗</a></h4>
+<p>The name that should be used for the run. If this argument is provided, the new name
+will replace any previous name. If the argument is not provided, an existing name will
+be removed.</p>
+<h4 id="example_1">Example<a class="headerlink" href="#example_1" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs name-run 0e63 -n release_1.1
+Run name <span class="nb">set</span> 0e63ad74-8102-11ec-9c51-48f17f64520d
+<span class="p">|</span>  box_id  <span class="p">|</span>               run_id               <span class="p">|</span>   name    <span class="p">|</span>              <span class="nb">time</span>              <span class="p">|</span>
+ my-box-id  0e63ad74-8102-11ec-9c51-48f17f64520d release_1.1 <span class="m">2022</span>-01-29 <span class="m">12</span>:50:44.422651+00:00
+</code></pre></div>
+<h3 id="delete-run">delete-run<a class="headerlink" href="#delete-run" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs delete-run -h
+usage: boxs delete-run <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-q<span class="o">]</span> RUN
+
+positional arguments:
+  RUN          Run id or name, can be just the first characters.
+
+optional arguments:
+  -h, --help   show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -q, --quiet  Don<span class="err">&#39;</span>t ask <span class="k">for</span> confirmation.
+</code></pre></div>
+<p>The <code>delete-run</code> command can be used to remove single runs.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This command is potentially dangerous, because it deletes runs without checking
+for dependencies from other runs. Therefore, deleting a run can lead to
+inconsistencies!</p>
+</div>
+<h4 id="run_1">RUN<a class="headerlink" href="#run_1" title="Permanent link">🔗</a></h4>
+<p>This positional argument is required and contains the id or name of the run, which
+should be deleted. The value of argument doesn't have to be the complete name or
+the complete run id, the beginning is sufficient, as long as it is not ambiguous.</p>
+<h4 id="-quiet-q">--quiet, -q<a class="headerlink" href="#-quiet-q" title="Permanent link">🔗</a></h4>
+<p>This option disables the usual confirmation question.</p>
+<h4 id="example_2">Example<a class="headerlink" href="#example_2" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs delete-run cbd
+Really delete the run cbd0b6dd-7935-11ec-a32c-48f17f64520d? There might be other runs referencing data from it. <span class="o">(</span>y/N<span class="o">)</span>
+</code></pre></div>
+<h3 id="clean-runs">clean-runs<a class="headerlink" href="#clean-runs" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs clean-runs -h
+usage: boxs clean-runs <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-n<span class="o">]</span> <span class="o">[</span>-r COUNT<span class="o">]</span> <span class="o">[</span>-d<span class="o">]</span> <span class="o">[</span>-q<span class="o">]</span>
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -n, --remove-named    Delete runs which have names.
+  -r COUNT, --preserve-runs COUNT
+                        Preserve the &lt;COUNT&gt; last runs. Defaults to <span class="m">5</span>.
+  -d, --ignore-dependencies
+                        Delete runs which contain data items referenced by kept runs.
+  -q, --quiet           Don<span class="err">&#39;</span>t ask <span class="k">for</span> confirmation.
+</code></pre></div>
+<p>The <code>clean-runs</code> command can be used to remove runs that are no longer needed. It
+removes all runs except the latest N. Runs including data items that are referenced
+by kept runs and runs with names are kept, too, except if overridden.</p>
+<h4 id="-preserve-runs-r">--preserve-runs, -r<a class="headerlink" href="#-preserve-runs-r" title="Permanent link">🔗</a></h4>
+<p>This optional argument sets the number of runs that should be kept. If not used, a
+default value of 5 runs is used.</p>
+<h4 id="-removed-named-n">--removed-named, -n<a class="headerlink" href="#-removed-named-n" title="Permanent link">🔗</a></h4>
+<p>If this option is set, named runs are deleted, too.</p>
+<h4 id="-ignore-dependencies-d">--ignore-dependencies, -d<a class="headerlink" href="#-ignore-dependencies-d" title="Permanent link">🔗</a></h4>
+<p>With this option being set, no check for dependencies from the kept runs is performed.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This option is potentially dangerous, because it deletes runs without checking
+for dependencies from other runs. This may lead to items with missing ancestors!</p>
+</div>
+<h4 id="-quiet-q_1">--quiet, -q<a class="headerlink" href="#-quiet-q_1" title="Permanent link">🔗</a></h4>
+<p>This option disables the usual confirmation question.</p>
+<h4 id="example_3">Example<a class="headerlink" href="#example_3" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs clean-runs -n <span class="m">3</span> --ignore-dependencies
+Delete runs
+<span class="p">|</span>  box_id  <span class="p">|</span>               run_id               <span class="p">|</span>name<span class="p">|</span>              <span class="nb">time</span>              <span class="p">|</span>
+ my-box-id  c5caaee0-7d2e-11ec-9020-48f17f64520d      <span class="m">2022</span>-01-24 <span class="m">16</span>:00:38.460836+00:00
+ my-box-id  c0b342b4-7c9d-11ec-abee-48f17f64520d      <span class="m">2022</span>-01-23 <span class="m">22</span>:42:32.900216+00:00
+ my-box-id  bb157404-7c9c-11ec-abee-48f17f64520d      <span class="m">2022</span>-01-23 <span class="m">22</span>:36:59.329551+00:00
+Really delete all listed runs? <span class="o">(</span>y/N<span class="o">)</span>
+</code></pre></div>
+<h3 id="list">list<a class="headerlink" href="#list" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs list -h
+usage: boxs list <span class="o">[</span>-h<span class="o">]</span> QUERY
+
+positional arguments:
+  QUERY       The query <span class="k">in</span> format <span class="o">[</span>&lt;box&gt;:&lt;data&gt;:&lt;run&gt;<span class="o">]</span> <span class="k">for</span> the items which should be listed.
+
+optional arguments:
+  -h, --help  show this <span class="nb">help</span> message and <span class="nb">exit</span>
+</code></pre></div>
+<p>The <code>list</code> command allows to list data items that match a query.</p>
+<h4 id="query">QUERY<a class="headerlink" href="#query" title="Permanent link">🔗</a></h4>
+<p>The query is a string, that can contain a box filter, a data filter and a run filter
+separated by ":" in the format "<box>:<data>:<run>".</p>
+<ul>
+<li>box: The box filter matches all data items with a box id that begins with the filter.</li>
+<li>data: The data filter matches all data items where the data id or the data name
+  begins with the filter.</li>
+<li>run: The run filter matches all data items with a run id or run name that begins
+  with the filter.</li>
+</ul>
+<p>Not all filters have to be provided. Preceding ":" can be left out.
+The resulting data items listed have to match ALL filters.</p>
+<p>Examples:
+ - "my-box::release" Matches all items in a box that begins with "my-box" and whose run
+   names begin with "release".
+ - "train_data:" Matches all items with the name "train_data" in all boxes and all runs.
+ - "::release-1.0" or "release-1.0" Matches all items in the run with the name
+   "release-1.0"</p>
+<h4 id="example_4">Example<a class="headerlink" href="#example_4" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs  list ::release
+List items boat_price::release
+<span class="p">|</span>  box_id  <span class="p">|</span>    data_id     <span class="p">|</span>               run_id               <span class="p">|</span>         name         <span class="p">|</span>              <span class="nb">time</span>              <span class="p">|</span>
+ my-box-id  d91bf391601f6f53 12d03f94-7e0a-11ec-9020-48f17f64520d trained_model          <span class="m">2022</span>-01-25 <span class="m">18</span>:10:35.297825+00:00
+ my-box-id  cf64163dd7c1898c 0e63ad74-8102-11ec-9c51-48f17f64520d train_data             <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.482767+00:00
+ my-box-id  efb03082d67da076 0e63ad74-8102-11ec-9c51-48f17f64520d eval_data              <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.490767+00:00
+ my-box-id  7473d9676cbc377e 0e63ad74-8102-11ec-9c51-48f17f64520d encoded_train_input    <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.570765+00:00
+ my-box-id  21bfb27c4a636f4e 0e63ad74-8102-11ec-9c51-48f17f64520d encoded_train_output   <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.582765+00:00
+ my-box-id  800b5a5c9a972d3e 0e63ad74-8102-11ec-9c51-48f17f64520d encoded_eval_input     <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.606765+00:00
+ my-box-id  ddb065be789696cb 0e63ad74-8102-11ec-9c51-48f17f64520d encoded_eval_output    <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.610765+00:00
+ my-box-id  15d29183ad09cbfc 0e63ad74-8102-11ec-9c51-48f17f64520d normalized_train_input <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.734763+00:00
+ my-box-id  6f31c9a1c68b3b02 0e63ad74-8102-11ec-9c51-48f17f64520d normalized_eval_input  <span class="m">2022</span>-01-29 <span class="m">12</span>:50:37.762762+00:00
+ my-box-id  d91bf391601f6f53 0e63ad74-8102-11ec-9c51-48f17f64520d trained_model          <span class="m">2022</span>-01-29 <span class="m">12</span>:50:44.418651+00:00
+ my-box-id  b2560fb2c8b88621 0e63ad74-8102-11ec-9c51-48f17f64520d tensorboard_logs       <span class="m">2022</span>-01-29 <span class="m">12</span>:50:44.422651+00:00
+</code></pre></div>
+<h3 id="info">info<a class="headerlink" href="#info" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs list -h
+usage: boxs info <span class="o">[</span>-h<span class="o">]</span> QUERY
+
+positional arguments:
+  QUERY       The query <span class="k">in</span> format <span class="o">[</span>&lt;box&gt;:&lt;data&gt;:&lt;run&gt;<span class="o">]</span> <span class="k">for</span> the item whose info should be printed.
+
+optional arguments:
+  -h, --help  show this <span class="nb">help</span> message and <span class="nb">exit</span>
+</code></pre></div>
+<p>The <code>info</code> command allows print information about a single data item identified by a
+query.</p>
+<h4 id="query_1">QUERY<a class="headerlink" href="#query_1" title="Permanent link">🔗</a></h4>
+<p>The query is a string, that can contain a box filter, a data filter and a run filter
+separated by ":" in the format "<box>:<data>:<run>". Since the command can show only
+one info at a time, the query has to be unambiguous, returning only a single item.</p>
+<p>For more information see the <a href="#query">description for list</a></p>
+<h4 id="example_5">Example<a class="headerlink" href="#example_5" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs  info :trained_model:release_1.1
+Info d91bf391601f6f53 0e63ad74-8102-11ec-9c51-48f17f64520d
+ Property  Value                                                                                                                                                                                                                                                          
+ ref     :
+           box_id  : my-box-id                           
+           data_id : d91bf391601f6f53                    
+           run_id  : 0e63ad74-8102-11ec-9c51-48f17f64520d
+ origin  : train                                                                                                                                                                                                                                                         
+ name    : trained_model                                                                                                                                                                                                                                                 
+ tags    : <span class="o">{}</span>                                                                                                                                                                                                                                                            
+ parents : <span class="o">[{</span><span class="s1">&#39;ref&#39;</span>: <span class="o">{</span><span class="s1">&#39;box_id&#39;</span>: <span class="s1">&#39;my-box-id&#39;</span>, <span class="s1">&#39;data_id&#39;</span>: <span class="s1">&#39;15d29183ad09cbfc&#39;</span>, <span class="s1">&#39;run_id&#39;</span>: <span class="s1">&#39;0e63ad74-8102-11ec-9c51-48f17f64520d&#39;</span><span class="o">}</span>, <span class="s1">&#39;origin&#39;</span>: <span class="s1">&#39;normalize_input_data&#39;</span>, <span class="s1">&#39;name&#39;</span>: <span class="s1">&#39;normalized_train_input&#39;</span>, <span class="s1">&#39;tags&#39;</span>: <span class="o">{}</span>, <span class="s1">&#39;parents&#39;</span>: <span class="o">[{</span><span class="s1">&#39;ref&#39;</span>: <span class="o">{</span><span class="s1">&#39;box_id&#39;</span>: <span class="s1">&#39;boat_price&#39;</span>, <span class="s1">&#39;data_id&#39;</span>:...
+ meta    :
+           value_type          : boxs.tensorflow:TensorflowKerasModelValueType:tf                
+           size_in_bytes       : <span class="m">1963138</span>                                                         
+           number_of_lines     : <span class="m">12482</span>                                                           
+           store_start         : <span class="m">2022</span>-01-29T12:50:44.413+00:00                                   
+           store_end           : <span class="m">2022</span>-01-29T12:50:44.413+00:00                                   
+           model_format        : tf                                                              
+           checksum_digest     : 8ec304eafb8453f7fe41d7547e7b297b1ef335f855acbf3085aa5a5e95e814e1
+           checksum_digest_size: <span class="m">32</span>                                                              
+           checksum_algorithm  : blake2b
+</code></pre></div>
+<h3 id="diff">diff<a class="headerlink" href="#diff" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs diff -h
+usage: boxs diff <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-d DIFF<span class="o">]</span> <span class="o">[</span>-l<span class="o">]</span> QUERY QUERY <span class="o">[</span>DIFF-ARG <span class="o">[</span>DIFF-ARG ...<span class="o">]]</span>
+
+positional arguments:
+  QUERY                 The queries <span class="k">in</span> format <span class="o">[</span>&lt;box&gt;:&lt;data&gt;:&lt;run&gt;<span class="o">]</span> describing the items to compare.
+  DIFF-ARG              Arbitrary arguments <span class="k">for</span> the diff command.
+
+optional arguments:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -d DIFF, --diff-command DIFF
+                        The <span class="nb">command</span> to use <span class="k">for</span> comparing, defaults to <span class="s1">&#39;diff&#39;</span>.
+  -l, --without-labels  Disable the labels.
+</code></pre></div>
+<p>The <code>diff</code> command creates a diff of two data items. It uses the system "diff" tool
+for this, but the command that is called can be configured.</p>
+<h4 id="query_2">QUERY<a class="headerlink" href="#query_2" title="Permanent link">🔗</a></h4>
+<p>The query is a string, that can contain a box filter, a data filter and a run filter
+separated by ":" in the format "<box>:<data>:<run>". Since this command compares two
+items, it takes two queries, Both queries have to be unambiguous, returning only a
+single item.</p>
+<p>For more information see the <a href="#query">description for list</a></p>
+<h4 id="diff-arg">DIFF-ARG<a class="headerlink" href="#diff-arg" title="Permanent link">🔗</a></h4>
+<p>The command takes arbitrary additional commands that are relayed to the diff tool.</p>
+<h4 id="-diff-command-d">--diff-command, -d<a class="headerlink" href="#-diff-command-d" title="Permanent link">🔗</a></h4>
+<p>This option allows to use a different command for creating the diff. If not specified
+"diff" is used.</p>
+<h4 id="-without-labels-l">--without-labels, -l<a class="headerlink" href="#-without-labels-l" title="Permanent link">🔗</a></h4>
+<p>The command line interface saves the data items to temporary files in order to be able
+to use diff. When comparing those files, diff prints their temporary paths, which make
+it hard to know which file is which item. Therefore, the tool adds additional "--label"
+arguments to the diff call, which change the labels to be the item query.
+Since not all diff tools support these option, "--without-labels" disables that those
+options are added.</p>
+<h4 id="example_6">Example<a class="headerlink" href="#example_6" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs diff :trained_model:release_1.1 :trained_model:release_1.0
+Binary files :trained_model:release_1.1 and :trained_model:release_1.0 differ
+</code></pre></div>
+<h3 id="export">export<a class="headerlink" href="#export" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs <span class="nb">export</span> -h
+usage: boxs <span class="nb">export</span> <span class="o">[</span>-h<span class="o">]</span> QUERY FILE
+
+positional arguments:
+  QUERY       The query <span class="k">in</span> format <span class="o">[</span>&lt;box&gt;:&lt;data&gt;:&lt;run&gt;<span class="o">]</span> describing the item to export.
+  FILE        The file path to <span class="nb">export</span> to.
+
+optional arguments:
+  -h, --help  show this <span class="nb">help</span> message and <span class="nb">exit</span>
+</code></pre></div>
+<p>The <code>export</code> command exports data items to the local file system.</p>
+<h4 id="query_3">QUERY<a class="headerlink" href="#query_3" title="Permanent link">🔗</a></h4>
+<p>The query is a string, that can contain a box filter, a data filter and a run filter
+separated by ":" in the format "<box>:<data>:<run>". Since the command can export only
+one item at a time, the query has to be unambiguous, returning only a single item.</p>
+<p>For more information see the <a href="#query">description for list</a></p>
+<h4 id="file">FILE<a class="headerlink" href="#file" title="Permanent link">🔗</a></h4>
+<p>A file path to which the data item should be exported.</p>
+<h4 id="example_7">Example<a class="headerlink" href="#example_7" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs <span class="nb">export</span> :trained_model:release_1.1 /tmp/model
+:trained_model:release_1.1 successfully exported to /tmp/model
+</code></pre></div>
+<h3 id="graph">graph<a class="headerlink" href="#graph" title="Permanent link">🔗</a></h3>
+<div class="highlight"><pre><span></span><code>$ boxs graph -h
+usage: boxs graph <span class="o">[</span>-h<span class="o">]</span> QUERY <span class="o">[</span>FILE<span class="o">]</span>
+
+positional arguments:
+  QUERY       The query describing the items to graph.
+  FILE        The file to write the graph to. If left empty, the graph is written to stdout.
+
+optional arguments:
+  -h, --help  show this <span class="nb">help</span> message and <span class="nb">exit</span>
+</code></pre></div>
+<p>The <code>graph</code> command creates a representation of the dependency graph in DOT format.
+It can be either written to a file or printed out to stdout.</p>
+<h4 id="query_4">QUERY<a class="headerlink" href="#query_4" title="Permanent link">🔗</a></h4>
+<p>The query is a string, that can contain a box filter, a data filter and a run filter
+separated by ":" in the format "<box>:<data>:<run>".</p>
+<p>For more information see the <a href="#query">description for list</a></p>
+<h4 id="file_1">FILE<a class="headerlink" href="#file_1" title="Permanent link">🔗</a></h4>
+<p>A file path to which the graph should be written. If the argument is left out, the
+graph is printed to stdout.</p>
+<h4 id="example_8">Example<a class="headerlink" href="#example_8" title="Permanent link">🔗</a></h4>
+<div class="highlight"><pre><span></span><code>$ boxs graph :trained_model:release_1.1
+digraph <span class="o">{</span>
+  subgraph <span class="s2">&quot;cluster_0e63ad74-8102-11ec-9c51-48f17f64520d&quot;</span> <span class="o">{</span>
+    <span class="nv">label</span><span class="o">=</span><span class="s2">&quot;Run 0e63ad74-8102-11ec-9c51-48f17f64520d&quot;</span><span class="p">;</span>
+    <span class="s2">&quot;boxs://boat_price/d91bf391601f6f53/0e63ad74-8102-11ec-9c51-48f17f64520d&quot;</span><span class="o">[</span><span class="nv">label</span><span class="o">=</span><span class="s2">&quot;trained_model\norigin train\nsize 1963138&quot;</span><span class="o">]</span>
+    <span class="s2">&quot;boxs://boat_price/ddb065be789696cb/0e63ad74-8102-11ec-9c51-48f17f64520d&quot;</span><span class="o">[</span><span class="nv">label</span><span class="o">=</span><span class="s2">&quot;encoded_eval_output\norigin encode_data\nsize 32189&quot;</span><span class="o">]</span>
+    <span class="s2">&quot;boxs://boat_price/efb03082d67da076/0e63ad74-8102-11ec-9c51-48f17f64520d&quot;</span><span class="o">[</span><span class="nv">label</span><span class="o">=</span><span class="s2">&quot;eval_data\norigin partition_data\nsize 189854&quot;</span><span class="o">]</span>
+    <span class="s2">&quot;boxs://boat_price/6f31c9a1c68b3b02/0e63ad74-8102-11ec-9c51-48f17f64520d&quot;</span><span class="o">[</span><span class="nv">label</span><span class="o">=</span><span class="s2">&quot;normalized_eval_input\norigin normalize_input_data\nsize 327758&quot;</span><span class="o">]</span>
+    <span class="s2">&quot;boxs://boat_price/800b5a5c9a972d3e/0e63ad74-8102-11ec-9c51-48f17f64520d&quot;</span><span class="o">[</span><span class="nv">label</span><span class="o">=</span><span class="s2">&quot;encoded_eval_input\norigin encode_data\nsize 226617&quot;</span><span class="o">]</span>
+...
+</code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      2022-02-02
+    
+  </small>
+</div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../user_guide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: User guide" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              User guide
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../value_types/common/" class="md-footer__link md-footer__link--next" aria-label="Next: Common" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Common
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022 Kantai GmbH
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    <a href="https://twitter.com/kantaiML" target="_blank" rel="noopener" title="kantai on Twitter" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.960e086b.min.js"></script>
+      
+        <script src=".."></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1792 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://docs.kant.ai/boxs/0.1/user_guide/">
+      
+      <link rel="icon" href="../favicon.svg">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.9">
+    
+    
+      
+        <title>User guide - Boxs documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2b4465f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+    <script defer data-domain="docs.kant.ai" src="https://plausible.io/js/plausible.js"></script>
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="kantai" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#user-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        <aside class="md-banner md-banner--warning">
+          
+        </aside>
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://docs.kant.ai" title="Boxs documentation" class="md-header__button md-logo" aria-label="Boxs documentation" data-md-component="logo">
+      
+  <img src="../icon_white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Boxs documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              User guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://gitlab.com/kantai/boxs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitLab
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://docs.kant.ai" title="Boxs documentation" class="md-nav__button md-logo" aria-label="Boxs documentation" data-md-component="logo">
+      
+  <img src="../icon_white.svg" alt="logo">
+
+    </a>
+    Boxs documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://gitlab.com/kantai/boxs/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M105.2 24.9c-3.1-8.9-15.7-8.9-18.9 0L29.8 199.7h132c-.1 0-56.6-174.8-56.6-174.8zM.9 287.7c-2.6 8 .3 16.9 7.1 22l247.9 184-226.2-294zm160.8-88 94.3 294 94.3-294zm349.4 88-28.8-88-226.3 294 247.9-184c6.9-5.1 9.7-14 7.2-22zM425.7 24.9c-3.1-8.9-15.7-8.9-18.9 0l-56.6 174.8h132z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitLab
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/" class="md-nav__link">
+        Getting started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          User guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        User guide
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-organization" class="md-nav__link">
+    Data organization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-api" class="md-nav__link">
+    User API
+  </a>
+  
+    <nav class="md-nav" aria-label="User API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#store" class="md-nav__link">
+    store()
+  </a>
+  
+    <nav class="md-nav" aria-label="store()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#value" class="md-nav__link">
+    value
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parents" class="md-nav__link">
+    *parents
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#originorigin_from_function_name" class="md-nav__link">
+    origin=ORIGIN_FROM_FUNCTION_NAME,
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#namenone" class="md-nav__link">
+    name=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tagsnone" class="md-nav__link">
+    tags=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metanone" class="md-nav__link">
+    meta=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value_typenone" class="md-nav__link">
+    value_type=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run_idnone" class="md-nav__link">
+    run_id=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#boxnone" class="md-nav__link">
+    box=None
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    load()
+  </a>
+  
+    <nav class="md-nav" aria-label="load()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data" class="md-nav__link">
+    data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value_typenone_1" class="md-nav__link">
+    value_type=None
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#info" class="md-nav__link">
+    info()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#valuetype" class="md-nav__link">
+    ValueType
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#box" class="md-nav__link">
+    Box
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage" class="md-nav__link">
+    Storage
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-and-writing-items" class="md-nav__link">
+    Reading and writing items
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading and writing items">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writer" class="md-nav__link">
+    Writer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader" class="md-nav__link">
+    Reader
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-and-manipulating-a-storage" class="md-nav__link">
+    Querying and manipulating a storage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformer" class="md-nav__link">
+    Transformer
+  </a>
+  
+    <nav class="md-nav" aria-label="Transformer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-transformers" class="md-nav__link">
+    Using transformers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementing-transformers" class="md-nav__link">
+    Implementing transformers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configurable-values" class="md-nav__link">
+    Configurable values
+  </a>
+  
+    <nav class="md-nav" aria-label="Configurable values">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default_box" class="md-nav__link">
+    default_box
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#init_module" class="md-nav__link">
+    init_module
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-boxs" class="md-nav__link">
+    How to use boxs
+  </a>
+  
+    <nav class="md-nav" aria-label="How to use boxs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-the-library" class="md-nav__link">
+    Install the library
+  </a>
+  
+    <nav class="md-nav" aria-label="Install the library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-stable-release-from-pypi" class="md-nav__link">
+    Use stable release from PyPI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-from-source" class="md-nav__link">
+    Use from source
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        Command line interface
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Value types
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Value types" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Value types
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value_types/common/" class="md-nav__link">
+        Common
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value_types/pandas/" class="md-nav__link">
+        Pandas
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value_types/tensorflow/" class="md-nav__link">
+        Tensorflow
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Transformers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Transformers" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Transformers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transformers/statistics/" class="md-nav__link">
+        Statistics
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transformers/checksum/" class="md-nav__link">
+        Checksum
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7" type="checkbox" id="__nav_7" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7">
+          Storages
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Storages" data-md-level="1">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Storages
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storages/file/" class="md-nav__link">
+        File
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-organization" class="md-nav__link">
+    Data organization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-api" class="md-nav__link">
+    User API
+  </a>
+  
+    <nav class="md-nav" aria-label="User API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#store" class="md-nav__link">
+    store()
+  </a>
+  
+    <nav class="md-nav" aria-label="store()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#value" class="md-nav__link">
+    value
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parents" class="md-nav__link">
+    *parents
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#originorigin_from_function_name" class="md-nav__link">
+    origin=ORIGIN_FROM_FUNCTION_NAME,
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#namenone" class="md-nav__link">
+    name=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tagsnone" class="md-nav__link">
+    tags=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metanone" class="md-nav__link">
+    meta=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value_typenone" class="md-nav__link">
+    value_type=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run_idnone" class="md-nav__link">
+    run_id=None
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#boxnone" class="md-nav__link">
+    box=None
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    load()
+  </a>
+  
+    <nav class="md-nav" aria-label="load()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data" class="md-nav__link">
+    data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value_typenone_1" class="md-nav__link">
+    value_type=None
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#info" class="md-nav__link">
+    info()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#valuetype" class="md-nav__link">
+    ValueType
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#box" class="md-nav__link">
+    Box
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage" class="md-nav__link">
+    Storage
+  </a>
+  
+    <nav class="md-nav" aria-label="Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-and-writing-items" class="md-nav__link">
+    Reading and writing items
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading and writing items">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writer" class="md-nav__link">
+    Writer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader" class="md-nav__link">
+    Reader
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-and-manipulating-a-storage" class="md-nav__link">
+    Querying and manipulating a storage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformer" class="md-nav__link">
+    Transformer
+  </a>
+  
+    <nav class="md-nav" aria-label="Transformer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-transformers" class="md-nav__link">
+    Using transformers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementing-transformers" class="md-nav__link">
+    Implementing transformers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configurable-values" class="md-nav__link">
+    Configurable values
+  </a>
+  
+    <nav class="md-nav" aria-label="Configurable values">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default_box" class="md-nav__link">
+    default_box
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#init_module" class="md-nav__link">
+    init_module
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-boxs" class="md-nav__link">
+    How to use boxs
+  </a>
+  
+    <nav class="md-nav" aria-label="How to use boxs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-the-library" class="md-nav__link">
+    Install the library
+  </a>
+  
+    <nav class="md-nav" aria-label="Install the library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-stable-release-from-pypi" class="md-nav__link">
+    Use stable release from PyPI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-from-source" class="md-nav__link">
+    Use from source
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://gitlab.com/kantai/boxs/edit/master/docs/user_guide.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+<h1 id="user-guide">User guide<a class="headerlink" href="#user-guide" title="Permanent link">🔗</a></h1>
+<p>This user guide can be used as a starting point for getting a deeper understanding of
+the inner workings of the boxs library. It is meant for users who want to learn
+about individual details or who plan to extend its features by developing own
+value types or transformers.</p>
+<h2 id="data-organization">Data organization<a class="headerlink" href="#data-organization" title="Permanent link">🔗</a></h2>
+<p>Boxs keeps track of data items and their dependencies that are created when executing
+python code. Data items are identified by some automatic derived <code>data_id</code>, but for
+easier usage user-defined unique names within a single run are supported, too.
+Each execution leads to a new set of data items without overwriting anything. This
+allows to compare them across different "runs". All data items are organized in
+"Boxes", that can be used for grouping together related items. Multiple Boxes can share
+a single Storage, which actually stores the data and their meta-data.</p>
+<p><img alt="Diagram of a workflow" src="../organization.svg" /></p>
+<p>Each individual data item can be referenced by 3 different ids:</p>
+<ul>
+<li>box_id: The id of the box, in which the data item is stored.</li>
+<li>data_id: The id identifying the same data entity across multiple runs.</li>
+<li>run_id: The id that identifies the run in which this data item was created.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Boxs treats all data as immutable. Once written, a data item can't be updated.
+Instead a new data item with a different run_id should be used. Even though
+deleting a run and reusing its <code>run_id</code> is possible, it is HIGHLY discouraged
+since doing so can lead to inconsistencies especially with dependency tracking
+across different runs.</p>
+</div>
+<h2 id="user-api">User API<a class="headerlink" href="#user-api" title="Permanent link">🔗</a></h2>
+<p><code>Boxs</code> user API can be imported from the <code>boxs</code> package. All classes and functions that
+are meant for users, are importable from the top level package.</p>
+<h3 id="store">store()<a class="headerlink" href="#store" title="Permanent link">🔗</a></h3>
+<p><a href="../api/#boxs.api.store"><code>boxs.store()</code></a>
+is the function that stores an actual value. It takes a couple of
+arguments, that influence where the data is stored, how the value is serialized, how
+its data id is calculated and what additional meta-data should be stored along with
+it.</p>
+<p>The full signature of the method looks like this:</p>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">store</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">parents</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">origin</span><span class="o">=</span><span class="n">ORIGIN_FROM_FUNCTION_NAME</span><span class="p">,</span>
+    <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">meta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">value_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">run_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">box</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">boxs</span><span class="o">.</span><span class="n">DataInfo</span><span class="p">:</span>
+</code></pre></div>
+The function returns an object of type <a href="../api/#boxs.data.DataInfo"><code>boxs.DataInfo</code></a>.
+This type contains a reference to the stored data, which allows to load it again at a
+later time, and some additional meta information about it, including how it was stored.</p>
+<p><code>store()</code> arguments are described as follows:</p>
+<h4 id="value">value<a class="headerlink" href="#value" title="Permanent link">🔗</a></h4>
+<p><code>value</code> contains the data that should be stored. Out of the box, boxs supports natively
+a couple of different types that can be stored:</p>
+<ul>
+<li><a href="../api/#boxs.value_types.StringValueType">String</a></li>
+<li><a href="../api/#boxs.value_types.BytesValueType">Bytes/Bytebuffer</a></li>
+<li><a href="../api/#boxs.value_types.StreamValueType">Stream</a></li>
+<li><a href="../api/#boxs.value_types.FileValueType">Files</a> or
+  <a href="../api/#boxs.value_types.DirectoryValueType">directories</a> in form of <code>pathlib.Path</code></li>
+</ul>
+<p>With some limitation it can store <code>list</code>s and <code>dict</code>s, too, as long as every contained
+value can be serialized to JSON without the need of a custom
+<a href="https://docs.python.org/3/library/json.html#json.JSONEncoder">JSONEncoder</a>.</p>
+<p>All other types of values can be stored either by explicitly setting the <code>value_type</code>
+argument or adding one that supports this type to the box which will contain the value.</p>
+<h4 id="parents">*parents<a class="headerlink" href="#parents" title="Permanent link">🔗</a></h4>
+<p>Boxs supports tracking dependencies between different values. This can be helpful e.g.
+when trying to understand the impact of changes in complex situations or when data is
+reused from different runs.
+Adding already stored data items as parents to a new data item is done by providing
+them as additional positional arguments to the <code>store()</code> call, e.g.:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">boxs</span>
+
+<span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">fetch_data</span><span class="p">():</span>
+    <span class="o">...</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">boxs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">data_values</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="s1">&#39;my-box-id&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="k">def</span> <span class="nf">partition_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">train_data</span> <span class="o">=</span> <span class="n">boxs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">train_values</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="s1">&#39;my-box-id&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;train_data&#39;</span><span class="p">)</span>
+    <span class="n">eval_data</span> <span class="o">=</span> <span class="n">boxs</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">eval_value</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="s1">&#39;my-box-id&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;eval_data&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">eval_data</span>
+
+<span class="o">...</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">()</span>
+<span class="n">train_data</span><span class="p">,</span> <span class="n">eval_data</span> <span class="o">=</span> <span class="n">partition_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div>
+<p>In this example the second function <code>partition_data(data)</code> stores two new data items
+<code>train_data</code> and <code>eval_data</code> using <code>data</code> as a parent data item.</p>
+<h4 id="originorigin_from_function_name">origin=ORIGIN_FROM_FUNCTION_NAME,<a class="headerlink" href="#originorigin_from_function_name" title="Permanent link">🔗</a></h4>
+<p>Stored data items are referenced by a data_id, that is automatically derived from the
+origin of the data, defined by this keyword argument, and their parents. The origin is
+meant to describe in textual fashion, where some data originated. Its argument value
+can be either a <code>str</code>, or a <code>Callable</code> that returns a string. As a default, a callable
+is used, that extracts the name of the function from the stack, where <code>store()</code> is
+called from.</p>
+<p>The callable can optionally take a <a href="../api/#boxs.origin.OriginContext"><code>OriginContext</code></a>
+object, from whose attributes the origin can be constructed. For more information take a
+look at the type of the <a href="../api/#boxs.origin.OriginMappingFunction"><code>OriginMappingFunction</code></a>.</p>
+<h4 id="namenone">name=None<a class="headerlink" href="#namenone" title="Permanent link">🔗</a></h4>
+<p>Referencing all data just from its automatically generated <code>data_id</code> is not the most
+convenient way for users. With every new dependency or some changes to the origin the
+data id changes to something completely different, so it becomes hard to keep track of
+things. To alleviate this, data items can be named by providing a value for the <code>name</code>
+keyword argument when storing the data. These names have to be unique within a run and
+can be used to refer to a specific data item from the command line. As a default, no
+names are given.</p>
+<h4 id="tagsnone">tags=None<a class="headerlink" href="#tagsnone" title="Permanent link">🔗</a></h4>
+<p>Often it can be helpful to group data items by some criteria. This is why one can
+assign a set of tags to each data item when storing new data. These tags are mappings
+from string keys to string values. The tags can later be used for listing data items
+or determine how they should be handled. As a default, no tags are used.</p>
+<h4 id="metanone">meta=None<a class="headerlink" href="#metanone" title="Permanent link">🔗</a></h4>
+<p>The <code>meta</code> keyword argument is meant for storing arbitrary meta-data about the item
+that might be useful later. This can be things like information about the size or
+source of data, e.g. a date which tells the update date of its data source. In general,
+all keys in <code>meta</code> must be strings. The values can differ, though. It can be any of
+the types that are supported by the python JSON encoder, so even dicts and lists can be
+used, as long as all values they contain can be serialized to JSON.</p>
+<p>Boxs uses the same meta-data internally, for keeping track of the type of the value as
+well as some useful information like checksums or size of the data. So when inspecting
+the <code>meta</code> attribute of a data item, not only user-defined meta-data is shown.</p>
+<h4 id="value_typenone">value_type=None<a class="headerlink" href="#value_typenone" title="Permanent link">🔗</a></h4>
+<p><a href="../api/#boxs.value_types.ValueType"><code>ValueType</code>s</a>
+are the mechanism that allows to store values in the first place. In
+order to know, how to serialize and deserialize a specific value, boxs needs a
+corresponding value type. For a set of common used types, boxs has a predefined list
+of value types that are used, e.g. for files, strings, bytes or stream, so the
+value_type argument doesn't need to be set and can stay on its default <code>None</code>. For
+custom types though, a <code>value_type</code> has to be provided.</p>
+<h4 id="run_idnone">run_id=None<a class="headerlink" href="#run_idnone" title="Permanent link">🔗</a></h4>
+<p>Boxs automatically generates a new <code>run_id</code> every time, it is run in a new process.
+This <code>run_id</code> allows to correlate the version of a specific data item to a single
+invocation of the script, that created the data. There might be situations, where the
+user wants to override this automatic mechanism and do a manual run_id management. In
+this case, providing a custom <code>run_id</code> will override the automatically generated one.</p>
+<h4 id="boxnone">box=None<a class="headerlink" href="#boxnone" title="Permanent link">🔗</a></h4>
+<p>Boxs organizes data in collections, called "boxes". This keyword argument can be used
+for specifying, in which box the data should be stored. Its value can be either a
+<code>str</code> with the <code>box_id</code> of the box, or the <code>Box</code> object itself. If no <code>box</code> is
+specified, the <a href="../api/#boxs.config.Configuration.default_box"><code>default_box</code></a> from
+the configuration is used. Since a box is required, a ValueError is raised, if no box
+is specified neither as keyword argument nor in the configuration.</p>
+<h3 id="load">load()<a class="headerlink" href="#load" title="Permanent link">🔗</a></h3>
+<p>Once a value has been stored, the question is now, how to load it once we need to use
+it again. For this boxs provides a <a href="../api/#boxs.api.load"><code>boxs.load()</code></a> function,
+that takes a reference to the data item and returns the stored value, that can be of
+any type.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+</code></pre></div>
+<h4 id="data">data<a class="headerlink" href="#data" title="Permanent link">🔗</a></h4>
+<p>The data item whose value should be loaded. <code>data</code> can be of the two types,
+either <a href="../api/#boxs.data.DataInfo">boxs.data.DataInfo</a> or
+<a href="../api/#boxs.data.DataRef">boxs.data.DataRef</a>.
+<code>DataInfo</code> is the type returned by the <code>store()</code> method. It contains information about
+the data item, how it was stored and its ancestors. In contrast, <code>DataRef</code> contains
+only the necessary ids for uniquely identifying a data item.</p>
+<p>Both, <code>DataInfo</code> and <code>DataRef</code> provide a <code>load()</code> method just for convenience, that
+internally use the<code>boxs.load()</code> function.</p>
+<h4 id="value_typenone_1">value_type=None<a class="headerlink" href="#value_typenone_1" title="Permanent link">🔗</a></h4>
+<p>The <a href="../api/#boxs.value_types.ValueType"><code>ValueType</code></a>
+to use for converting the stored data to a python value. Usually, this
+doesn't need to be provided and can be left as its default <code>None</code>, since when storing
+of a value, the used value_type is added to the meta-data of the item, so that the same
+value_type can be reused, when the value is loaded again.
+Sometimes though, a user wants to use a different value type when loading data. In
+this case the <code>value_type</code> provided explicitly when calling <code>load()</code> can override the
+value type that is stored with the value.</p>
+<h3 id="info">info()<a class="headerlink" href="#info" title="Permanent link">🔗</a></h3>
+<p><code>info()</code> returns the <code>DataInfo</code> about a data item from its <code>DataRef</code> reference.
+This function is usually not called directly, because it is more convenient to use the
+corresponding property <a href="../api/#boxs.data.DataRef.info"><code>DataRef.info</code></a> that uses the
+<code>info()</code> function internally.</p>
+<h2 id="valuetype">ValueType<a class="headerlink" href="#valuetype" title="Permanent link">🔗</a></h2>
+<p>Within a python script different types of data are used. In order to know, how these
+different values can be stored and loaded, boxs uses the concept of
+<a href="../api/#boxs.value_types.ValueType"><code>ValueType</code>s</a>.
+A value type corresponds usually to one specific python type that it supports.
+<code>ValueType</code> defines two methods, that are used for actually writing the value
+to storage and reading it at a later time:</p>
+<div class="highlight"><pre><span></span><code>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">write_value_to_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">read_value_from_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reader</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+<p><a href="../api/#boxs.value_types.ValueType.write_value_to_writer"><code>ValueType.write_value_to_writer(value, writer)</code></a>
+takes two arguments, value and writer. <code>value</code> is the value, that should be stored.
+The <code>writer</code> argument points to a storage specific implementation of the
+<a href="../api/#boxs.storage.Writer"><code>Writer</code></a> interface, that allows to write data and the
+additional infos to the storage.</p>
+<p><a href="../api/#boxs.value_types.ValueType.read_value_from_reader"><code>ValueType.read_value_from_reader(reader)</code></a>
+takes only a single argument. <code>reader</code> contains a storage specific implementation of the
+<a href="../api/#boxs.storage.Reader"><code>Reader</code></a> interface, that allows to read data or infos
+back from storage.</p>
+<p>Each <code>Box</code> contains a pre-defined list of value types for common types like strings,
+bytes or files and directories. These value types are automatically used depending on
+the type of <code>value</code>. This works by them implementing another method of the <code>ValueType</code>
+interface, <a href="../api/#boxs.value_types.ValueType.supports"><code>supports(value)</code></a>:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span> <span class="nf">supports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<p>This method is given a value that should be stored and returns, if it supports writing
+this value or not. When a box should store a value without an explicit defined value
+type, it loops through its list of default types and uses the first type that returns
+<code>True</code> when its <code>supports(value)</code> method is called.</p>
+<p><code>ValueType</code> defines two additional methods, that are used for recreating a value that
+has been stored before.
+When a value has been stored, boxs calls the
+<a href="../api/#boxs.value_types.ValueType.get_specification"><code>get_specification()</code></a>
+method of the used value type, which returns a string specification of the value type.
+This specification is then added as an additional field 'value_type' to the meta-data.
+Once this value should be loaded, the corresponding value type is recreated using the
+class method
+<a href="../api/#boxs.value_types.ValueType.from_specification"><code>from_specification(cls, specification)</code></a>
+which takes the specification string
+from the meta-data and returns a ValueType instance that is then used for reading the
+value.</p>
+<h2 id="box">Box<a class="headerlink" href="#box" title="Permanent link">🔗</a></h2>
+<p>A <a href="../api/#boxs.box.Box"><code>Box</code></a> is the class that actually implements the logic of storing and loading of
+values. Its interface matches the free functions <code>store()</code>, <code>load()</code> and <code>info()</code>
+from the boxs package once created:</p>
+<ul>
+<li><a href="../api/#boxs.box.Box.store"><code>store()</code></a> see <a href="../api/#boxs.api.store"><code>boxs.store()</code></a> for a description</li>
+<li><a href="../api/#boxs.box.Box.load"><code>load()</code></a> see <a href="../api/#boxs.api.load"><code>boxs.load()</code></a> for a description</li>
+<li><a href="../api/#boxs.box.Box.info"><code>info()</code></a> see <a href="../api/#boxs.api.info"><code>boxs.info()</code></a> for a description</li>
+</ul>
+<p>Before a box can be used, it needs to be defined. This is done by creating a new
+instance of its class:</p>
+<p><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">boxs</span>
+
+<span class="o">...</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">boxs</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="s1">&#39;my-box-id&#39;</span><span class="p">,</span> <span class="n">storage</span><span class="p">)</span>
+</code></pre></div>
+Its constructor takes a string containing the <code>box_id</code> and the underlying storage
+object, that actually stores the data of the items stored in the box.</p>
+<p>When a Box is created, it registers itself with its <code>box_id</code>. This allows to find the
+box by its id at a later time, using the
+<a href="../api/#boxs.box_registry.get_box"><code>get_box(box_id)</code></a> function.</p>
+<p>A box comes with a pre-defined list of value types to support storing a some common
+types. Additional <code>ValueType</code> can be added by its
+<a href="../api/#boxs.box.Box.add_value_type"><code>add_value_type(value_type)</code></a> method.
+This method adds the new value type at the
+beginning of the list, so that it takes precedence before the standard types.</p>
+<h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">🔗</a></h2>
+<p><a href="../api/#boxs.storage.Storage"><code>Storage</code></a> is the interface that defines what methods
+storage implementations have to implement and adhere to, to be used by <code>boxs</code> for
+storing and loading data.</p>
+<h3 id="reading-and-writing-items">Reading and writing items<a class="headerlink" href="#reading-and-writing-items" title="Permanent link">🔗</a></h3>
+<p>A <code>Storage</code> implementation provides the means to read and write data items by
+creating new storage specific readers and writers for each data item that should be
+stored or loaded. Responsible for this are the two methods
+<a href="../api/#boxs.storage.Storage.create_reader"><code>create_reader(item)</code></a>
+and <a href="../api/#boxs.storage.Storage.create_writer"><code>create_writer(item, name, tags)</code></a>
+of the Storage interface.</p>
+<p>In both cases the argument <code>item</code> is of type
+<a href="../api/#boxs.storage.Item"><code>boxs.storage.Item</code></a>
+which contains the ids of the item to be read or written.</p>
+<div class="highlight"><pre><span></span><code>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">create_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            boxs.storage.Reader: The reader that will load the data from the</span>
+<span class="sd">                storage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">create_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            boxs.storage.Writer: The writer that will write the data into the</span>
+<span class="sd">                storage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</code></pre></div>
+<h4 id="writer">Writer<a class="headerlink" href="#writer" title="Permanent link">🔗</a></h4>
+<p>A <code>Writer</code> implementation has to inherit from the
+<a href="../api/#boxs.storage.Writer"><code>boxs.storage.Writer</code></a> base class.
+The base class defines a set of properties and methods that are used within boxs to
+write data items. When implementing the interface, only 2 methods are needed:</p>
+<div class="highlight"><pre><span></span><code>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">as_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a stream to which the data content should be written.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            io.RawIOBase: The binary io-stream.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">write_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the info for the data item to the storage.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            info (Dict[str,Any]): The information about the new data item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</code></pre></div>
+<p><a href="../api/#boxs.storage.Writer.as_stream"><code>as_stream()</code></a> is used by the individual value
+types to transfer the actual data of the values that should be stored. The
+implementation has to return a binary stream, that is not already opened.</p>
+<p>The second method <a href="../api/#boxs.storage.Writer.write_info"><code>write_info(info)</code></a>
+is called by boxs, once the data has been written. It takes a single dictionary as
+argument, that contains information describing the data item. The Writer
+implementation shouldn't expect anything about the format of the dictionary. The
+only guaranteed property is that it can be serialized using the standard JSON library.</p>
+<p>Both methods must raise a
+<a href="../api/#boxs.errors.DataCollision"><code>boxs.errors.DataCollision</code></a>
+exception when an item with the same ids already exists. Alternatively, the error
+can be raised when the writer is created.</p>
+<h4 id="reader">Reader<a class="headerlink" href="#reader" title="Permanent link">🔗</a></h4>
+<p>Similar to the <code>Writer</code> class, the <a href="../api/#boxs.storage.Reader"><code>Reader</code></a> class has
+the corresponding 2 methods:</p>
+<div class="highlight"><pre><span></span><code>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">as_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a stream from which the data content can be read.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            io.RawIOBase: A stream instance from which the data can be read.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dictionary containing information about the data.&quot;&quot;&quot;</span>
+</code></pre></div>
+<p><a href="../api/#boxs.storage.Reader.as_stream"><code>as_stream()</code></a> is used by the individual value types to read the actual data of the
+value that was stored. The implementation has to return a binary stream, that is not
+already opened.</p>
+<p><a href="../api/#boxs.storage.Reader.info"><code>info</code></a> is a property, that returns the info dictionary,
+that was previously written. Ideally, the implementation caches the info once it has been read.</p>
+<p>Both methods must raise a <a href="../api/#boxs.errors.DataNotFound"><code>boxs.errors.DataNotFound</code></a>
+exception when the item that should be read, doesn't exist. Alternatively, the error
+can be raised when the reader is created.</p>
+<h3 id="querying-and-manipulating-a-storage">Querying and manipulating a storage<a class="headerlink" href="#querying-and-manipulating-a-storage" title="Permanent link">🔗</a></h3>
+<p>Besides creating the <code>Writer</code> or <code>Reader</code>, the <code>Storage</code> interface contains additional
+methods, that are used for querying or manipulating the stored data items. These
+methods are currently only used by the <a href="../cli/">command-line interface</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code>Storage</code> interface is not meant to be used directly by the user, but
+should be regarded as an implementation detail of <code>boxs</code> whose interface might
+change between versions. This does NOT include the interfaces <code>Writer</code> and
+<code>Reader</code> which have to be used by <code>ValueType</code> implementations and therefore
+should be stable.</p>
+</div>
+<div class="highlight"><pre><span></span><code>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">list_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box_id</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List the runs within a box stored in this storage.</span>
+
+<span class="sd">        The runs should be returned in descending order of their start time.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            box_id (str): `box_id` of the box in which to look for runs.</span>
+<span class="sd">            limit (Optional[int]): Limits the returned runs to maximum `limit` number.</span>
+<span class="sd">                Defaults to `None` in which case all runs are returned.</span>
+<span class="sd">            name_filter (Optional[str]): If set, only include runs which have names</span>
+<span class="sd">                that have the filter as prefix. Defaults to `None` in which case all</span>
+<span class="sd">                runs are returned.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[box.storage.Run]: The runs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">list_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List all items that match a given query.</span>
+
+<span class="sd">        The item query can contain parts of box id, run id or run name and data id or</span>
+<span class="sd">        data name. If a query value is not set (`== None`) it is not used as a filter</span>
+<span class="sd">        criteria.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            item_query (boxs.storage.ItemQuery): The query which defines which items</span>
+<span class="sd">                should be listed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[box.storage.Item]: The runs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">set_run_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box_id</span><span class="p">,</span> <span class="n">run_id</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the name of a run.</span>
+
+<span class="sd">        The name can be updated and removed by providing `None`.</span>
+
+<span class="sd">        Args;</span>
+<span class="sd">            box_id (str): `box_id` of the box in which the run is stored.</span>
+<span class="sd">            run_id (str): Run id of the run which should be named.</span>
+<span class="sd">            name (Optional[str]): New name of the run. If `None`, an existing name</span>
+<span class="sd">                will be removed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            box.storage.Run: The run with its new name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">delete_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box_id</span><span class="p">,</span> <span class="n">run_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete all the data of the specified run.</span>
+
+<span class="sd">        Args;</span>
+<span class="sd">            box_id (str): `box_id` of the box in which the run is stored.</span>
+<span class="sd">            run_id (str): Run id of the run which should be deleted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</code></pre></div>
+<h2 id="transformer">Transformer<a class="headerlink" href="#transformer" title="Permanent link">🔗</a></h2>
+<p><a href="../api/#boxs.transform.Transformer"><code>Transformers</code></a> are a mechanism for extending how
+data is stored and what meta-data is stored alongside. This works by wrapping the
+<code>Reader</code> and <code>Writer</code> that are created by the <code>Storage</code> and returning a different
+reader/writer.</p>
+<p>Boxs comes with some ready-to-use transformers. The
+<a href="../api/#boxs.statistics.StatisticsTransformer"><code>StatisticsTransformer</code></a>
+gathers additional statistics about each data item like the size in bytes or number of
+lines. Another built-in transformer is the
+<a href="../api/#boxs.checksum.ChecksumTransformer"><code>ChecksumTransformer</code></a>
+which calculates checksums when storing data and verifies the checksum when that data
+is loaded again. This allows to detect transfer errors and can be used later for
+de-duplicating the data stored in a storage.</p>
+<h3 id="using-transformers">Using transformers<a class="headerlink" href="#using-transformers" title="Permanent link">🔗</a></h3>
+<p>Enabling transformers is done on a per-box level. A transformer is enabled by adding
+it as positional argument to instantiation of the box that should use it:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">boxs</span>
+
+<span class="n">box</span> <span class="o">=</span> <span class="n">boxs</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
+    <span class="s1">&#39;my-box-id&#39;</span><span class="p">,</span>
+    <span class="n">boxs</span><span class="o">.</span><span class="n">FileSystemStorage</span><span class="p">(</span><span class="s1">&#39;/my/path/to/storage/dir&#39;</span><span class="p">),</span>
+    <span class="n">boxs</span><span class="o">.</span><span class="n">StatisticsTransformer</span><span class="p">(),</span>
+    <span class="n">boxs</span><span class="o">.</span><span class="n">ChecksumTransformer</span><span class="p">(),</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="implementing-transformers">Implementing transformers<a class="headerlink" href="#implementing-transformers" title="Permanent link">🔗</a></h3>
+<p>The <a href="../api/#boxs.transform.Transformer"><code>Transformer</code></a>
+base class contains only two simple methods:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span> <span class="nf">transform_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">writer</span>
+
+    <span class="k">def</span> <span class="nf">transform_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reader</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reader</span>
+</code></pre></div>
+<p><a href="../api/#boxs.transform.Transformer.transform_writer"><code>transform_writer(writer)</code></a>
+takes a <code>Writer</code> instance as argument and returns a
+new writer. This allows to intercept the write operations and modify the data as it is
+written. The writer gives access to the item specific meta-data, too, so that the
+transformed writer can add new attributes. The implementation of the base class
+returns the same <code>writer</code> it gets, so doing nothing.</p>
+<p><a href="../api/#boxs.transform.Transformer.transform_writer"><code>transform_reader(reader)</code></a>
+works in the same way. It receives a <code>Reader</code> instance
+that can be wrapped with an own implementation that modifies the data as it is being
+read. Modifying meta-data can be done, too, but is not recommended, since it creates
+an inconsistency between the meta-data in the storage, and the one that is seen by the
+value type loading the value. The base implementation returns the reader without any
+modification.</p>
+<p>To make the implementation easier, <code>boxs.transformer</code> contains already a reader and a
+writer that delegates all its methods to a wrapped reader/writer. These
+<a href="../api/#boxs.transform.DelegatingReader"><code>DelegatingReader</code></a>
+and <a href="../api/#boxs.transform.DelegatingWriter"><code>DelegatingWriter</code></a> classes can be used for implementing
+a custom transformer. Similarly, If the data stream should be intercepted, the
+<a href="../api/#boxs.io.DelegatingStream"><code>boxs.io.DelegatingStream</code></a> class can be used for
+modifying the <code>read()</code> or <code>write()</code> operations on the stream.</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">🔗</a></h2>
+<p>Even though, boxs tries to minimize the amount of steps necessary to use it, some
+aspects of it can be configured. For this it uses internally a configuration, that
+is returned from its <a href="../api/#boxs.config.get_config"><code>get_config()</code></a> function. The
+configuration is automatically created on first use.</p>
+<h3 id="configurable-values">Configurable values<a class="headerlink" href="#configurable-values" title="Permanent link">🔗</a></h3>
+<h4 id="default_box">default_box<a class="headerlink" href="#default_box" title="Permanent link">🔗</a></h4>
+<p>One configuration value that can be set is the
+<a href="../api/#boxs.config.Configuration.default_box"><code>default_box</code></a>. This value is a
+string, that contains the <code>box_id</code> of the box that should be used, if no box is
+explicitly specified.
+The value can be either set directly</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">boxs</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">boxs</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">default_box</span> <span class="o">=</span> <span class="s1">&#39;my-default-box&#39;</span>
+</code></pre></div>
+<p>or as part of the environment by specifying the environment variable
+<code>BOXS_DEFAULT_BOX</code>.</p>
+<h4 id="init_module">init_module<a class="headerlink" href="#init_module" title="Permanent link">🔗</a></h4>
+<p>The value <a href="../api/#boxs.config.Configuration.init_module">'init_module'</a> contains the
+module name of python module, that should be automatically imported once boxs has been
+initialized. This allows to make sure that a specific box has been defined before the
+code using it is executed.</p>
+<p>The value can be either set directly</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">boxs</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">boxs</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">init_module</span> <span class="o">=</span> <span class="s1">&#39;my_box_init&#39;</span>
+</code></pre></div>
+<p>or as part of the environment by specifying the environment variable
+<code>BOXS_INIT_MODULE</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Setting this value at run-time will lead to the module getting imported if it
+hasn't been loaded yet. Be careful about circular dependencies between this module
+and boxs.</p>
+</div>
+<h2 id="how-to-use-boxs">How to use boxs<a class="headerlink" href="#how-to-use-boxs" title="Permanent link">🔗</a></h2>
+<p>Now with some knowledge about the different concepts within boxs at our hands, let's
+dive into the topic of how to put the library to good use.</p>
+<h3 id="install-the-library">Install the library<a class="headerlink" href="#install-the-library" title="Permanent link">🔗</a></h3>
+<h4 id="use-stable-release-from-pypi">Use stable release from PyPI<a class="headerlink" href="#use-stable-release-from-pypi" title="Permanent link">🔗</a></h4>
+<p>All stable versions of bandsaw are available on <a href="https://pypi.org/project/boxs/">PyPI</a>
+and can be downloaded and installed from there. The easiest option to get it installed
+into your python environment is by using <code>pip</code>:</p>
+<div class="highlight"><pre><span></span><code>pip install boxs
+</code></pre></div>
+<h4 id="use-from-source">Use from source<a class="headerlink" href="#use-from-source" title="Permanent link">🔗</a></h4>
+<p><a href="https://gitlab.com/kantai/boxs/-/tree/mainline">Boxs's Git repository</a> is available
+for everyone and can easily be cloned into a new repository on your local machine:</p>
+<div class="highlight"><pre><span></span><code>$ <span class="nb">cd</span> /your/local/directory
+$ git clone https://gitlab.com/kantai/boxs.git
+$ <span class="nb">cd</span> boxs
+</code></pre></div>
+<p>If you want to make changes to library, please follow the guidance in the
+<a href="https://gitlab.com/kantai/boxs/-/blob/mainline/README.md">README.md</a> on how
+to setup the necessary tools for testing your changes.</p>
+<p>If you just want to use the library, it is sufficient to add the path to your local
+boxs repository to your <code>$PYTHONPATH</code> variable, e.g.:</p>
+<div class="highlight"><pre><span></span><code>$ <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PYTHONPATH</span><span class="s2">:/your/local/directory/boxs&quot;</span>
+</code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      2022-02-01
+    
+  </small>
+</div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../getting_started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting started" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Getting started
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../cli/" class="md-footer__link md-footer__link--next" aria-label="Next: Command line interface" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Command line interface
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022 Kantai GmbH
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    <a href="https://twitter.com/kantaiML" target="_blank" rel="noopener" title="kantai on Twitter" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.960e086b.min.js"></script>
+      
+        <script src=".."></script>
+      
+    
+  </body>
+</html>
