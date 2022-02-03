@@ -165,4 +165,4 @@ The `VERSION_TAG` environment variable should be set to the new version in forma
 This will build the documentation and add it as new commits to the `docs-deployment` branch.
 
 By pushing the updated branch to the gitlab repository, the documentation will be automatically
-deployed to [the official documentation website](https://docs.kant.ai/datastock).
+deployed to [the official documentation website](https://docs.kant.ai/boxs).
