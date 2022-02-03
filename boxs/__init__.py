@@ -27,4 +27,4 @@ from .value_types import (
     JsonValueType,
 )
 
-__version__ = '0.1.test'
+__version__ = '0.1.rc1'
