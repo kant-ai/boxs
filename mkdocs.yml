@@ -12,6 +12,9 @@ nav:
       - Common: value_types/common.md
       - Pandas: value_types/pandas.md
       - Tensorflow: value_types/tensorflow.md
+  - Transformers:
+      - Statistics: transformers/statistics.md
+      - Checksum: transformers/checksum.md
   - Changelog: changelog.md
   - API: api.md
 
