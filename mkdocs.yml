@@ -50,6 +50,9 @@ extra:
   analytics:
     provider: plausible
     domain: docs.kant.ai
+  comments:
+    provider: glossa
+    apiKey: 6Z1noDe3Eh9RFtmm6apOj9t4NRhm9SRA4eqC1o6k
   homepage: https://docs.kant.ai
   social:
     - icon: fontawesome/brands/twitter

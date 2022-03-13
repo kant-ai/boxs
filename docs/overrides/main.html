@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+    {% block scripts %}
+      <script src="{{ 'assets/javascripts/bundle.js' | url }}"></script>
+
+      <!-- Custom JavaScript -->
+      {% for path in config["extra_javascript"] %}
+        <script src="{{ path | url }}"></script>
+      {% endfor %}
+        <script type="module">
+            import { initGlossa } from "https://cdn.glossa.cc/glossa-client.es.js"
+            initGlossa('{{ config.extra.comments.apiKey }}');
+        </script>
+    {% endblock %}
